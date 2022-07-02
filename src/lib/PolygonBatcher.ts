@@ -1,5 +1,5 @@
 import { Color, Disposable } from "./Utils";
-import { GLTexture } from "./GLTexture";
+import { Texture } from "./Texture";
 import {
   Mesh,
   Position2Attribute,
@@ -20,19 +20,20 @@ const quad = [
 const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 const WHITE = new Color(1, 1, 1, 1);
 
-export class PolygonBatcher implements Disposable {
+export class PolygonBatch implements Disposable {
   private context: ManagedWebGLRenderingContext;
   private drawCalls: number;
   private isDrawing = false;
   private mesh: Mesh;
   private shader: Shader = null;
-  private lastTexture: GLTexture = null;
+  private lastTexture: Texture = null;
   private verticesLength = 0;
   private indicesLength = 0;
   private srcColorBlend: number;
   private srcAlphaBlend: number;
   private dstBlend: number;
   private projectionValues: Float32Array = new Float32Array(16);
+  public color: Color = WHITE;
   twoColorTint: boolean = true;
 
   constructor(
@@ -61,6 +62,7 @@ export class PolygonBatcher implements Disposable {
           new TexCoordAttribute(),
         ];
     this.mesh = new Mesh(context, attributes, maxVertices, maxVertices * 3);
+    this.shader = Shader.newTwoColoredTextured(context);
     let gl = this.context.gl;
     this.srcColorBlend = gl.SRC_ALPHA;
     this.srcAlphaBlend = gl.ONE;
@@ -68,17 +70,25 @@ export class PolygonBatcher implements Disposable {
     this.twoColorTint = twoColorTint;
   }
 
+  setColor(color: Color) {
+    this.color = color;
+  }
+
+  setShader(shader: Shader) {
+    this.shader = shader;
+  }
+
   setProjection(projectionValues: Float32Array) {
     this.projectionValues = projectionValues;
   }
 
-  begin(shader: Shader) {
+  begin() {
     if (this.isDrawing)
       throw new Error(
         "PolygonBatch is already drawing. Call PolygonBatch.end() before calling PolygonBatch.begin()"
       );
     this.drawCalls = 0;
-    this.shader = shader;
+    const shader = this.shader;
     this.lastTexture = null;
     this.isDrawing = true;
 
@@ -113,11 +123,7 @@ export class PolygonBatcher implements Disposable {
     }
   }
 
-  draw(
-    texture: GLTexture,
-    vertices: ArrayLike<number>,
-    indices: Array<number>
-  ) {
+  draw(texture: Texture, vertices: ArrayLike<number>, indices: Array<number>) {
     if (texture !== this.lastTexture) {
       this.flush();
       this.lastTexture = texture;
@@ -162,7 +168,6 @@ export class PolygonBatcher implements Disposable {
 
     this.shader.unbind();
 
-    this.shader = null;
     this.lastTexture = null;
     this.isDrawing = false;
 
@@ -179,65 +184,140 @@ export class PolygonBatcher implements Disposable {
   }
 
   drawTexture(
-    texture: GLTexture,
+    texture: Texture,
     x: number,
     y: number,
     width: number,
     height: number,
-    color: Color = null
+    originX = 0,
+    originY = 0,
+    rotation = 0,
+    scaleX = 1,
+    scaleY = 1,
+    u1 = 0,
+    v1 = 1,
+    u2 = 1,
+    v2 = 0
   ) {
-    if (color === null) color = WHITE;
+    const color = this.color;
+
+    width = width === 0 ? width : width || texture.width;
+    height = height === 0 ? height : height || texture.height;
+    x = x || 0;
+    y = y || 0;
+
+    let x1 = -originX;
+    let x2 = width - originX;
+    let x3 = width - originX;
+    let x4 = -originX;
+
+    let y1 = -originY;
+    let y2 = -originY;
+    let y3 = height - originY;
+    let y4 = height - originY;
+
+    if (scaleX !== 1) {
+      x1 = x1 * scaleX;
+      x2 = x2 * scaleX;
+      x3 = x3 * scaleX;
+      x4 = x4 * scaleX;
+    }
+
+    if (scaleY !== 1) {
+      y1 = y1 * scaleY;
+      y2 = y2 * scaleY;
+      y3 = y3 * scaleY;
+      y4 = y4 * scaleY;
+    }
+
+    if (rotation !== 0) {
+      var cos = Math.cos(rotation);
+      var sin = Math.sin(rotation);
+
+      var rotatedX1 = cos * x1 - sin * y1;
+      var rotatedY1 = sin * x1 + cos * y1;
+
+      var rotatedX2 = cos * x2 - sin * y2;
+      var rotatedY2 = sin * x2 + cos * y2;
+
+      var rotatedX3 = cos * x3 - sin * y3;
+      var rotatedY3 = sin * x3 + cos * y3;
+
+      var rotatedX4 = cos * x4 - sin * y4;
+      var rotatedY4 = sin * x4 + cos * y4;
+
+      x1 = rotatedX1;
+      x2 = rotatedX2;
+      x3 = rotatedX3;
+      x4 = rotatedX4;
+
+      y1 = rotatedY1;
+      y2 = rotatedY2;
+      y3 = rotatedY3;
+      y4 = rotatedY4;
+    }
+
+    x1 += x + originX;
+    x2 += x + originX;
+    x3 += x + originX;
+    x4 += x + originX;
+
+    y1 += y + originY;
+    y2 += y + originY;
+    y3 += y + originY;
+    y4 += y + originY;
+
     var i = 0;
-    quad[i++] = x;
-    quad[i++] = y;
+    quad[i++] = x1;
+    quad[i++] = y1;
     quad[i++] = color.r;
     quad[i++] = color.g;
     quad[i++] = color.b;
     quad[i++] = color.a;
-    quad[i++] = 0;
-    quad[i++] = 1;
+    quad[i++] = u1;
+    quad[i++] = v1;
     if (this.twoColorTint) {
       quad[i++] = 0;
       quad[i++] = 0;
       quad[i++] = 0;
       quad[i++] = 0;
     }
-    quad[i++] = x + width;
-    quad[i++] = y;
+    quad[i++] = x2;
+    quad[i++] = y2;
     quad[i++] = color.r;
     quad[i++] = color.g;
     quad[i++] = color.b;
     quad[i++] = color.a;
-    quad[i++] = 1;
-    quad[i++] = 1;
+    quad[i++] = u2;
+    quad[i++] = v1;
     if (this.twoColorTint) {
       quad[i++] = 0;
       quad[i++] = 0;
       quad[i++] = 0;
       quad[i++] = 0;
     }
-    quad[i++] = x + width;
-    quad[i++] = y + height;
+    quad[i++] = x3;
+    quad[i++] = y3;
     quad[i++] = color.r;
     quad[i++] = color.g;
     quad[i++] = color.b;
     quad[i++] = color.a;
-    quad[i++] = 1;
-    quad[i++] = 0;
+    quad[i++] = u2;
+    quad[i++] = v2;
     if (this.twoColorTint) {
       quad[i++] = 0;
       quad[i++] = 0;
       quad[i++] = 0;
       quad[i++] = 0;
     }
-    quad[i++] = x;
-    quad[i++] = y + height;
+    quad[i++] = x4;
+    quad[i++] = y4;
     quad[i++] = color.r;
     quad[i++] = color.g;
     quad[i++] = color.b;
     quad[i++] = color.a;
-    quad[i++] = 0;
-    quad[i++] = 0;
+    quad[i++] = u1;
+    quad[i++] = v2;
     if (this.twoColorTint) {
       quad[i++] = 0;
       quad[i++] = 0;

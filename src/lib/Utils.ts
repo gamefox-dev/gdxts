@@ -443,3 +443,58 @@ export class WindowedMean {
     return 0;
   }
 }
+
+export interface GameLoop {
+  isRunning(): boolean;
+  start(): void;
+  stop(): void;
+  getFps(): number;
+}
+
+export const createGameLoop = (update: (delta: number) => void): GameLoop => {
+  let lastUpdate = Date.now();
+  let fps = 0;
+  let running = true;
+  let requestId;
+
+  let frameInLastSecond = 0;
+  let elapsed = 0;
+
+  function loop() {
+    if (running) {
+      const delta = Date.now() - lastUpdate;
+      lastUpdate = Date.now();
+
+      frameInLastSecond++;
+      elapsed += delta;
+
+      if (elapsed >= 1000) {
+        fps = frameInLastSecond;
+        frameInLastSecond = 0;
+        elapsed -= 1000;
+      }
+
+      requestId = requestAnimationFrame(loop);
+      update(delta / 1000);
+    }
+  }
+
+  loop();
+
+  return {
+    isRunning: () => running,
+    start: () => {
+      if (!running) {
+        running = true;
+        loop();
+      }
+    },
+    stop: () => {
+      if (requestId) {
+        cancelAnimationFrame(requestId);
+      }
+      running = false;
+    },
+    getFps: () => fps,
+  };
+};
