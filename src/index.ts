@@ -1,59 +1,52 @@
 import { OrthoCamera } from "./lib/Camera";
-import { Texture } from "./lib/Texture";
 import { PolygonBatch } from "./lib/PolygonBatcher";
-import { Color, createGameLoop } from "./lib/Utils";
-import { TextureRegion } from "./lib/TextureRegion";
+import { createGameLoop } from "./lib/Utils";
 import { TextureAtlas } from "./lib/TextureAtlas";
+import { Animation, PlayMode } from "./lib/Animation";
 
 const init = async () => {
   const canvas = document.getElementById("main") as HTMLCanvasElement;
   const gl = canvas.getContext("webgl2");
 
-  const texture = await Texture.load(gl, "./test.jpg");
-  const regions = TextureRegion.splitTexture(texture, 4, 4);
   const camera = new OrthoCamera(600, 400);
 
+  const kitGardenAtlas = await TextureAtlas.load(gl, "./kit-garden.atlas");
   const atlas = await TextureAtlas.load(gl, "./gem.atlas");
+
+  const kitFullRun = new Animation(
+    kitGardenAtlas.findRegions("char_run_full"),
+    1 / 30
+  );
 
   const batch = new PolygonBatch(gl);
 
-  let rotation = 0;
-  const ROTATION_SPEED = Math.PI / 2;
+  const gems: any[] = [];
 
+  for (let y = 0; y < 5; y++) {
+    for (let x = 0; x < 5; x++) {
+      gems.push({
+        x,
+        y,
+        type: Math.floor(Math.random() * 4),
+      });
+    }
+  }
+
+  let stateTime = 0;
   gl.clearColor(0, 0, 0, 1);
   createGameLoop((delta: number) => {
-    rotation += ROTATION_SPEED * delta;
-
+    stateTime += delta;
     gl.clear(gl.COLOR_BUFFER_BIT);
     batch.setProjection(camera.projectionView.values);
     batch.begin();
-    batch.setColor(Color.RED);
-    batch.drawTexture(
-      texture,
-      50,
-      50,
-      500,
-      300,
-      250,
-      150,
-      rotation,
-      Math.abs(Math.sin(rotation)),
-      Math.abs(Math.sin(rotation))
-    );
-    batch.setColor(Color.WHITE);
-    regions[3].draw(
-      batch,
-      50,
-      50,
-      250,
-      150,
-      250,
-      150
-      // -rotation,
-      // Math.abs(Math.sin(-rotation)),
-      // Math.abs(Math.sin(-rotation))
-    );
-    atlas.findRegion("gem_01", 1).draw(batch, 50, 50, 50, 50);
+    for (let gem of gems) {
+      atlas
+        .findRegion(`gem_0${gem.type + 1}`, 1)
+        .draw(batch, 52 * gem.x, 52 * gem.y, 50, 50);
+    }
+    kitFullRun
+      .getKeyFrame(stateTime, PlayMode.LOOP)
+      .draw(batch, 300, 100, 100, 100);
     batch.end();
   });
 };
