@@ -118,7 +118,7 @@ export class TextureRegion {
     originX = originX - (drawX - x);
     originY = originY - (drawY - y);
 
-    batch.drawTexture(
+    batch.draw(
       this.texture,
       drawX,
       drawY,

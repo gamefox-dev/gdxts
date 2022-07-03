@@ -42,7 +42,7 @@ const init = async () => {
     gl.clear(gl.COLOR_BUFFER_BIT);
     batch.setProjection(camera.projectionView.values);
     batch.begin();
-    batch.drawTexture(tex, 0, 0, 600, 400);
+    batch.draw(tex, 0, 0, 600, 400);
     for (let gem of gems) {
       atlas
         .findRegion(`gem_0${gem.type + 1}`, 1)

@@ -123,7 +123,11 @@ export class PolygonBatch implements Disposable {
     }
   }
 
-  draw(texture: Texture, vertices: ArrayLike<number>, indices: Array<number>) {
+  drawVertices(
+    texture: Texture,
+    vertices: ArrayLike<number>,
+    indices: Array<number>
+  ) {
     if (texture !== this.lastTexture) {
       this.flush();
       this.lastTexture = texture;
@@ -183,7 +187,7 @@ export class PolygonBatch implements Disposable {
     this.mesh.dispose();
   }
 
-  drawTexture(
+  draw(
     texture: Texture,
     x: number,
     y: number,
@@ -324,6 +328,6 @@ export class PolygonBatch implements Disposable {
       quad[i++] = 0;
       quad[i] = 0;
     }
-    this.draw(texture, quad, QUAD_TRIANGLES);
+    this.drawVertices(texture, quad, QUAD_TRIANGLES);
   }
 }
