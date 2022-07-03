@@ -525,3 +525,56 @@ export const pointInRect = (
 ): boolean => {
   return pX > x && pX < x + width && pY > y && pY < y + height;
 };
+
+export interface StageOptions {
+  hidden?: boolean;
+  info?: boolean;
+  wrapperClassName?: string;
+}
+
+export interface Stage {
+  getCanvas(): HTMLCanvasElement;
+  getInfo(): HTMLDivElement;
+  show(): void;
+  hide(): void;
+  cleanup(): void;
+}
+
+export const createStage = (options?: StageOptions) => {
+  const defaultOptions = {
+    hidden: false,
+    info: true,
+  };
+  options = { ...defaultOptions, ...options };
+  const wrapper = document.createElement("div");
+  wrapper.setAttribute(
+    "style",
+    `position:fixed;top:0;left:0;right:0;bottom:0;`
+  );
+  if (options.wrapperClassName) {
+    wrapper.className = options.wrapperClassName;
+  }
+  if (options.hidden) {
+    wrapper.style.display = "none";
+  }
+  const canvas = document.createElement("canvas");
+  canvas.setAttribute("style", `width:100%;height:100%;`);
+  const info = document.createElement("div");
+  info.setAttribute("style", `position:absolute;top:1em;left:1em;color:white`);
+
+  if (!options.info) {
+    info.style.display = "none";
+  }
+
+  wrapper.appendChild(canvas);
+  wrapper.appendChild(info);
+  document.body.appendChild(wrapper);
+
+  return {
+    getCanvas: () => canvas,
+    getInfo: () => info,
+    show: () => (wrapper.style.display = "block"),
+    hide: () => (wrapper.style.display = "none"),
+    cleanup: () => document.body.removeChild(wrapper),
+  };
+};

@@ -25,15 +25,26 @@ export class OrthoCamera {
     screenWidth: number,
     screenHeight: number
   ) {
+    this.resize(viewportWidth, viewportHeight, screenWidth, screenHeight);
+  }
+
+  resize(
+    viewportWidth: number,
+    viewportHeight: number,
+    screenWidth: number,
+    screenHeight: number
+  ) {
     this.viewportWidth = viewportWidth;
     this.viewportHeight = viewportHeight;
 
     this.screenWidth = screenWidth;
     this.screenHeight = screenHeight;
 
-    this.position.set(viewportWidth / 2, viewportHeight / 2, 0);
-
     this.update();
+  }
+
+  setPosition(cameraX: number, cameraY: number) {
+    this.position.set(cameraX, cameraY, this.position.z);
   }
 
   update() {

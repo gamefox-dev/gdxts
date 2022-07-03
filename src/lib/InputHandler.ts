@@ -8,7 +8,7 @@ export enum InputEvent {
   TouchMove = "touchMove",
 }
 
-export default class InputHandler {
+export class InputHandler {
   canvas: HTMLCanvasElement;
   lastX: number;
   lastY: number;
