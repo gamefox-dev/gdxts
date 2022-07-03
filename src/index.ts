@@ -1,11 +1,16 @@
-import { PolygonBatch } from "./lib/PolygonBatcher";
-import { Color, createGameLoop, createStage } from "./lib/Utils";
-import { TextureAtlas } from "./lib/TextureAtlas";
-import { Animation, PlayMode } from "./lib/Animation";
-import { InputEvent } from "./lib/InputHandler";
-import { createViewport } from "./lib/Viewport";
-import { ViewportInputHandler } from "./lib/ViewportInputHandler";
-import { ShapeRenderer } from "./lib/ShapeRenderer";
+import {
+  createStage,
+  createViewport,
+  ViewportInputHandler,
+  TextureAtlas,
+  PolygonBatch,
+  ShapeRenderer,
+  createGameLoop,
+  Color,
+  PlayMode,
+  Animation,
+  InputEvent,
+} from "./lib";
 
 const init = async () => {
   const stage = createStage();
