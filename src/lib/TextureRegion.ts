@@ -27,16 +27,16 @@ export class TextureRegion {
   }
 
   name: string | null = null;
-  index: number = 0;
+  index = 0;
   texture: Texture = null;
-  x: number = 0;
-  y: number = 0;
-  width: number = 0;
-  height: number = 0;
-  invTexWidth: number = 0;
-  invTexHeight: number = 0;
-  originalWidth: number = 0;
-  originalHeight: number = 0;
+  x = 0;
+  y = 0;
+  width = 0;
+  height = 0;
+  invTexWidth = 0;
+  invTexHeight = 0;
+  originalWidth = 0;
+  originalHeight = 0;
   offsetX = 0;
   offsetY = 0;
   u = 0;
