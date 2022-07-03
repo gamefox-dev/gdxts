@@ -120,8 +120,10 @@ export const createViewport = (
         viewportInfo.height = displayHeight;
 
         gl.viewport(displayX, displayY, displayWidth, displayHeight);
+        camera.setPosition(width / 2, height / 2);
         camera.resize(width, height, displayWidth, displayHeight);
         for (let camera of additionalCameras) {
+          camera.setPosition(width / 2, height / 2);
           camera.resize(width, height, displayWidth, displayHeight);
         }
       } else {
