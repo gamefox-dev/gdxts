@@ -498,3 +498,30 @@ export const createGameLoop = (update: (delta: number) => void): GameLoop => {
     getFps: () => fps,
   };
 };
+
+export const resizeCanvas = (
+  canvas: HTMLCanvasElement,
+  deviceRatio: number
+): [number, number] => {
+  const devicePixelRatio = deviceRatio || window.devicePixelRatio || 1;
+
+  const displayWidth = canvas.clientWidth * devicePixelRatio;
+  const displayHeight = canvas.clientHeight * devicePixelRatio;
+
+  if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+    canvas.width = displayWidth;
+    canvas.height = displayHeight;
+  }
+  return [displayWidth, displayHeight];
+};
+
+export const pointInRect = (
+  pX: number,
+  pY: number,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+): boolean => {
+  return pX > x && pX < x + width && pY > y && pY < y + height;
+};

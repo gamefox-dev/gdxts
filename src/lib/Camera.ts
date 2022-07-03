@@ -1,4 +1,5 @@
 import { Matrix4 } from "./Matrix4";
+import { Vector2 } from "./Utils";
 import { Vector3 } from "./Vector3";
 
 export class OrthoCamera {
@@ -15,9 +16,20 @@ export class OrthoCamera {
   projection = new Matrix4();
   view = new Matrix4();
 
-  constructor(viewportWidth: number, viewportHeight: number) {
+  screenWidth: number;
+  screenHeight: number;
+
+  constructor(
+    viewportWidth: number,
+    viewportHeight: number,
+    screenWidth: number,
+    screenHeight: number
+  ) {
     this.viewportWidth = viewportWidth;
     this.viewportHeight = viewportHeight;
+
+    this.screenWidth = screenWidth;
+    this.screenHeight = screenHeight;
 
     this.position.set(viewportWidth / 2, viewportHeight / 2, 0);
 
@@ -48,9 +60,11 @@ export class OrthoCamera {
 
   screenToWorld(
     screenCoords: Vector3,
-    screenWidth: number,
-    screenHeight: number
+    screenWidth?: number,
+    screenHeight?: number
   ) {
+    screenWidth = screenWidth || this.screenWidth;
+    screenHeight = screenHeight || this.screenHeight;
     let x = screenCoords.x,
       y = screenHeight - screenCoords.y - 1;
     screenCoords.x = (2 * x) / screenWidth - 1;
@@ -62,14 +76,23 @@ export class OrthoCamera {
 
   worldToScreen(
     worldCoords: Vector3,
-    screenWidth: number,
-    screenHeight: number
+    screenWidth?: number,
+    screenHeight?: number
   ) {
+    screenWidth = screenWidth || this.screenWidth;
+    screenHeight = screenHeight || this.screenHeight;
     worldCoords.project(this.projectionView);
     worldCoords.x = (screenWidth * (worldCoords.x + 1)) / 2;
     worldCoords.y = (screenHeight * (worldCoords.y + 1)) / 2;
     worldCoords.z = (worldCoords.z + 1) / 2;
     return worldCoords;
+  }
+
+  tmp3: Vector3 = new Vector3();
+  unprojectVector2(worldCoord: Vector2, screenCoord: Vector2) {
+    this.tmp3.set(screenCoord.x, screenCoord.y, 0);
+    this.screenToWorld(this.tmp3);
+    worldCoord.set(this.tmp3.x, this.tmp3.y);
   }
 
   setViewport(viewportWidth: number, viewportHeight: number) {

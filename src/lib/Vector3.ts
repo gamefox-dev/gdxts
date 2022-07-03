@@ -127,6 +127,23 @@ export class Vector3 {
     );
   }
 
+  unproject(
+    output: Vector3,
+    invMatrix: Matrix4,
+    viewX: number,
+    viewY: number,
+    viewWidth: number,
+    viewHeight: number
+  ): Vector3 {
+    let { x, y, z } = this;
+    x = x - viewX;
+    y = viewHeight - y - 1;
+    y = y - viewY;
+    output.set((2 * x) / viewWidth - 1, (2 * y) / viewHeight - 1, 2 * z - 1);
+    output.project(invMatrix);
+    return output;
+  }
+
   dot(v: Vector3): number {
     return this.x * v.x + this.y * v.y + this.z * v.z;
   }

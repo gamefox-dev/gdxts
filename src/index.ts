@@ -1,15 +1,20 @@
 import { OrthoCamera } from "./lib/Camera";
 import { PolygonBatch } from "./lib/PolygonBatcher";
-import { createGameLoop } from "./lib/Utils";
+import { createGameLoop, resizeCanvas } from "./lib/Utils";
 import { TextureAtlas } from "./lib/TextureAtlas";
 import { Animation, PlayMode } from "./lib/Animation";
 import { Texture } from "./lib/Texture";
+import InputHandler, { InputEvent } from "./lib/InputHandler";
 
 const init = async () => {
   const canvas = document.getElementById("main") as HTMLCanvasElement;
-  const gl = canvas.getContext("webgl2");
 
-  const camera = new OrthoCamera(600, 400);
+  const [cWidth, cHeight] = resizeCanvas(canvas, window.devicePixelRatio);
+
+  const gl = canvas.getContext("webgl2");
+  const camera = new OrthoCamera(600, 400, cWidth, cHeight);
+
+  const inputHandler = new InputHandler(canvas);
 
   const tex = await Texture.load(gl, "./test.jpg");
 
@@ -35,6 +40,11 @@ const init = async () => {
     }
   }
 
+  inputHandler.addEventListener(InputEvent.TouchStart, (x, y) => {
+    const coord = inputHandler.getTouchedWorldCoord(camera);
+    console.log(coord);
+  });
+
   let stateTime = 0;
   gl.clearColor(0, 0, 0, 1);
   createGameLoop((delta: number) => {
@@ -42,7 +52,7 @@ const init = async () => {
     gl.clear(gl.COLOR_BUFFER_BIT);
     batch.setProjection(camera.projectionView.values);
     batch.begin();
-    batch.draw(tex, 0, 0, 600, 400);
+    batch.draw(tex, 50, 50, 500, 300);
     for (let gem of gems) {
       atlas
         .findRegion(`gem_0${gem.type + 1}`, 1)
