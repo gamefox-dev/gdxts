@@ -1,11 +1,11 @@
 import { PolygonBatch } from "./lib/PolygonBatcher";
-import { createGameLoop, createStage } from "./lib/Utils";
+import { Color, createGameLoop, createStage } from "./lib/Utils";
 import { TextureAtlas } from "./lib/TextureAtlas";
 import { Animation, PlayMode } from "./lib/Animation";
-import { Texture } from "./lib/Texture";
 import { InputEvent } from "./lib/InputHandler";
 import { createViewport } from "./lib/Viewport";
 import { ViewportInputHandler } from "./lib/ViewportInputHandler";
+import { ShapeRenderer } from "./lib/ShapeRenderer";
 
 const init = async () => {
   const stage = createStage();
@@ -20,8 +20,6 @@ const init = async () => {
 
   const inputHandler = new ViewportInputHandler(viewport);
 
-  const tex = await Texture.load(gl, "./test.jpg");
-
   const kitGardenAtlas = await TextureAtlas.load(gl, "./kit-garden.atlas");
   const atlas = await TextureAtlas.load(gl, "./gem.atlas");
 
@@ -31,6 +29,7 @@ const init = async () => {
   );
 
   const batch = new PolygonBatch(gl);
+  const shapeRenderer = new ShapeRenderer(gl);
 
   const gems: any[] = [];
 
@@ -54,9 +53,14 @@ const init = async () => {
   createGameLoop((delta: number) => {
     stateTime += delta;
     gl.clear(gl.COLOR_BUFFER_BIT);
+
+    shapeRenderer.setProjection(camera.projectionView.values);
+    shapeRenderer.begin();
+    shapeRenderer.rect(true, 0, 0, 500, 1000, Color.BLUE);
+    shapeRenderer.end();
+
     batch.setProjection(camera.projectionView.values);
     batch.begin();
-    batch.draw(tex, 0, 0, 500, 1000);
     for (let gem of gems) {
       atlas
         .findRegion(`gem_0${gem.type + 1}`, 1)
