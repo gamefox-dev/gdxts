@@ -10,34 +10,66 @@ export enum PlayMode {
 
 export class Animation {
   private keyFrames: TextureRegion[];
-  private frameDuration: number;
-  constructor(keyFrames: TextureRegion[], frameDuration: number) {
+  private frameDurations: number[];
+  private totalDuration: number = 0;
+
+  constructor(keyFrames: TextureRegion[], frameDurations: number | number[]) {
     this.keyFrames = keyFrames;
-    this.frameDuration = frameDuration;
+    if (!Array.isArray(frameDurations)) {
+      frameDurations = [frameDurations];
+    }
+    const lastDuration = frameDurations[frameDurations.length - 1] || 0;
+    while (frameDurations.length < keyFrames.length) {
+      frameDurations.push(lastDuration);
+    }
+    for (let fD of frameDurations) {
+      this.totalDuration += fD;
+    }
+    this.frameDurations = frameDurations;
+  }
+
+  getFrameNumber(stateTimeRemainder: number, reverse = false) {
+    const { frameDurations } = this;
+    let fN = reverse ? frameDurations.length - 1 : 0;
+    while (true) {
+      stateTimeRemainder -= frameDurations[fN];
+      if (stateTimeRemainder < 0) {
+        break;
+      }
+      reverse ? fN-- : fN++;
+    }
+    return fN;
   }
 
   getKeyFrame(stateTime: number, mode: PlayMode): TextureRegion {
-    const { keyFrames, frameDuration } = this;
-    let frameNumber = Math.floor(stateTime / frameDuration);
+    const { keyFrames, frameDurations, totalDuration } = this;
+
+    const runIndex = Math.floor(stateTime / totalDuration);
+    const stateTimeRemainder = stateTime % totalDuration;
+
+    let frameNumber = 0;
     switch (mode) {
       case PlayMode.NORMAL:
-        frameNumber = Math.min(keyFrames.length - 1, frameNumber);
+        frameNumber =
+          runIndex === 0
+            ? this.getFrameNumber(stateTimeRemainder)
+            : frameDurations.length - 1;
         break;
       case PlayMode.LOOP:
-        frameNumber = frameNumber % keyFrames.length;
+        frameNumber = this.getFrameNumber(stateTimeRemainder);
         break;
       case PlayMode.LOOP_PINGPONG:
-        frameNumber = frameNumber % (keyFrames.length * 2 - 2);
-        if (frameNumber >= keyFrames.length) {
-          frameNumber = keyFrames.length - 2 - (frameNumber - keyFrames.length);
-        }
+        frameNumber = this.getFrameNumber(
+          stateTimeRemainder,
+          runIndex % 2 === 1
+        );
         break;
       case PlayMode.REVERSED:
-        frameNumber = Math.max(keyFrames.length - frameNumber - 1, 0);
+        frameNumber =
+          runIndex === 0 ? this.getFrameNumber(stateTimeRemainder, true) : 0;
         break;
       case PlayMode.LOOP_REVERSED:
-        frameNumber = frameNumber % keyFrames.length;
-        frameNumber = keyFrames.length - frameNumber - 1;
+        frameNumber = this.getFrameNumber(stateTimeRemainder, true);
         break;
       default:
     }

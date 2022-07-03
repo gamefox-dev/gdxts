@@ -3,6 +3,7 @@ import { PolygonBatch } from "./lib/PolygonBatcher";
 import { createGameLoop } from "./lib/Utils";
 import { TextureAtlas } from "./lib/TextureAtlas";
 import { Animation, PlayMode } from "./lib/Animation";
+import { Texture } from "./lib/Texture";
 
 const init = async () => {
   const canvas = document.getElementById("main") as HTMLCanvasElement;
@@ -10,12 +11,14 @@ const init = async () => {
 
   const camera = new OrthoCamera(600, 400);
 
+  const tex = await Texture.load(gl, "./test.jpg");
+
   const kitGardenAtlas = await TextureAtlas.load(gl, "./kit-garden.atlas");
   const atlas = await TextureAtlas.load(gl, "./gem.atlas");
 
   const kitFullRun = new Animation(
     kitGardenAtlas.findRegions("char_run_full"),
-    1 / 30
+    [1 / 5, 1 / 5, 1 / 5, 1 / 5, 1 / 5, 1 / 5, 1 / 30]
   );
 
   const batch = new PolygonBatch(gl);
@@ -39,13 +42,14 @@ const init = async () => {
     gl.clear(gl.COLOR_BUFFER_BIT);
     batch.setProjection(camera.projectionView.values);
     batch.begin();
+    batch.drawTexture(tex, 0, 0, 600, 400);
     for (let gem of gems) {
       atlas
         .findRegion(`gem_0${gem.type + 1}`, 1)
         .draw(batch, 52 * gem.x, 52 * gem.y, 50, 50);
     }
     kitFullRun
-      .getKeyFrame(stateTime, PlayMode.LOOP)
+      .getKeyFrame(stateTime, PlayMode.LOOP_PINGPONG)
       .draw(batch, 300, 100, 100, 100);
     batch.end();
   });
