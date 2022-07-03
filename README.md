@@ -23,6 +23,7 @@ Lightweight 2D game development framework, target WebGL, inspired by libgdx.
 - [x] Vector3
 - [x] Animation
 - [x] ShapeRenderer
+- [ ] ScreenManager
 - [ ] BitmapFont
 - [ ] TiledMapRenderer
 - [ ] 2D Light
@@ -168,7 +169,7 @@ batch.end();
 
 ### Using TextureRegion and TextureAtlas
 
-`TextureRegion` is a logical region of the texture, defined by a rectangle that cover a part of the texture.
+`TextureRegion` is a logical region of the texture, defined by a rectangle that cover a part of the texture.  
 You can split a texture into multiple even TextureRegion by calling
 
 ```Javascript
