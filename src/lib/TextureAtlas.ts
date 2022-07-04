@@ -1,5 +1,6 @@
 import { Texture, TextureWrap } from "./Texture";
 import { TextureRegion } from "./TextureRegion";
+import { Disposable } from "./Utils";
 
 function concatAndResolveUrl(url: string, concat: string): string {
   let url1 = url.split("/");
@@ -28,13 +29,18 @@ function concatAndResolveUrl(url: string, concat: string): string {
   return url3.join("/");
 }
 
-export class TextureAtlas {
+export class TextureAtlas implements Disposable {
   pages: Texture[];
   regions: TextureRegion[];
 
   constructor(pages: Texture[], regions: TextureRegion[]) {
     this.pages = pages;
     this.regions = regions;
+  }
+  dispose(): void {
+    for (let page of this.pages) {
+      page.dispose();
+    }
   }
 
   getPages(): Texture[] {

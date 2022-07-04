@@ -11,17 +11,11 @@ import {
   Animation,
   InputEvent,
   Texture,
+  Viewport,
 } from "./lib";
+import { Game, Screen } from "./lib/Game";
 
-// eslint-disable-next-line
-const init = async () => {
-  const stage = createStage();
-  const canvas = stage.getCanvas();
-
-  const viewport = createViewport(canvas, 500, 1000, {
-    crop: false,
-  });
-
+const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
   const camera = viewport.getCamera();
 
@@ -50,137 +44,101 @@ const init = async () => {
     }
   }
 
-  inputHandler.addEventListener(InputEvent.TouchStart, (x, y) => {
+  let transitioning = false;
+  inputHandler.addEventListener(InputEvent.TouchStart, async (x, y) => {
     const coord = inputHandler.getTouchedWorldCoord(camera);
     gems.push({
       x: coord.x,
       y: coord.y,
       type: Math.floor(Math.random() * 4),
     });
+
+    if (gems.length > 30 && !transitioning) {
+      transitioning = true;
+      Game.shared.setScreen(await createTestScreen(viewport));
+    }
   });
 
   let stateTime = 0;
-  gl.clearColor(0, 0, 0, 1);
-  createGameLoop((delta: number) => {
-    stateTime += delta;
-    gl.clear(gl.COLOR_BUFFER_BIT);
+  return {
+    update(delta, game) {
+      stateTime += delta;
 
-    shapeRenderer.setProjection(camera.projectionView.values);
-    shapeRenderer.begin();
-    shapeRenderer.rect(true, 0, 0, 500, 1000, Color.BLUE);
-    shapeRenderer.end();
+      shapeRenderer.setProjection(camera.projectionView.values);
+      shapeRenderer.begin();
+      shapeRenderer.rect(true, 0, 0, 500, 1000, Color.BLUE);
+      shapeRenderer.end();
 
-    batch.setProjection(camera.projectionView.values);
-    batch.begin();
-    for (let gem of gems) {
-      atlas
-        .findRegion(`gem_0${gem.type + 1}`, 1)
-        .draw(batch, gem.x, gem.y, 50, 50);
-    }
-    kitFullRun
-      .getKeyFrame(stateTime, PlayMode.LOOP_PINGPONG)
-      .draw(batch, 300, 100, 100, 100);
-    batch.end();
-  });
+      batch.setProjection(camera.projectionView.values);
+      batch.begin();
+      for (let gem of gems) {
+        atlas
+          .findRegion(`gem_0${gem.type + 1}`, 1)
+          .draw(batch, gem.x, gem.y, 50, 50);
+      }
+      kitFullRun
+        .getKeyFrame(stateTime, PlayMode.LOOP_PINGPONG)
+        .draw(batch, 300, 100, 100, 100);
+      batch.end();
+    },
+    dispose() {
+      console.log("main screen disposed");
+      batch.dispose();
+      shapeRenderer.dispose();
+      atlas.dispose();
+      kitGardenAtlas.dispose();
+    },
+  };
 };
 
-// eslint-disable-next-line
-const initRabbitTest = async () => {
-  const stage = createStage({
-    info: true,
-  });
-  const canvas = stage.getCanvas();
-  const info = stage.getInfo();
-
-  const viewport = createViewport(canvas, 500, 1000, {
-    pixelRatio: 1,
-    contextOption: {
-      antialias: false,
-    },
-  });
-
+const createTestScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
   const camera = viewport.getCamera();
 
-  const rabbitTexture = await Texture.load(gl, "./rabbitv3.png");
-
-  const inputHandler = new ViewportInputHandler(viewport);
   const batch = new PolygonBatch(gl);
 
-  const rabbits = [];
+  const texture = await Texture.load(gl, "test.jpg");
+  let accumulate = 0;
+  let transitioning = false;
 
-  const addMore = (count = 1000) => {
-    for (let i = 0; i < count; i++) {
-      rabbits.push({
-        x: 0,
-        y: 1000,
-        speedX: Math.random() * 500,
-        speedY: Math.random() * 1000,
-      });
-    }
+  return {
+    update(delta: number, game: Game) {
+      accumulate += delta;
+      if (accumulate >= 2 && !transitioning) {
+        transitioning = true;
+        createMainScreen(viewport).then((screen) => game.setScreen(screen));
+      }
+      batch.setProjection(camera.projectionView.values);
+      batch.begin();
+      batch.draw(texture, 0, 0, 500, 1000);
+      batch.end();
+    },
+    dispose() {
+      console.log("test screen disposed");
+      batch.dispose();
+      texture.dispose();
+    },
   };
+};
 
-  const less = (count = 1000) => {
-    rabbits.length = Math.max(0, rabbits.length - count);
-  };
+const init = async () => {
+  const stage = createStage();
+  const canvas = stage.getCanvas();
 
-  addMore(1000);
+  const viewport = createViewport(canvas, 500, 1000, {
+    crop: false,
+  });
+  const gl = viewport.getContext();
 
-  const rabbitWidth = rabbitTexture.width;
-  const rabbitHeight = rabbitTexture.height;
+  Game.shared.setScreen(await createMainScreen(viewport));
 
   gl.clearColor(0, 0, 0, 1);
-  const loop = createGameLoop((delta: number) => {
-    if (inputHandler.isTouched()) {
-      if (inputHandler.getTouchedWorldCoord().x <= 250) {
-        less();
-      } else {
-        addMore();
-      }
-    }
+  createGameLoop((delta: number) => {
     gl.clear(gl.COLOR_BUFFER_BIT);
-
-    for (let rabbit of rabbits) {
-      rabbit.x += rabbit.speedX * delta;
-      if (rabbit.x < 0) {
-        rabbit.x = 0;
-        rabbit.speedX *= -1;
-      }
-      if (rabbit.x > 500) {
-        rabbit.x = 500;
-        rabbit.speedX *= -1;
-      }
-      rabbit.y += rabbit.speedY * delta;
-      if (rabbit.y < 0) {
-        rabbit.y = 0;
-        rabbit.speedY *= -1;
-      }
-      if (rabbit.y > 1000) {
-        rabbit.y = 1000;
-        rabbit.speedY *= -1;
-      }
-    }
-
-    batch.setProjection(camera.projectionView.values);
-    batch.begin();
-    for (let rabbit of rabbits) {
-      batch.draw(
-        rabbitTexture,
-        rabbit.x + rabbitWidth / 2,
-        rabbit.y,
-        rabbitWidth,
-        rabbitHeight
-      );
-    }
-    batch.end();
+    Game.shared.update(delta);
   });
-
-  setInterval(() => {
-    info.innerHTML = `FPS: ${loop.getFps()} - Count: ${rabbits.length}`;
-  }, 500);
 };
 
 init();
-// initRabbitTest();
 
 export {};

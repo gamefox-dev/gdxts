@@ -23,8 +23,11 @@ Lightweight 2D game development framework, target WebGL, inspired by libgdx.
 - [x] Vector3
 - [x] Animation
 - [x] ShapeRenderer
-- [ ] ScreenManager
+- [x] ScreenManager
 - [ ] BitmapFont
+
+The features listed below will go to different packages:
+
 - [ ] TiledMapRenderer
 - [ ] 2D Light
 - [ ] UI
