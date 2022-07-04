@@ -1,5 +1,6 @@
 export * from "./Animation";
 export * from "./Camera";
+export * from "./Game";
 export * from "./InputHandler";
 export * from "./Matrix4";
 export * from "./Mesh";
