@@ -12,8 +12,9 @@ import {
   InputEvent,
   Texture,
   Viewport,
+  Game,
+  Screen,
 } from "./lib";
-import { Game, Screen } from "./lib/Game";
 
 const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
