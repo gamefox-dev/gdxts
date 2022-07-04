@@ -1,5 +1,5 @@
 import { Matrix4 } from "./Matrix4";
-import { Vector2 } from "./Utils";
+import { Vector2 } from "./Vector2";
 import { Vector3 } from "./Vector3";
 
 export class OrthoCamera {

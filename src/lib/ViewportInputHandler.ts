@@ -1,6 +1,6 @@
 import { OrthoCamera } from "./Camera";
 import { InputEvent, InputHandler } from "./InputHandler";
-import { Vector2 } from "./Utils";
+import { Vector2 } from "./Vector2";
 import { Viewport } from "./Viewport";
 
 const createViewportAwareInputListener = (handler, viewport) => {

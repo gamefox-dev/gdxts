@@ -1,6 +1,6 @@
 import { EventEmitter } from "events";
 import { OrthoCamera } from "./Camera";
-import { Vector2 } from "./Utils";
+import { Vector2 } from "./Vector2";
 
 export enum InputEvent {
   TouchStart = "touchStart",

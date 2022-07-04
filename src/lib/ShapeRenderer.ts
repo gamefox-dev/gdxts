@@ -1,6 +1,7 @@
 import { Mesh, Position2Attribute, ColorAttribute } from "./Mesh";
 import { Shader } from "./Shader";
-import { Disposable, Color, Vector2, MathUtils } from "./Utils";
+import { Disposable, Color, MathUtils } from "./Utils";
+import { Vector2 } from "./Vector2";
 import { ManagedWebGLRenderingContext } from "./WebGL";
 
 export enum ShapeType {
@@ -212,7 +213,7 @@ export class ShapeRenderer implements Disposable {
     this.check(filled ? ShapeType.Filled : ShapeType.Line, 8);
     if (color === null) color = this.color;
     let t = this.tmp.set(y2 - y1, x1 - x2);
-    t.normalize();
+    t.nor();
     width *= 0.5;
     let tx = t.x * width;
     let ty = t.y * width;

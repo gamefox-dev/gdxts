@@ -1,4 +1,4 @@
-export default class Vector2 {
+export class Vector2 {
   x = 0;
   y = 0;
   constructor(x = 0, y = 0) {

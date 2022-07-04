@@ -351,31 +351,6 @@ export class Pool<T> {
   }
 }
 
-export class Vector2 {
-  constructor(public x = 0, public y = 0) {}
-
-  set(x: number, y: number): Vector2 {
-    this.x = x;
-    this.y = y;
-    return this;
-  }
-
-  length() {
-    let x = this.x;
-    let y = this.y;
-    return Math.sqrt(x * x + y * y);
-  }
-
-  normalize() {
-    let len = this.length();
-    if (len !== 0) {
-      this.x /= len;
-      this.y /= len;
-    }
-    return this;
-  }
-}
-
 export class TimeKeeper {
   maxDelta = 0.064;
   framesPerSecond = 0;
