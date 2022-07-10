@@ -203,17 +203,18 @@ export class PolygonBatch implements Disposable {
     rotation = 0,
     scaleX = 1,
     scaleY = 1,
-    u1 = 0,
-    v1 = 1,
-    u2 = 1,
-    v2 = 0
+    ou1 = 0,
+    ov1 = 1,
+    ou2 = 1,
+    ov2 = 0,
+    rotate = false
   ) {
     const color = this.color;
 
     if (this.yDown) {
-      const tmpV1 = v1;
-      v1 = v2;
-      v2 = tmpV1;
+      const tmpV1 = ov1;
+      ov1 = ov2;
+      ov2 = tmpV1;
     }
 
     width = width === 0 ? width : width || texture.width;
@@ -282,6 +283,26 @@ export class PolygonBatch implements Disposable {
     y3 += y + originY;
     y4 += y + originY;
 
+    let u1 = ou1;
+    let v1 = ov1;
+    let u2 = ou2;
+    let v2 = ov2;
+    let u3 = u2;
+    let v3 = v1;
+    let u4 = u1;
+    let v4 = v2;
+
+    if (rotate) {
+      u1 = ou1;
+      v1 = ov2;
+      u2 = ou2;
+      v2 = ov1;
+      u3 = ou1;
+      v3 = ov1;
+      u4 = ou2;
+      v4 = ov2;
+    }
+
     var i = 0;
     quad[i++] = x1;
     quad[i++] = y1;
@@ -303,8 +324,8 @@ export class PolygonBatch implements Disposable {
     quad[i++] = color.g;
     quad[i++] = color.b;
     quad[i++] = color.a;
-    quad[i++] = u2;
-    quad[i++] = v1;
+    quad[i++] = u3;
+    quad[i++] = v3;
     if (this.twoColorTint) {
       quad[i++] = 0;
       quad[i++] = 0;
@@ -331,8 +352,8 @@ export class PolygonBatch implements Disposable {
     quad[i++] = color.g;
     quad[i++] = color.b;
     quad[i++] = color.a;
-    quad[i++] = u1;
-    quad[i++] = v2;
+    quad[i++] = u4;
+    quad[i++] = v4;
     if (this.twoColorTint) {
       quad[i++] = 0;
       quad[i++] = 0;

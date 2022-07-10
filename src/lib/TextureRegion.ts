@@ -43,6 +43,7 @@ export class TextureRegion {
   v = 0;
   u2 = 0;
   v2 = 0;
+  rotate = false;
 
   constructor(
     tex: Texture,
@@ -75,17 +76,13 @@ export class TextureRegion {
     this.offsetX = 0;
     this.offsetY = 0;
 
-    if (rotate) {
-      this.u = u2;
-      this.v = v;
-      this.u2 = u;
-      this.v2 = v2;
-    } else {
-      this.u = u;
-      this.v = v;
-      this.u2 = u2;
-      this.v2 = v2;
-    }
+    this.u = u;
+    this.v = v;
+    this.u2 = u2;
+    this.v2 = v2;
+
+    this.rotate = rotate;
+
     for (let key in extraData) {
       this[key] = extraData[key];
     }
@@ -132,7 +129,8 @@ export class TextureRegion {
       this.u,
       this.v,
       this.u2,
-      this.v2
+      this.v2,
+      this.rotate
     );
   }
 }

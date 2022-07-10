@@ -32,6 +32,11 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
     [1 / 5, 1 / 5, 1 / 5, 1 / 5, 1 / 5, 1 / 5, 1 / 30]
   );
 
+  const kitFullHalf = new Animation(
+    kitGardenAtlas.findRegions("char_run_half"),
+    [1 / 30]
+  );
+
   const batch = new PolygonBatch(gl);
 
   batch.setYDown(true);
@@ -85,6 +90,10 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
       kitFullRun
         .getKeyFrame(stateTime, PlayMode.LOOP_PINGPONG)
         .draw(batch, 300, 100, 100, 100);
+
+      kitFullHalf
+        .getKeyFrame(stateTime, PlayMode.LOOP)
+        .draw(batch, 400, 100, 100, 100);
       batch.end();
     },
     dispose() {
