@@ -49,7 +49,7 @@ export class TextureAtlas implements Disposable {
   getRegions(): TextureRegion[] {
     return this.regions;
   }
-  findRegion(name: string, index: number): TextureRegion | null {
+  findRegion(name: string, index?: number): TextureRegion | null {
     for (let i = 0; i < this.regions.length; i++) {
       let region = this.regions[i];
       if (region.name !== name) continue;
