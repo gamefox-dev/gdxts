@@ -6,6 +6,9 @@ export default class AssetManager {
   promises: Array<Promise<any>> = [];
   atlases: Map<string, TextureAtlas> = new Map();
   textures: Map<string, Texture> = new Map();
+  jsonData: Map<string, any> = new Map();
+  binaryData: Map<string, ArrayBuffer> = new Map();
+
   done = 0;
   listeners: any[] = [];
   addListener(handler: any) {
@@ -32,6 +35,37 @@ export default class AssetManager {
     this.promises.push(promise);
     return promise;
   }
+  getAtlas(name: string): TextureAtlas | undefined {
+    return this.atlases.get(name);
+  }
+  loadJsonData(path: string, name: string): Promise<any> {
+    const promise = fetch(path)
+      .then((res) => res.json())
+      .then((json) => {
+        this.jsonData.set(name, json);
+        this.reportDone();
+        return json;
+      });
+    this.promises.push(promise);
+    return promise;
+  }
+  getJsonData(name: string): any {
+    return this.jsonData.get(name);
+  }
+  loadBinaryData(path: string, name: string): Promise<ArrayBuffer> {
+    const promise = fetch(path)
+      .then((res) => res.arrayBuffer())
+      .then((buffer) => {
+        this.binaryData.set(name, buffer);
+        this.reportDone();
+        return buffer;
+      });
+    this.promises.push(promise);
+    return promise;
+  }
+  getBinaryData(name: string): ArrayBuffer {
+    return this.binaryData.get(name);
+  }
   // fonts: Map<string, BitmapFont> = new Map();
   // loadFont(path: string, name: string): Promise<BitmapFont> {
   //   const promise = loadFont(this.gl, path, {}).then(font => {
@@ -45,9 +79,6 @@ export default class AssetManager {
   // getFont(name: string): BitmapFont | undefined {
   //   return this.fonts.get(name);
   // }
-  getAtlas(name: string): TextureAtlas | undefined {
-    return this.atlases.get(name);
-  }
   loadTexture(path: string, name: string): Promise<Texture> {
     const promise = Texture.load(this.gl, path).then((texture) => {
       this.textures.set(name, texture);

@@ -28,6 +28,17 @@ export class OrthoCamera {
     this.resize(viewportWidth, viewportHeight, screenWidth, screenHeight);
   }
 
+  setYDown(yDown: boolean) {
+    if (yDown) {
+      this.up.set(0, -1, 0);
+      this.direction.set(0, 0, 1);
+    } else {
+      this.up.set(0, 1, 0);
+      this.direction.set(0, 0, -1);
+    }
+    this.update();
+  }
+
   resize(
     viewportWidth: number,
     viewportHeight: number,

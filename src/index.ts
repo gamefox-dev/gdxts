@@ -20,6 +20,8 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
   const camera = viewport.getCamera();
 
+  camera.setYDown(true);
+
   const inputHandler = new ViewportInputHandler(viewport);
 
   const kitGardenAtlas = await TextureAtlas.load(gl, "./kit-garden.atlas");
@@ -31,6 +33,9 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
   );
 
   const batch = new PolygonBatch(gl);
+
+  batch.setYDown(true);
+
   const shapeRenderer = new ShapeRenderer(gl);
 
   const gems: any[] = [];
@@ -49,8 +54,8 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
   inputHandler.addEventListener(InputEvent.TouchStart, async (x, y) => {
     const coord = inputHandler.getTouchedWorldCoord(camera);
     gems.push({
-      x: coord.x,
-      y: coord.y,
+      x: coord.x - 25,
+      y: coord.y - 25,
       type: Math.floor(Math.random() * 4),
     });
 
@@ -97,6 +102,7 @@ const createTestScreen = async (viewport: Viewport): Promise<Screen> => {
   const camera = viewport.getCamera();
 
   const batch = new PolygonBatch(gl);
+  batch.setYDown(true);
 
   const texture = await Texture.load(gl, "test.jpg");
   let accumulate = 0;

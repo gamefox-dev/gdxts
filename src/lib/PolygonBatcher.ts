@@ -187,6 +187,11 @@ export class PolygonBatch implements Disposable {
     this.mesh.dispose();
   }
 
+  yDown = false;
+  setYDown(yDown: boolean) {
+    this.yDown = yDown;
+  }
+
   draw(
     texture: Texture,
     x: number,
@@ -204,6 +209,12 @@ export class PolygonBatch implements Disposable {
     v2 = 0
   ) {
     const color = this.color;
+
+    if (this.yDown) {
+      const tmpV1 = v1;
+      v1 = v2;
+      v2 = tmpV1;
+    }
 
     width = width === 0 ? width : width || texture.width;
     height = height === 0 ? height : height || texture.height;
