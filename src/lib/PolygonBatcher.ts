@@ -293,14 +293,25 @@ export class PolygonBatch implements Disposable {
     let v4 = v2;
 
     if (rotate) {
-      u1 = ou1;
-      v1 = ov2;
-      u2 = ou2;
-      v2 = ov1;
-      u3 = ou1;
-      v3 = ov1;
-      u4 = ou2;
-      v4 = ov2;
+      if (this.yDown) {
+        u1 = ou1;
+        v1 = ov2;
+        u2 = ou2;
+        v2 = ov1;
+        u3 = ou1;
+        v3 = ov1;
+        u4 = ou2;
+        v4 = ov2;
+      } else {
+        u1 = ou2;
+        v1 = ov1;
+        u2 = ou1;
+        v2 = ov2;
+        u3 = ou2;
+        v3 = ov2;
+        u4 = ou1;
+        v4 = ov1;
+      }
     }
 
     var i = 0;

@@ -100,17 +100,29 @@ export class TextureRegion {
     scaleX = 1,
     scaleY = 1
   ) {
-    const originalWidth = this.originalWidth;
-    const offsetX = this.offsetX;
-    const offsetY = this.offsetY;
+    const {
+      originalWidth,
+      originalHeight,
+      offsetX,
+      offsetY,
+      width: regionWidth,
+      height: regionHeight,
+    } = this;
 
-    const ratio = width / originalWidth;
+    const xRatio = width / originalWidth;
+    const yRatio = height / originalHeight;
 
-    const drawWidth = this.width * ratio;
-    const drawHeight = this.height * ratio;
+    const drawWidth = regionWidth * xRatio;
+    const drawHeight = regionHeight * yRatio;
 
-    const drawX = x + offsetX * ratio;
-    const drawY = y + height - offsetY * ratio - drawHeight;
+    const drawX = x + offsetX * xRatio;
+
+    let drawY = 0;
+    if (batch.yDown) {
+      drawY = y + height - offsetY * yRatio - drawHeight;
+    } else {
+      drawY = y + offsetY * yRatio;
+    }
 
     originX = originX - (drawX - x);
     originY = originY - (drawY - y);

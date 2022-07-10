@@ -16,11 +16,13 @@ import {
   Screen,
 } from "./lib";
 
+const YDOWN = false;
+
 const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
   const camera = viewport.getCamera();
 
-  camera.setYDown(true);
+  camera.setYDown(YDOWN);
 
   const inputHandler = new ViewportInputHandler(viewport);
 
@@ -29,7 +31,7 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
 
   const kitFullRun = new Animation(
     kitGardenAtlas.findRegions("char_run_full"),
-    [1 / 5, 1 / 5, 1 / 5, 1 / 5, 1 / 5, 1 / 5, 1 / 30]
+    [1 / 30]
   );
 
   const kitFullHalf = new Animation(
@@ -39,7 +41,7 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
 
   const batch = new PolygonBatch(gl);
 
-  batch.setYDown(true);
+  batch.setYDown(YDOWN);
 
   const shapeRenderer = new ShapeRenderer(gl);
 
@@ -78,6 +80,8 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
       shapeRenderer.setProjection(camera.projectionView.values);
       shapeRenderer.begin();
       shapeRenderer.rect(true, 0, 0, 500, 1000, Color.BLUE);
+      shapeRenderer.rect(true, 300, 100, 75, 100, Color.RED);
+      shapeRenderer.rect(true, 400, 100, 75, 100, Color.RED);
       shapeRenderer.end();
 
       batch.setProjection(camera.projectionView.values);
@@ -88,12 +92,12 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
           .draw(batch, gem.x, gem.y, 50, 50);
       }
       kitFullRun
-        .getKeyFrame(stateTime, PlayMode.LOOP_PINGPONG)
-        .draw(batch, 300, 100, 100, 100);
+        .getKeyFrame(stateTime, PlayMode.LOOP)
+        .draw(batch, 300, 100, 75, 100);
 
       kitFullHalf
         .getKeyFrame(stateTime, PlayMode.LOOP)
-        .draw(batch, 400, 100, 100, 100);
+        .draw(batch, 400, 100, 75, 100);
       batch.end();
     },
     dispose() {
@@ -111,7 +115,7 @@ const createTestScreen = async (viewport: Viewport): Promise<Screen> => {
   const camera = viewport.getCamera();
 
   const batch = new PolygonBatch(gl);
-  batch.setYDown(true);
+  batch.setYDown(YDOWN);
 
   const texture = await Texture.load(gl, "test.jpg");
   let accumulate = 0;
