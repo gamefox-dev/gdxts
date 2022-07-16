@@ -1,3 +1,5 @@
+import { Quaternion } from "./3d/Quaternion";
+import { MathUtils } from "./Utils";
 import { Vector3 } from "./Vector3";
 
 export const M00 = 0;
@@ -21,6 +23,23 @@ export class Matrix4 {
   temp: Float32Array = new Float32Array(16);
   values: Float32Array = new Float32Array(16);
 
+  public static M00 = 0;
+  public static M01 = 4;
+  public static M02 = 8;
+  public static M03 = 12;
+  public static M10 = 1;
+  public static M11 = 5;
+  public static M12 = 9;
+  public static M13 = 13;
+  public static M20 = 2;
+  public static M21 = 6;
+  public static M22 = 10;
+  public static M23 = 14;
+  public static M30 = 3;
+  public static M31 = 7;
+  public static M32 = 11;
+  public static M33 = 15;
+
   private static xAxis: Vector3 = null;
   private static yAxis: Vector3 = null;
   private static zAxis: Vector3 = null;
@@ -36,6 +55,47 @@ export class Matrix4 {
 
   set(values: ArrayLike<number>): Matrix4 {
     this.values.set(values);
+    return this;
+  }
+
+  setFromTranslationRotation(
+    position: Vector3,
+    orientation: Quaternion,
+    scale: Vector3
+  ) {
+    const xs = orientation.x * 2,
+      ys = orientation.y * 2,
+      zs = orientation.z * 2;
+    const wx = orientation.w * xs,
+      wy = orientation.w * ys,
+      wz = orientation.w * zs;
+    const xx = orientation.x * xs,
+      xy = orientation.x * ys,
+      xz = orientation.x * zs;
+    const yy = orientation.y * ys,
+      yz = orientation.y * zs,
+      zz = orientation.z * zs;
+
+    let val = this.values;
+    val[M00] = scale.x * (1.0 - (yy + zz));
+    val[M01] = scale.y * (xy - wz);
+    val[M02] = scale.z * (xz + wy);
+    val[M03] = position.x;
+
+    val[M10] = scale.x * (xy + wz);
+    val[M11] = scale.y * (1.0 - (xx + zz));
+    val[M12] = scale.z * (yz - wx);
+    val[M13] = position.y;
+
+    val[M20] = scale.x * (xz - wy);
+    val[M21] = scale.y * (yz + wx);
+    val[M22] = scale.z * (1.0 - (xx + yy));
+    val[M23] = position.z;
+
+    val[M30] = 0;
+    val[M31] = 0;
+    val[M32] = 0;
+    val[M33] = 1;
     return this;
   }
 
@@ -279,6 +339,41 @@ export class Matrix4 {
     v[M13] += y;
     v[M23] += z;
     return this;
+  }
+
+  getTranslation(position: Vector3): Vector3 {
+    let v = this.values;
+    position.x = v[M03];
+    position.y = v[M13];
+    position.z = v[M23];
+    return position;
+  }
+
+  hasRotationOrScaling(): boolean {
+    let val = this.values;
+    return !(
+      MathUtils.isEqual(val[M00], 1) &&
+      MathUtils.isEqual(val[M11], 1) &&
+      MathUtils.isEqual(val[M22], 1) &&
+      MathUtils.isZero(val[M01]) &&
+      MathUtils.isZero(val[M02]) &&
+      MathUtils.isZero(val[M10]) &&
+      MathUtils.isZero(val[M12]) &&
+      MathUtils.isZero(val[M20]) &&
+      MathUtils.isZero(val[M21])
+    );
+  }
+
+  det3x3(): number {
+    let val = this.values;
+    return (
+      val[M00] * val[M11] * val[M22] +
+      val[M01] * val[M12] * val[M20] +
+      val[M02] * val[M10] * val[M21] -
+      val[M00] * val[M12] * val[M21] -
+      val[M01] * val[M10] * val[M22] -
+      val[M02] * val[M11] * val[M20]
+    );
   }
 
   copy(): Matrix4 {

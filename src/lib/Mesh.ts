@@ -1,5 +1,5 @@
 import { Disposable, Restorable } from "./Utils";
-import { Shader } from "./Shader";
+import { ShaderProgram } from "./ShaderProgram";
 import { ManagedWebGLRenderingContext } from "./WebGL";
 
 export class Mesh implements Disposable, Restorable {
@@ -94,7 +94,7 @@ export class Mesh implements Disposable, Restorable {
     this.indicesLength = indices.length;
   }
 
-  draw(shader: Shader, primitiveType: number) {
+  draw(shader: ShaderProgram, primitiveType: number) {
     this.drawWithOffset(
       shader,
       primitiveType,
@@ -106,7 +106,7 @@ export class Mesh implements Disposable, Restorable {
   }
 
   drawWithOffset(
-    shader: Shader,
+    shader: ShaderProgram,
     primitiveType: number,
     offset: number,
     count: number
@@ -122,7 +122,7 @@ export class Mesh implements Disposable, Restorable {
     this.unbind(shader);
   }
 
-  bind(shader: Shader) {
+  bind(shader: ShaderProgram) {
     let gl = this.context.gl;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
     let offset = 0;
@@ -144,7 +144,7 @@ export class Mesh implements Disposable, Restorable {
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer);
   }
 
-  unbind(shader: Shader) {
+  unbind(shader: ShaderProgram) {
     let gl = this.context.gl;
     for (let i = 0; i < this.attributes.length; i++) {
       let attrib = this.attributes[i];
@@ -212,20 +212,20 @@ export class VertexAttribute {
 
 export class Position2Attribute extends VertexAttribute {
   constructor() {
-    super(Shader.POSITION, VertexAttributeType.Float, 2);
+    super(ShaderProgram.POSITION, VertexAttributeType.Float, 2);
   }
 }
 
 export class Position3Attribute extends VertexAttribute {
   constructor() {
-    super(Shader.POSITION, VertexAttributeType.Float, 3);
+    super(ShaderProgram.POSITION, VertexAttributeType.Float, 3);
   }
 }
 
 export class TexCoordAttribute extends VertexAttribute {
   constructor(unit: number = 0) {
     super(
-      Shader.TEXCOORDS + (unit === 0 ? "" : unit),
+      ShaderProgram.TEXCOORDS + (unit === 0 ? "" : unit),
       VertexAttributeType.Float,
       2
     );
@@ -234,12 +234,12 @@ export class TexCoordAttribute extends VertexAttribute {
 
 export class ColorAttribute extends VertexAttribute {
   constructor() {
-    super(Shader.COLOR, VertexAttributeType.Float, 4);
+    super(ShaderProgram.COLOR, VertexAttributeType.Float, 4);
   }
 }
 
 export class Color2Attribute extends VertexAttribute {
   constructor() {
-    super(Shader.COLOR2, VertexAttributeType.Float, 4);
+    super(ShaderProgram.COLOR2, VertexAttributeType.Float, 4);
   }
 }

@@ -1,13 +1,14 @@
 import { Disposable, Restorable } from "./Utils";
 import { ManagedWebGLRenderingContext } from "./WebGL";
 
-export class Shader implements Disposable, Restorable {
+export class ShaderProgram implements Disposable, Restorable {
   public static MVP_MATRIX = "u_projTrans";
   public static POSITION = "a_position";
   public static COLOR = "a_color";
   public static COLOR2 = "a_color2";
   public static TEXCOORDS = "a_texCoords";
   public static SAMPLER = "u_texture";
+  public static NORMAL = "a_normal";
 
   private context: ManagedWebGLRenderingContext;
   private vs: WebGLShader = null;
@@ -201,19 +202,19 @@ export class Shader implements Disposable, Restorable {
 
   public static newColoredTextured(
     context: ManagedWebGLRenderingContext | WebGLRenderingContext
-  ): Shader {
+  ): ShaderProgram {
     let vs = `
-         attribute vec4 ${Shader.POSITION};
-         attribute vec4 ${Shader.COLOR};
-         attribute vec2 ${Shader.TEXCOORDS};
-         uniform mat4 ${Shader.MVP_MATRIX};
+         attribute vec4 ${ShaderProgram.POSITION};
+         attribute vec4 ${ShaderProgram.COLOR};
+         attribute vec2 ${ShaderProgram.TEXCOORDS};
+         uniform mat4 ${ShaderProgram.MVP_MATRIX};
          varying vec4 v_color;
          varying vec2 v_texCoords;
  
          void main () {
-           v_color = ${Shader.COLOR};
-           v_texCoords = ${Shader.TEXCOORDS};
-           gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
+           v_color = ${ShaderProgram.COLOR};
+           v_texCoords = ${ShaderProgram.TEXCOORDS};
+           gl_Position = ${ShaderProgram.MVP_MATRIX} * ${ShaderProgram.POSITION};
          }
        `;
 
@@ -233,27 +234,27 @@ export class Shader implements Disposable, Restorable {
          }
        `;
 
-    return new Shader(context, vs, fs);
+    return new ShaderProgram(context, vs, fs);
   }
 
   public static newTwoColoredTextured(
     context: ManagedWebGLRenderingContext | WebGLRenderingContext
-  ): Shader {
+  ): ShaderProgram {
     let vs = `
-         attribute vec4 ${Shader.POSITION};
-         attribute vec4 ${Shader.COLOR};
-         attribute vec4 ${Shader.COLOR2};
-         attribute vec2 ${Shader.TEXCOORDS};
-         uniform mat4 ${Shader.MVP_MATRIX};
+         attribute vec4 ${ShaderProgram.POSITION};
+         attribute vec4 ${ShaderProgram.COLOR};
+         attribute vec4 ${ShaderProgram.COLOR2};
+         attribute vec2 ${ShaderProgram.TEXCOORDS};
+         uniform mat4 ${ShaderProgram.MVP_MATRIX};
          varying vec4 v_light;
          varying vec4 v_dark;
          varying vec2 v_texCoords;
  
          void main () {
-           v_light = ${Shader.COLOR};
-           v_dark = ${Shader.COLOR2};
-           v_texCoords = ${Shader.TEXCOORDS};
-           gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
+           v_light = ${ShaderProgram.COLOR};
+           v_dark = ${ShaderProgram.COLOR2};
+           v_texCoords = ${ShaderProgram.TEXCOORDS};
+           gl_Position = ${ShaderProgram.MVP_MATRIX} * ${ShaderProgram.POSITION};
          }
        `;
 
@@ -276,21 +277,21 @@ export class Shader implements Disposable, Restorable {
          }
        `;
 
-    return new Shader(context, vs, fs);
+    return new ShaderProgram(context, vs, fs);
   }
 
   public static newColored(
     context: ManagedWebGLRenderingContext | WebGLRenderingContext
-  ): Shader {
+  ): ShaderProgram {
     let vs = `
-         attribute vec4 ${Shader.POSITION};
-         attribute vec4 ${Shader.COLOR};
-         uniform mat4 ${Shader.MVP_MATRIX};
+         attribute vec4 ${ShaderProgram.POSITION};
+         attribute vec4 ${ShaderProgram.COLOR};
+         uniform mat4 ${ShaderProgram.MVP_MATRIX};
          varying vec4 v_color;
  
          void main () {
-           v_color = ${Shader.COLOR};
-           gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
+           v_color = ${ShaderProgram.COLOR};
+           gl_Position = ${ShaderProgram.MVP_MATRIX} * ${ShaderProgram.POSITION};
          }
        `;
 
@@ -308,6 +309,6 @@ export class Shader implements Disposable, Restorable {
          }
        `;
 
-    return new Shader(context, vs, fs);
+    return new ShaderProgram(context, vs, fs);
   }
 }

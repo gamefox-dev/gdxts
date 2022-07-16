@@ -148,6 +148,7 @@ export class Color {
 }
 
 export class MathUtils {
+  static FLOAT_ROUNDING_ERROR = 0.000001; // 32 bits
   static PI = 3.1415927;
   static PI2 = MathUtils.PI * 2;
   static radiansToDegrees = 180 / MathUtils.PI;
@@ -195,6 +196,14 @@ export class MathUtils {
 
   static isPowerOfTwo(value: number) {
     return value && (value & (value - 1)) === 0;
+  }
+
+  static isEqual(a: number, b: number): boolean {
+    return Math.abs(a - b) <= MathUtils.FLOAT_ROUNDING_ERROR;
+  }
+
+  static isZero(value: number): boolean {
+    return Math.abs(value) <= MathUtils.FLOAT_ROUNDING_ERROR;
   }
 }
 
@@ -322,6 +331,19 @@ export class Utils {
 
   static enumValue(type: any, name: string) {
     return type[name[0].toUpperCase() + name.slice(1)];
+  }
+
+  static getHashCodeOfString(s: string) {
+    var hash = 0,
+      i,
+      chr;
+    if (this.length === 0) return hash;
+    for (i = 0; i < this.length; i++) {
+      chr = s.charCodeAt(i);
+      hash = (hash << 5) - hash + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
   }
 }
 

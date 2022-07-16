@@ -6,7 +6,7 @@ export * from "./Matrix4";
 export * from "./Mesh";
 export * from "./NumberUtils";
 export * from "./PolygonBatcher";
-export * from "./Shader";
+export * from "./ShaderProgram";
 export * from "./ShapeRenderer";
 export * from "./Texture";
 export * from "./TextureAtlas";

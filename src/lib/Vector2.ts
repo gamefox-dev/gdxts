@@ -1,3 +1,5 @@
+import { Matrix3 } from "./3d/Matrix3";
+
 export class Vector2 {
   x = 0;
   y = 0;
@@ -83,5 +85,12 @@ export class Vector2 {
   }
   cpy() {
     return new Vector2(this.x, this.y);
+  }
+  mul(mat: Matrix3) {
+    const x = this.x * mat.val[0] + this.y * mat.val[3] + mat.val[6];
+    const y = this.x * mat.val[1] + this.y * mat.val[4] + mat.val[7];
+    this.x = x;
+    this.y = y;
+    return this;
   }
 }

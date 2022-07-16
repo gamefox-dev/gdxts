@@ -29,6 +29,17 @@ export class Vector3 {
     this.z = z;
   }
 
+  isZero() {
+    return this.x === 0 && this.y === 0 && this.z === 0;
+  }
+
+  dst2(point: Vector3): number {
+    const a = point.x - this.x;
+    const b = point.y - this.y;
+    const c = point.z - this.z;
+    return a * a + b * b + c * c;
+  }
+
   setFrom(v: Vector3): Vector3 {
     this.x = v.x;
     this.y = v.y;
@@ -150,6 +161,10 @@ export class Vector3 {
 
   length(): number {
     return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+  }
+
+  length2(): number {
+    return this.x * this.x + this.y * this.y + this.z * this.z;
   }
 
   distance(v: Vector3): number {

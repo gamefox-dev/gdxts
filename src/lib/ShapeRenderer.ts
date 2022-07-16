@@ -1,5 +1,5 @@
 import { Mesh, Position2Attribute, ColorAttribute } from "./Mesh";
-import { Shader } from "./Shader";
+import { ShaderProgram } from "./ShaderProgram";
 import { Disposable, Color, MathUtils } from "./Utils";
 import { Vector2 } from "./Vector2";
 import { ManagedWebGLRenderingContext } from "./WebGL";
@@ -16,7 +16,7 @@ export class ShapeRenderer implements Disposable {
   private mesh: Mesh;
   private shapeType = ShapeType.Filled;
   private color = new Color(1, 1, 1, 1);
-  private shader: Shader;
+  private shader: ShaderProgram;
   private vertexIndex = 0;
   private tmp = new Vector2();
   private srcColorBlend: number;
@@ -47,7 +47,7 @@ export class ShapeRenderer implements Disposable {
     this.srcAlphaBlend = gl.ONE;
     this.dstBlend = gl.ONE_MINUS_SRC_ALPHA;
 
-    this.shader = Shader.newColored(gl);
+    this.shader = ShaderProgram.newColored(gl);
   }
 
   setProjection(projectionValues: Float32Array) {
@@ -61,7 +61,7 @@ export class ShapeRenderer implements Disposable {
     this.isDrawing = true;
 
     this.shader.bind();
-    this.shader.setUniform4x4f(Shader.MVP_MATRIX, this.projectionValues);
+    this.shader.setUniform4x4f(ShaderProgram.MVP_MATRIX, this.projectionValues);
 
     let gl = this.context.gl;
     gl.enable(gl.BLEND);

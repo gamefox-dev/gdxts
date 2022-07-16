@@ -7,7 +7,7 @@ import {
   TexCoordAttribute,
   Color2Attribute,
 } from "./Mesh";
-import { Shader } from "./Shader";
+import { ShaderProgram } from "./ShaderProgram";
 import { ManagedWebGLRenderingContext } from "./WebGL";
 
 // prettier-ignore
@@ -25,7 +25,7 @@ export class PolygonBatch implements Disposable {
   private drawCalls: number;
   private isDrawing = false;
   private mesh: Mesh;
-  private shader: Shader = null;
+  private shader: ShaderProgram = null;
   private lastTexture: Texture = null;
   private verticesLength = 0;
   private indicesLength = 0;
@@ -62,7 +62,7 @@ export class PolygonBatch implements Disposable {
           new TexCoordAttribute(),
         ];
     this.mesh = new Mesh(context, attributes, maxVertices, maxVertices * 3);
-    this.shader = Shader.newTwoColoredTextured(context);
+    this.shader = ShaderProgram.newTwoColoredTextured(context);
     let gl = this.context.gl;
     this.srcColorBlend = gl.SRC_ALPHA;
     this.srcAlphaBlend = gl.ONE;
@@ -74,7 +74,7 @@ export class PolygonBatch implements Disposable {
     this.color = color;
   }
 
-  setShader(shader: Shader) {
+  setShader(shader: ShaderProgram) {
     this.shader = shader;
   }
 
@@ -93,7 +93,7 @@ export class PolygonBatch implements Disposable {
     this.isDrawing = true;
 
     shader.bind();
-    shader.setUniform4x4f(Shader.MVP_MATRIX, this.projectionValues);
+    shader.setUniform4x4f(ShaderProgram.MVP_MATRIX, this.projectionValues);
     shader.setUniformi("u_texture", 0);
 
     let gl = this.context.gl;
