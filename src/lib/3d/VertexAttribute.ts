@@ -1,5 +1,4 @@
 import { ShaderProgram } from "../ShaderProgram";
-import { Utils } from "../Utils";
 import { GL20 } from "./GL20";
 
 export class Usage {
@@ -133,5 +132,17 @@ export class VertexAttribute {
         return 2 * this.numComponents;
     }
     return 0;
+  }
+
+  public equals(other: VertexAttribute): boolean {
+    return (
+      other !== null &&
+      this.usage === other.usage &&
+      this.numComponents === other.numComponents &&
+      this.type === other.type &&
+      this.normalized === other.normalized &&
+      this.alias === other.alias &&
+      this.unit === other.unit
+    );
   }
 }

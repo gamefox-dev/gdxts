@@ -1,6 +1,6 @@
 import { Matrix4 } from "../Matrix4";
 import { Material } from "./Material";
-import { MeshPart } from "./MeshPart";
+import { MeshPart } from "./model/MeshPart";
 import { Shader } from "./Shader";
 
 export class Renderable {

@@ -33,7 +33,7 @@ export class DefaultRenderableSorter {
     const b2 =
       o2.material.has(BlendingAttribute.Type) &&
       (o2.material.get(BlendingAttribute.Type) as BlendingAttribute).blended;
-    if (b1 != b2) return b1 ? 1 : -1;
+    if (b1 !== b2) return b1 ? 1 : -1;
     this.getTranslation(o1.worldTransform, o1.meshPart.center, this.tmpV1);
     this.getTranslation(o2.worldTransform, o2.meshPart.center, this.tmpV2);
 

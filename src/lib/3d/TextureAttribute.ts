@@ -34,7 +34,7 @@ export class TextureAttribute extends Attribute {
     this.Reflection;
 
   public static is(mask: number): boolean {
-    return (mask & TextureAttribute.Mask) != 0;
+    return (mask & TextureAttribute.Mask) !== 0;
   }
 
   public static createDiffuse(region: TextureRegion): TextureAttribute {

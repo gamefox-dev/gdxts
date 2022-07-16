@@ -33,7 +33,7 @@ export class DefaultTextureBinder {
     this.count = count;
     this.textures = new Array<Texture>(count);
     this.unitsLRU =
-      method == DefaultTextureBinder.LRU ? new Array<number>(count) : null;
+      method === DefaultTextureBinder.LRU ? new Array<number>(count) : null;
   }
 
   private static getMaxTextureUnits(): number {
@@ -82,7 +82,7 @@ export class DefaultTextureBinder {
   private bindTextureRoundRobin(texture: Texture): number {
     for (let i = 0; i < this.count; i++) {
       const idx = (this.currentTexture + i) % this.count;
-      if (this.textures[idx] == texture) {
+      if (this.textures[idx] === texture) {
         this.reused = true;
         return idx;
       }
@@ -97,7 +97,7 @@ export class DefaultTextureBinder {
     let i;
     for (i = 0; i < this.count; i++) {
       const idx = this.unitsLRU[i];
-      if (this.textures[idx] == texture) {
+      if (this.textures[idx] === texture) {
         this.reused = true;
         break;
       }

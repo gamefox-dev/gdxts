@@ -423,11 +423,9 @@ export class Setters {
       combinedAttributes: Attributes
     ) {
       const unit = shader.context.textureBinder.bindTexture(
-        (
-          combinedAttributes.get(
-            TextureAttribute.Reflection
-          ) as TextureAttribute
-        ).texture
+        (combinedAttributes.get(
+          TextureAttribute.Reflection
+        ) as TextureAttribute).texture
       );
       shader.setI(inputID, unit);
     }
@@ -1178,11 +1176,11 @@ export class DefaultShader extends BaseShader {
     fragmentShader: string = ""
   ) {
     super();
-    if (vertexShader.length == 0)
+    if (vertexShader.length === 0)
       vertexShader = DefaultShader.defaultVertexShader;
-    if (fragmentShader.length == 0)
+    if (fragmentShader.length === 0)
       fragmentShader = DefaultShader.defaultVertexShader;
-    if (config == null) {
+    if (config === null) {
       config = new Config();
     } else {
       prefix = DefaultShader.createPrefix(renderable, config);
@@ -1423,11 +1421,11 @@ export class DefaultShader extends BaseShader {
   }
 
   private static and(mask: number, flag: number): boolean {
-    return (mask & flag) == flag;
+    return (mask & flag) === flag;
   }
 
   private static or(mask: number, flag: number): boolean {
-    return (mask & flag) != 0;
+    return (mask & flag) !== 0;
   }
 
   private static tmpAttributes: Attributes = new Attributes();
@@ -1480,15 +1478,15 @@ export class DefaultShader extends BaseShader {
     const n = renderable.meshPart.mesh.getVertexAttributes().size();
     for (let i = 0; i < n; i++) {
       const attr = renderable.meshPart.mesh.getVertexAttributes().get(i);
-      if (attr.usage == Usage.BoneWeight)
+      if (attr.usage === Usage.BoneWeight)
         prefix += "#define boneWeight" + attr.unit + "Flag\n";
-      else if (attr.usage == Usage.TextureCoordinates)
+      else if (attr.usage === Usage.TextureCoordinates)
         prefix += "#define texCoord" + attr.unit + "Flag\n";
     }
-    if ((attributesMask & BlendingAttribute.Type) == BlendingAttribute.Type)
+    if ((attributesMask & BlendingAttribute.Type) === BlendingAttribute.Type)
       prefix += "#define " + BlendingAttribute.Alias + "Flag\n";
     if (
-      (attributesMask & TextureAttribute.Diffuse) ==
+      (attributesMask & TextureAttribute.Diffuse) ===
       TextureAttribute.Diffuse
     ) {
       prefix += "#define " + TextureAttribute.DiffuseAlias + "Flag\n";
@@ -1496,19 +1494,22 @@ export class DefaultShader extends BaseShader {
         "#define " + TextureAttribute.DiffuseAlias + "Coord texCoord0\n"; // FIXME implement UV mapping
     }
     if (
-      (attributesMask & TextureAttribute.Specular) ==
+      (attributesMask & TextureAttribute.Specular) ===
       TextureAttribute.Specular
     ) {
       prefix += "#define " + TextureAttribute.SpecularAlias + "Flag\n";
       prefix +=
         "#define " + TextureAttribute.SpecularAlias + "Coord texCoord0\n"; // FIXME implement UV mapping
     }
-    if ((attributesMask & TextureAttribute.Normal) == TextureAttribute.Normal) {
+    if (
+      (attributesMask & TextureAttribute.Normal) ===
+      TextureAttribute.Normal
+    ) {
       prefix += "#define " + TextureAttribute.NormalAlias + "Flag\n";
       prefix += "#define " + TextureAttribute.NormalAlias + "Coord texCoord0\n"; // FIXME implement UV mapping
     }
     if (
-      (attributesMask & TextureAttribute.Emissive) ==
+      (attributesMask & TextureAttribute.Emissive) ===
       TextureAttribute.Emissive
     ) {
       prefix += "#define " + TextureAttribute.EmissiveAlias + "Flag\n";
@@ -1516,7 +1517,7 @@ export class DefaultShader extends BaseShader {
         "#define " + TextureAttribute.EmissiveAlias + "Coord texCoord0\n"; // FIXME implement UV mapping
     }
     if (
-      (attributesMask & TextureAttribute.Reflection) ==
+      (attributesMask & TextureAttribute.Reflection) ===
       TextureAttribute.Reflection
     ) {
       prefix += "#define " + TextureAttribute.ReflectionAlias + "Flag\n";
@@ -1524,27 +1525,33 @@ export class DefaultShader extends BaseShader {
         "#define " + TextureAttribute.ReflectionAlias + "Coord texCoord0\n"; // FIXME implement UV mapping
     }
     if (
-      (attributesMask & TextureAttribute.Ambient) ==
+      (attributesMask & TextureAttribute.Ambient) ===
       TextureAttribute.Ambient
     ) {
       prefix += "#define " + TextureAttribute.AmbientAlias + "Flag\n";
       prefix +=
         "#define " + TextureAttribute.AmbientAlias + "Coord texCoord0\n"; // FIXME implement UV mapping
     }
-    if ((attributesMask & ColorAttribute.Diffuse) == ColorAttribute.Diffuse)
+    if ((attributesMask & ColorAttribute.Diffuse) === ColorAttribute.Diffuse)
       prefix += "#define " + ColorAttribute.DiffuseAlias + "Flag\n";
-    if ((attributesMask & ColorAttribute.Specular) == ColorAttribute.Specular)
+    if ((attributesMask & ColorAttribute.Specular) === ColorAttribute.Specular)
       prefix += "#define " + ColorAttribute.SpecularAlias + "Flag\n";
-    if ((attributesMask & ColorAttribute.Emissive) == ColorAttribute.Emissive)
+    if ((attributesMask & ColorAttribute.Emissive) === ColorAttribute.Emissive)
       prefix += "#define " + ColorAttribute.EmissiveAlias + "Flag\n";
     if (
-      (attributesMask & ColorAttribute.Reflection) ==
+      (attributesMask & ColorAttribute.Reflection) ===
       ColorAttribute.Reflection
     )
       prefix += "#define " + ColorAttribute.ReflectionAlias + "Flag\n";
-    if ((attributesMask & FloatAttribute.Shininess) == FloatAttribute.Shininess)
+    if (
+      (attributesMask & FloatAttribute.Shininess) ===
+      FloatAttribute.Shininess
+    )
       prefix += "#define " + FloatAttribute.ShininessAlias + "Flag\n";
-    if ((attributesMask & FloatAttribute.AlphaTest) == FloatAttribute.AlphaTest)
+    if (
+      (attributesMask & FloatAttribute.AlphaTest) ===
+      FloatAttribute.AlphaTest
+    )
       prefix += "#define " + FloatAttribute.AlphaTestAlias + "Flag\n";
     if (renderable.bones != null && config.numBones > 0)
       prefix += "#define numBones " + config.numBones + "\n";
@@ -1559,12 +1566,13 @@ export class DefaultShader extends BaseShader {
       return false;
     const renderableMask = DefaultShader.combineAttributeMasks(renderable);
     return (
-      this.attributesMask == (renderableMask | DefaultShader.optionalAttributes)
+      this.attributesMask ===
+      (renderableMask | DefaultShader.optionalAttributes)
       //     &&
       //   this.vertexMask ==
       //     renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked()
     );
-    //&& (renderable.environment != null) == this.lighting;
+    //&& (renderable.environment != null) === this.lighting;
   }
 
   private normalMatrix: Matrix3 = new Matrix3();
@@ -1606,11 +1614,11 @@ export class DefaultShader extends BaseShader {
 
   protected bindMaterial(attributes: Attributes) {
     let cullFace =
-      this.config.defaultCullFace == -1
+      this.config.defaultCullFace === -1
         ? DefaultShader.defaultCullFace
         : this.config.defaultCullFace;
     const depthFunc =
-      this.config.defaultDepthFunc == -1
+      this.config.defaultDepthFunc === -1
         ? DefaultShader.defaultDepthFunc
         : this.config.defaultDepthFunc;
     const depthRangeNear = 0;
@@ -1626,11 +1634,11 @@ export class DefaultShader extends BaseShader {
           (attr as BlendingAttribute).destFunction
         );
         this.setF(this.u_opacity, (attr as BlendingAttribute).opacity);
-      } else if ((t & IntAttribute.CullFace) == IntAttribute.CullFace)
+      } else if ((t & IntAttribute.CullFace) === IntAttribute.CullFace)
         cullFace = (attr as IntAttribute).value;
-      else if ((t & FloatAttribute.AlphaTest) == FloatAttribute.AlphaTest)
+      else if ((t & FloatAttribute.AlphaTest) === FloatAttribute.AlphaTest)
         this.setF(this.u_alphaTest, (attr as FloatAttribute).value);
-      // else if ((t & DepthTestAttribute.Type) == DepthTestAttribute.Type) {
+      // else if ((t & DepthTestAttribute.Type) === DepthTestAttribute.Type) {
       //     DepthTestAttribute dta = (DepthTestAttribute)attr;
       //     depthFunc = dta.depthFunc;
       //     depthRangeNear = dta.depthRangeNear;
@@ -1651,16 +1659,16 @@ export class DefaultShader extends BaseShader {
   protected bindLights(renderable: Renderable, attributes: Attributes) {
     // const lights = renderable.environment;
     // const dla = attributes.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
-    // const dirs = dla == null ? null : dla.lights;
+    // const dirs = dla === null ? null : dla.lights;
     // const pla = attributes.get(PointLightsAttribute.class, PointLightsAttribute.Type);
-    // const points = pla == null ? null : pla.lights;
+    // const points = pla === null ? null : pla.lights;
     // const sla = attributes.get(SpotLightsAttribute.class, SpotLightsAttribute.Type);
-    // const spots = sla == null ? null : sla.lights;
+    // const spots = sla === null ? null : sla.lights;
     // if (dirLightsLoc >= 0) {
     //     for (let i = 0; i < directionalLights.length; i++) {
-    //         if (dirs == null || i >= dirs.size) {
-    //             if (lightsSet && directionalLights[i].color.r == 0 && directionalLights[i].color.g == 0
-    //                 && directionalLights[i].color.b == 0) continue;
+    //         if (dirs === null || i >= dirs.size) {
+    //             if (lightsSet && directionalLights[i].color.r === 0 && directionalLights[i].color.g === 0
+    //                 && directionalLights[i].color.b === 0) continue;
     //             directionalLights[i].color.set(0, 0, 0, 1);
     //         } else if (lightsSet && directionalLights[i].equals(dirs.get(i)))
     //             continue;
@@ -1676,8 +1684,8 @@ export class DefaultShader extends BaseShader {
     // }
     // if (pointLightsLoc >= 0) {
     //     for (let i = 0; i < pointLights.length; i++) {
-    //         if (points == null || i >= points.size) {
-    //             if (lightsSet && pointLights[i].intensity == 0) continue;
+    //         if (points === null || i >= points.size) {
+    //             if (lightsSet && pointLights[i].intensity === 0) continue;
     //             pointLights[i].intensity = 0;
     //         } else if (lightsSet && pointLights[i].equals(points.get(i)))
     //             continue;
@@ -1694,8 +1702,8 @@ export class DefaultShader extends BaseShader {
     // }
     // if (spotLightsLoc >= 0) {
     //     for (let i = 0; i < spotLights.length; i++) {
-    //         if (spots == null || i >= spots.size) {
-    //             if (lightsSet && spotLights[i].intensity == 0) continue;
+    //         if (spots === null || i >= spots.size) {
+    //             if (lightsSet && spotLights[i].intensity === 0) continue;
     //             spotLights[i].intensity = 0;
     //         } else if (lightsSet && spotLights[i].equals(spots.get(i)))
     //             continue;
@@ -1729,7 +1737,7 @@ export class DefaultShader extends BaseShader {
   }
 
   public getDefaultCullFace() {
-    return this.config.defaultCullFace == -1
+    return this.config.defaultCullFace === -1
       ? DefaultShader.defaultCullFace
       : this.config.defaultCullFace;
   }
@@ -1739,7 +1747,7 @@ export class DefaultShader extends BaseShader {
   }
 
   public getDefaultDepthFunc() {
-    return this.config.defaultDepthFunc == -1
+    return this.config.defaultDepthFunc === -1
       ? DefaultShader.defaultDepthFunc
       : this.config.defaultDepthFunc;
   }

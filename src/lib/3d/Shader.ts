@@ -1,4 +1,3 @@
-import { ShaderProgram } from "../ShaderProgram";
 import { Disposable } from "../Utils";
 import { PerspectiveCamera } from "./PerspectiveCamera";
 import { Renderable } from "./Renderable";

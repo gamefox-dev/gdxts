@@ -15,15 +15,13 @@ export class IndexBufferObject {
   private gl: WebGLRenderingContext;
   arrayBuffer: ArrayBuffer;
 
-  constructor(gl: WebGLRenderingContext) {
-    this.gl = gl;
-  }
-
-  IndexBufferObjectWithMaxIndices(
+  constructor(
+    gl: WebGLRenderingContext,
     maxIndices: number,
     isStatic: boolean = true
   ) {
-    this.empty = maxIndices == 0;
+    this.gl = gl;
+    this.empty = maxIndices === 0;
     if (this.empty) {
       maxIndices = 1;
     }
@@ -58,7 +56,7 @@ export class IndexBufferObject {
     return this.byteBuffer.length;
   }
 
-  public setIndicesByIndices(
+  public setIndices(
     indices: number[],
     offset: number = 0,
     count: number = indices.length
@@ -66,21 +64,6 @@ export class IndexBufferObject {
     this.isDirty = true;
     this.byteBuffer.set(indices.slice(offset, offset + count), 0);
     this.indicesLength = count;
-
-    if (this.isBound) {
-      this.gl.bufferData(
-        GL20.GL_ELEMENT_ARRAY_BUFFER,
-        this.byteBuffer,
-        this.usage
-      );
-      this.isDirty = false;
-    }
-  }
-
-  public setIndicesByBuffer(indices: Uint16Array) {
-    this.isDirty = true;
-    this.byteBuffer.set(indices);
-    this.indicesLength = indices.length;
 
     if (this.isBound) {
       this.gl.bufferData(
@@ -105,20 +88,20 @@ export class IndexBufferObject {
     if (this.isBound) {
       this.gl.bufferData(
         GL20.GL_ELEMENT_ARRAY_BUFFER,
-        this.byteBuffer,
+        this.byteBuffer.subarray(0, this.indicesLength),
         this.usage
       );
       this.isDirty = false;
     }
   }
 
-  public getBuffer(): Int8Array {
+  public getBuffer(): Uint16Array {
     this.isDirty = true;
-    return this.buffer;
+    return this.byteBuffer;
   }
 
   public bind() {
-    if (this.bufferHandle == 0) throw new Error("No buffer allocated!");
+    if (this.bufferHandle === 0) throw new Error("No buffer allocated!");
 
     this.gl.bindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, this.bufferHandle);
     if (this.isDirty) {

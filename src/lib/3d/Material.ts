@@ -1,4 +1,3 @@
-import { Utils } from "../Utils";
 import { Attributes } from "./Attributes";
 
 export class Material extends Attributes {

@@ -1,8 +1,8 @@
-import { Matrix4 } from "../Matrix4";
-import { Vector3 } from "../Vector3";
-import { BoundingBox } from "./BoundingBox";
+import { Matrix4 } from "../../Matrix4";
+import { Vector3 } from "../../Vector3";
+import { BoundingBox } from "../BoundingBox";
 import { NodePart } from "./NodePart";
-import { Quaternion } from "./Quaternion";
+import { Quaternion } from "../Quaternion";
 
 export class Node {
   public id: string;
@@ -30,7 +30,7 @@ export class Node {
   }
 
   public calculateWorldTransform(): Matrix4 {
-    if (this.inheritTransform && parent != null)
+    if (this.inheritTransform && this.parent != null)
       this.globalTransform
         .set(this.parent.globalTransform.values)
         .multiply(this.localTransform);
@@ -54,7 +54,7 @@ export class Node {
       if (
         part.invBoneBindTransforms == null ||
         part.bones == null ||
-        part.invBoneBindTransforms.size != part.bones.length
+        part.invBoneBindTransforms.size !== part.bones.length
       )
         continue;
       const n = part.invBoneBindTransforms.size;
@@ -87,10 +87,20 @@ export class Node {
       const part = this.parts[i];
       if (part.enabled) {
         const meshPart = part.meshPart;
-        //  if (transform)
-        //      meshPart.mesh.extendBoundingBox(out, meshPart.offset, meshPart.size, globalTransform);
-        //  else
-        //      meshPart.mesh.extendBoundingBox(out, meshPart.offset, meshPart.size);
+        if (transform)
+          meshPart.mesh.extendBoundingBox(
+            out,
+            meshPart.offset,
+            meshPart.size,
+            this.globalTransform
+          );
+        else
+          meshPart.mesh.extendBoundingBox(
+            out,
+            meshPart.offset,
+            meshPart.size,
+            null
+          );
       }
     }
     const childCount = this.children.length;
@@ -106,7 +116,7 @@ export class Node {
   public detach() {
     if (this.parent != null) {
       this.parent.removeChild(this);
-      parent = null;
+      this.parent = null;
     }
   }
 
@@ -132,7 +142,7 @@ export class Node {
 
   public insertChild(index: number, child: Node): number {
     for (let p: Node = this; p != null; p = p.getParent()) {
-      if (p == child) throw new Error("Cannot add a parent as a child");
+      if (p === child) throw new Error("Cannot add a parent as a child");
     }
     const p = child.getParent();
     if (p != null && !p.removeChild(child))
@@ -171,7 +181,7 @@ export class Node {
   }
 
   public hasParent(): boolean {
-    return parent != null;
+    return this.parent != null;
   }
 
   public copy(): Node {
@@ -201,7 +211,7 @@ export class Node {
     for (const nodePart of other.parts) {
       this.parts.push(nodePart.copy());
     }
-    this.children.length == 0;
+    this.children.length = 0;
     for (const child of other.getChildren()) {
       this.addChild(child.copy());
     }

@@ -31,7 +31,7 @@ export class RenderContext {
   }
 
   end() {
-    if (this.depthFunc != 0) this.gl.disable(this.gl.DEPTH_TEST);
+    if (this.depthFunc !== 0) this.gl.disable(this.gl.DEPTH_TEST);
     if (!this.depthMask) this.gl.depthMask(true);
     if (this.blending) this.gl.disable(this.gl.BLEND);
     if (this.cullFace > 0) this.gl.disable(this.gl.CULL_FACE);
@@ -39,7 +39,7 @@ export class RenderContext {
   }
 
   setDepthMask(depthMask: boolean) {
-    if (this.depthMask != depthMask)
+    if (this.depthMask !== depthMask)
       this.gl.depthMask((this.depthMask = depthMask));
   }
 
@@ -48,9 +48,9 @@ export class RenderContext {
     depthRangeNear: number,
     depthRangeFar: number
   ) {
-    const wasEnabled = this.depthFunc != 0;
-    const enabled = depthFunction != 0;
-    if (this.depthFunc != depthFunction) {
+    const wasEnabled = this.depthFunc !== 0;
+    const enabled = depthFunction !== 0;
+    if (this.depthFunc !== depthFunction) {
       this.depthFunc = depthFunction;
       if (enabled) {
         this.gl.enable(this.gl.DEPTH_TEST);
@@ -58,12 +58,12 @@ export class RenderContext {
       } else this.gl.disable(this.gl.DEPTH_TEST);
     }
     if (enabled) {
-      if (!wasEnabled || this.depthFunc != depthFunction)
+      if (!wasEnabled || this.depthFunc !== depthFunction)
         this.gl.depthFunc((this.depthFunc = depthFunction));
       if (
         !wasEnabled ||
-        this.depthRangeNear != depthRangeNear ||
-        this.depthRangeFar != depthRangeFar
+        this.depthRangeNear !== depthRangeNear ||
+        this.depthRangeFar !== depthRangeFar
       )
         this.gl.depthRange(
           (this.depthRangeNear = depthRangeNear),
@@ -73,14 +73,14 @@ export class RenderContext {
   }
 
   setBlending(enabled: boolean, sFactor: number, dFactor: number) {
-    if (enabled != this.blending) {
+    if (enabled !== this.blending) {
       this.blending = enabled;
       if (enabled) this.gl.enable(this.gl.BLEND);
       else this.gl.disable(this.gl.BLEND);
     }
     if (
       enabled &&
-      (this.blendSFactor != sFactor || this.blendDFactor != dFactor)
+      (this.blendSFactor !== sFactor || this.blendDFactor !== dFactor)
     ) {
       this.gl.blendFunc(sFactor, dFactor);
       this.blendSFactor = sFactor;
@@ -89,12 +89,12 @@ export class RenderContext {
   }
 
   setCullFace(face: number) {
-    if (face != this.cullFace) {
+    if (face !== this.cullFace) {
       this.cullFace = face;
       if (
-        face == this.gl.FRONT ||
-        face == this.gl.BACK ||
-        face == this.gl.FRONT_AND_BACK
+        face === this.gl.FRONT ||
+        face === this.gl.BACK ||
+        face === this.gl.FRONT_AND_BACK
       ) {
         this.gl.enable(this.gl.CULL_FACE);
         this.gl.cullFace(face);

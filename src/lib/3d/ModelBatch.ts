@@ -1,4 +1,3 @@
-import { ShaderProgram } from "../ShaderProgram";
 import { Disposable, Pool } from "../Utils";
 import { DefaultRenderableSorter } from "./DefaultRenderableSorter";
 import { DefaultShaderProvider } from "./DefaultShaderProvider";
@@ -93,8 +92,8 @@ export class ModelBatch implements Disposable {
     let currentShader: Shader = null;
     for (let i = 0; i < this.renderables.length; i++) {
       const renderable: Renderable = this.renderables[i];
-      if (currentShader != renderable.shader) {
-        if (currentShader != null) currentShader.end();
+      if (currentShader !== renderable.shader) {
+        if (currentShader !== null) currentShader.end();
         currentShader = renderable.shader;
         currentShader.begin(this.camera, this.context);
       }

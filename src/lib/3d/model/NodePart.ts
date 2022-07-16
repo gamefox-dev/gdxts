@@ -1,8 +1,8 @@
-import { Matrix4 } from "../Matrix4";
+import { Matrix4 } from "../../Matrix4";
 import { Node } from "./Node";
-import { Material } from "./Material";
+import { Material } from "../Material";
 import { MeshPart } from "./MeshPart";
-import { Renderable } from "./Renderable";
+import { Renderable } from "../Renderable";
 
 export class NodePart {
   public meshPart: MeshPart;
@@ -46,7 +46,7 @@ export class NodePart {
 
     if (
       this.bones == null ||
-      this.bones.length != this.invBoneBindTransforms.size
+      this.bones.length !== this.invBoneBindTransforms.size
     )
       this.bones = new Array<Matrix4>(this.invBoneBindTransforms.size);
 

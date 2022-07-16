@@ -18,14 +18,14 @@ export class Attributes {
 
   get(type: number): Attribute {
     for (const att of this.attributes) {
-      if (att.type == type) return att;
+      if (att.type === type) return att;
     }
     return null;
   }
 
   getArrayAttribute(out: Attribute[], type: number): Attribute[] {
     for (const att of this.attributes) {
-      if (att.type == type) out.push(att);
+      if (att.type === type) out.push(att);
     }
     return out;
   }
@@ -70,13 +70,13 @@ export class Attributes {
   }
 
   has(type: number) {
-    return type != 0 && (this.mask & type) == type;
+    return type !== 0 && (this.mask & type) === type;
   }
 
   indexOf(type: number): number {
     if (this.has(type))
       for (let i = 0; i < this.attributes.length; i++)
-        if (this.attributes[i].type == type) return i;
+        if (this.attributes[i].type === type) return i;
     return -1;
   }
 
@@ -114,7 +114,7 @@ export class Attributes {
   remove(mask: number) {
     for (let i = this.attributes.length - 1; i >= 0; i--) {
       const type = this.attributes[i].type;
-      if ((mask & type) == type) {
+      if ((mask & type) === type) {
         this.attributes.splice(i, 1);
         this.disable(type);
         this.sorted = false;

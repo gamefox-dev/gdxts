@@ -5,7 +5,7 @@ export class VertexAttributes {
   public vertexSize: number;
   private mask = -1;
   constructor(attributes: VertexAttribute[]) {
-    if (attributes.length == 0) throw new Error("attributes must be >= 1");
+    if (attributes.length === 0) throw new Error("attributes must be >= 1");
 
     const list: VertexAttribute[] = new VertexAttribute[attributes.length]();
     for (let i = 0; i < attributes.length; i++) list[i] = attributes[i];
@@ -22,7 +22,7 @@ export class VertexAttributes {
 
   findByUsage(usage: number): VertexAttribute {
     for (const att of this.attributes) {
-      if (att.usage == usage) return att;
+      if (att.usage === usage) return att;
     }
     return null;
   }
@@ -46,25 +46,34 @@ export class VertexAttributes {
   }
 
   toString(): string {
-    const returnValue = "[";
+    let returnValue = "[";
     for (let i = 0; i < this.attributes.length; i++) {
-      returnValue + "(";
-      returnValue + this.attributes[i].alias;
-      returnValue + ", ";
-      returnValue + this.attributes[i].usage;
-      returnValue + ", ";
-      returnValue + this.attributes[i].numComponents;
-      returnValue + ", ";
-      returnValue + this.attributes[i].offset;
-      returnValue + ")";
-      returnValue + "\n";
+      returnValue += "(";
+      returnValue += this.attributes[i].alias;
+      returnValue += ", ";
+      returnValue += this.attributes[i].usage;
+      returnValue += ", ";
+      returnValue += this.attributes[i].numComponents;
+      returnValue += ", ";
+      returnValue += this.attributes[i].offset;
+      returnValue += ")";
+      returnValue += "\n";
     }
-    returnValue + "]";
+    returnValue += "]";
     return returnValue;
   }
 
+  public equals(other: VertexAttributes): boolean {
+    if (other === this) return true;
+    if (this.attributes.length !== other.attributes.length) return false;
+    for (let i = 0; i < this.attributes.length; i++) {
+      if (!this.attributes[i].equals(other.attributes[i])) return false;
+    }
+    return true;
+  }
+
   public getMask(): number {
-    if (this.mask == -1) {
+    if (this.mask === -1) {
       let result = 0;
       for (let i = 0; i < this.attributes.length; i++) {
         result |= this.attributes[i].usage;

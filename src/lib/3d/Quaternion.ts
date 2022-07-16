@@ -79,7 +79,7 @@ export class Quaternion {
 
   public getRollRad(): number {
     const pole = this.getGimbalPole();
-    return pole == 0
+    return pole === 0
       ? Math.atan2(
           2 * (this.w * this.z + this.y * this.x),
           1 - 2 * (this.x * this.x + this.z * this.z)
@@ -93,7 +93,7 @@ export class Quaternion {
 
   public getPitchRad(): number {
     const pole = this.getGimbalPole();
-    return pole == 0
+    return pole === 0
       ? Math.asin(
           MathUtils.clamp(2 * (this.w * this.x - this.z * this.y), -1, 1)
         )
@@ -105,7 +105,7 @@ export class Quaternion {
   }
 
   public getYawRad(): number {
-    return this.getGimbalPole() == 0
+    return this.getGimbalPole() === 0
       ? Math.atan2(
           2 * (this.y * this.w + this.x * this.z),
           1 - 2 * (this.y * this.y + this.x * this.x)
@@ -128,7 +128,7 @@ export class Quaternion {
   }
   public nor(): Quaternion {
     let len = this.len2();
-    if (len != 0 && !MathUtils.isEqual(len, 1)) {
+    if (len !== 0 && !MathUtils.isEqual(len, 1)) {
       len = Math.sqrt(len);
       this.w /= len;
       this.x /= len;
@@ -248,7 +248,7 @@ export class Quaternion {
     radians: number
   ): Quaternion {
     let d = new Vector3(x, y, z).length();
-    if (d == 0) return this.idt();
+    if (d === 0) return this.idt();
     d = 1 / d;
     const l_ang =
       radians < 0

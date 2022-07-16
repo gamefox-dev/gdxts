@@ -31,7 +31,7 @@ export class ColorAttribute extends Attribute {
     this.Fog;
 
   public static is(mask: number): boolean {
-    return (mask & this.Mask) != 0;
+    return (mask & this.Mask) !== 0;
   }
 
   public static createAmbient(color: Color): ColorAttribute {

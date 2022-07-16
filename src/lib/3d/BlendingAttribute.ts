@@ -6,7 +6,7 @@ export class BlendingAttribute extends Attribute {
   public static Type: number = this.register(this.Alias);
 
   public static is(mask: number): boolean {
-    return (mask & this.Type) == mask;
+    return (mask & this.Type) === mask;
   }
 
   blended: boolean;

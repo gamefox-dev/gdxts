@@ -1,23 +1,23 @@
-import { Matrix4 } from "../Matrix4";
-import { Mesh } from "../Mesh";
+import { Matrix4 } from "../../Matrix4";
+import { Mesh } from "../../Mesh";
 import { Node } from "./Node";
-import { Disposable } from "../Utils";
-import { ModelData } from "./data/ModelData";
-import { ModelNode } from "./data/ModelNode";
-import { Material } from "./Material";
+import { Disposable } from "../../Utils";
+import { ModelData } from "../data/ModelData";
+import { ModelNode } from "../data/ModelNode";
+import { Material } from "../Material";
 import { MeshPart } from "./MeshPart";
+import { FileTextureProvider } from "../utils/TextureProvider";
+import { ModelMesh } from "../data/ModelMesh";
+import { ModelMaterial } from "../data/ModelMaterial";
+import { ColorAttribute } from "../ColorAttribute";
+import { FloatAttribute } from "../FloatAttribute";
+import { BlendingAttribute } from "../BlendingAttribute";
+import { GL20 } from "../GL20";
+import { Texture } from "../../Texture";
+import { ModelTexture } from "../data/ModelTexture";
+import { TextureAttribute } from "../TextureAttribute";
+import { BoundingBox } from "../BoundingBox";
 import { NodePart } from "./NodePart";
-import { FileTextureProvider } from "./utils/TextureProvider";
-import { ModelMesh } from "./data/ModelMesh";
-import { ModelMaterial } from "./data/ModelMaterial";
-import { ColorAttribute } from "./ColorAttribute";
-import { FloatAttribute } from "./FloatAttribute";
-import { BlendingAttribute } from "./BlendingAttribute";
-import { GL20 } from "./GL20";
-import { Texture } from "../Texture";
-import { ModelTexture } from "./data/ModelTexture";
-import { TextureAttribute } from "./TextureAttribute";
-import { BoundingBox } from "./BoundingBox";
 
 export class Model implements Disposable {
   public materials: Material[] = [];
@@ -248,7 +248,7 @@ export class Model implements Disposable {
       result.set(new ColorAttribute(ColorAttribute.Reflection, mtl.reflection));
     if (mtl.shininess > 0)
       result.set(new FloatAttribute(FloatAttribute.Shininess, mtl.shininess));
-    if (mtl.opacity != 1)
+    if (mtl.opacity !== 1)
       result.set(
         new BlendingAttribute(
           GL20.GL_SRC_ALPHA,

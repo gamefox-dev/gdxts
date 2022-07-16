@@ -1,5 +1,5 @@
 import { Matrix4 } from "../Matrix4";
-import { Mesh } from "../Mesh";
+import { Mesh } from "./Mesh";
 import { ShaderProgram } from "../ShaderProgram";
 import { Texture } from "../Texture";
 import { Color } from "../Utils";
@@ -86,9 +86,9 @@ export class Uniform implements Validator {
     //const envFlags = (renderable != null && renderable.environment != null) ? renderable.environment.getMask() : 0;
     const envFlags = 0;
     return (
-      (matFlags & this.materialMask) == this.materialMask &&
-      (envFlags & this.environmentMask) == this.environmentMask &&
-      ((matFlags | envFlags) & this.overallMask) == this.overallMask
+      (matFlags & this.materialMask) === this.materialMask &&
+      (envFlags & this.environmentMask) === this.environmentMask &&
+      ((matFlags | envFlags) & this.overallMask) === this.overallMask
     );
   }
 }
@@ -131,7 +131,7 @@ export class BaseShader implements Shader {
 
   getUniformID(alias: string): number {
     const n = this.uniforms.length;
-    for (let i = 0; i < n; i++) if (this.uniforms[i] == alias) return i;
+    for (let i = 0; i < n; i++) if (this.uniforms[i] === alias) return i;
     return -1;
   }
 
@@ -177,7 +177,7 @@ export class BaseShader implements Shader {
 
   private combinedAttributes: Attributes = new Attributes();
   render(renderable: Renderable) {
-    if (renderable.worldTransform.det3x3() == 0) return;
+    if (renderable.worldTransform.det3x3() === 0) return;
     this.combinedAttributes.clear();
     //if (renderable.environment != null) combinedAttributes.set(renderable.environment);
     if (renderable.material != null)
@@ -195,7 +195,7 @@ export class BaseShader implements Shader {
     for (let u, i = 0; i < this.localUniforms.length; ++i)
       if (this.setters[(u = this.localUniforms[i])] != null)
         this.setters[u].set(this, u, renderable, combinedAttributes);
-    if (this.currentMesh != renderable.meshPart.mesh) {
+    if (this.currentMesh !== renderable.meshPart.mesh) {
       if (this.currentMesh != null) this.currentMesh.unbind(this.program);
       this.currentMesh = renderable.meshPart.mesh;
       this.currentMesh.bind(this.program);

@@ -1,8 +1,8 @@
-import { Mesh } from "./Mesh";
-import { ShaderProgram } from "../ShaderProgram";
-import { Disposable } from "../Utils";
-import { Vector3 } from "../Vector3";
-import { BoundingBox } from "./BoundingBox";
+import { Mesh } from "../Mesh";
+import { ShaderProgram } from "../../ShaderProgram";
+import { Disposable } from "../../Utils";
+import { Vector3 } from "../../Vector3";
+import { BoundingBox } from "../BoundingBox";
 
 export class MeshPart implements Disposable {
   id = "";
@@ -66,12 +66,12 @@ export class MeshPart implements Disposable {
 
   equals(other: MeshPart): boolean {
     return (
-      other == this ||
+      other === this ||
       (other != null &&
-        other.mesh == this.mesh &&
-        other.primitiveType == this.primitiveType &&
-        other.offset == this.offset &&
-        other.size == this.size)
+        other.mesh === this.mesh &&
+        other.primitiveType === this.primitiveType &&
+        other.offset === this.offset &&
+        other.size === this.size)
     );
   }
 
