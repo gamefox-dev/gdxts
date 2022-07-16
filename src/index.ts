@@ -17,7 +17,6 @@ import {
   Align,
 } from "./lib";
 import { BitmapFont } from "./lib/BitmapFont";
-import { BitmapFontData } from "./lib/BitmapFontData";
 
 const YDOWN = true;
 const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
@@ -153,11 +152,11 @@ const createTestBitmapFontScreen = async (
 
   const batch = new PolygonBatch(gl);
   batch.setYDown(YDOWN);
+  camera.setYDown(YDOWN);
 
   const shapeRenderer = new ShapeRenderer(gl);
 
-  const fontData = await BitmapFontData.load("./number.fnt", gl, false);
-  const font = new BitmapFont(fontData, fontData.regions, false);
+  const font = await BitmapFont.load("./number.fnt", gl, YDOWN, false);
 
   const strs = [
     "Strings are useful for holding data that can be represented in text form. Some of the most-used operations on strings are to check their",

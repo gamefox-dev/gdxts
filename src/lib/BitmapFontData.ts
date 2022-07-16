@@ -126,16 +126,6 @@ export class BitmapFontData {
     this.flipped = flip;
   }
 
-  public static load = async (
-    fontFile: string,
-    gl: WebGLRenderingContext,
-    flip: boolean
-  ) => {
-    const fontData = new BitmapFontData(fontFile, flip);
-    await fontData.loadFont(gl);
-    return fontData;
-  };
-
   public loadFont = async (gl: WebGLRenderingContext) => {
     if (this.imagePaths != null) return;
 

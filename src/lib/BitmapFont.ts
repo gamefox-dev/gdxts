@@ -40,6 +40,17 @@ export class BitmapFont {
     this.load(data);
   }
 
+  public static load = async (
+    fontFile: string,
+    gl: WebGLRenderingContext,
+    flip: boolean,
+    interger: boolean
+  ) => {
+    const fontData = new BitmapFontData(fontFile, flip);
+    await fontData.loadFont(gl);
+    return new BitmapFont(fontData, fontData.regions, interger);
+  };
+
   load = (data: BitmapFontData) => {
     const glyphValues = Object.values(data.glyphs);
     for (let i = 0; i < glyphValues.length; i++) {
