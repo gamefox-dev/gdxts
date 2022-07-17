@@ -156,7 +156,7 @@ const createTestBitmapFontScreen = async (
 
   const shapeRenderer = new ShapeRenderer(gl);
 
-  const font = await BitmapFont.load("./number.fnt", gl, YDOWN, false);
+  const font = await BitmapFont.load(gl, "./number.fnt", YDOWN, false);
 
   const strs = [
     "Strings are useful for holding data that can be represented in text form. Some of the most-used operations on strings are to check their",

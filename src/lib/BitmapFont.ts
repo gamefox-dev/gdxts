@@ -41,8 +41,8 @@ export class BitmapFont {
   }
 
   public static load = async (
-    fontFile: string,
     gl: WebGLRenderingContext,
+    fontFile: string,
     flip: boolean,
     interger: boolean
   ) => {
