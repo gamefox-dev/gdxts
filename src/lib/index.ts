@@ -2,6 +2,7 @@ export * from './Animation';
 export * from './BitmapFont';
 export * from './BitmapFontCache';
 export * from './BitmapFontData';
+export * from './BoundingBox';
 export * from './Camera';
 export * from './Game';
 export * from './Glyph';
