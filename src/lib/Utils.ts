@@ -601,3 +601,10 @@ export const createStage = (options?: StageOptions) => {
     cleanup: () => document.body.removeChild(wrapper)
   };
 };
+
+export interface Rectangle {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}

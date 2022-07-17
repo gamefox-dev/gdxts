@@ -91,8 +91,14 @@ export class PolygonBatch implements Disposable {
       gl.blendFuncSeparate(srcColorBlend, dstBlend, srcAlphaBlend, dstBlend);
     }
   }
-
-  drawVertices(texture: Texture, vertices: ArrayLike<number>, indices: Array<number>) {
+  drawVerticesWithOffset(texture: Texture, vertices: ArrayLike<number>, offset: number, count: number) {
+    const newVertices = [];
+    for (let i = 0; i < count; i++) {
+      newVertices[i] = vertices[i + offset];
+    }
+    this.drawVertices(texture, newVertices, QUAD_TRIANGLES);
+  }
+  drawVertices(texture: Texture, vertices: ArrayLike<number>, indices: Array<number> = QUAD_TRIANGLES) {
     if (texture !== this.lastTexture) {
       this.flush();
       this.lastTexture = texture;
