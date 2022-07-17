@@ -15,8 +15,8 @@ import {
   Game,
   Screen,
   Align,
+  BitmapFont,
 } from "./lib";
-import { BitmapFont } from "./lib/BitmapFont";
 
 const YDOWN = true;
 const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
@@ -182,11 +182,8 @@ const createTestBitmapFontScreen = async (
           str,
           0,
           (i + 1) * 300,
-          0,
-          str.length,
           500,
-          [Align.left, Align.center, Align.right][i],
-          true
+          [Align.left, Align.center, Align.right][i]
         )
       );
       batch.end();

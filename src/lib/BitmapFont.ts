@@ -3,7 +3,7 @@ import { BitmapFontData } from "./BitmapFontData";
 import { Glyph } from "./Glyph";
 import { PolygonBatch } from "./PolygonBatcher";
 import { TextureRegion } from "./TextureRegion";
-import { Color } from "./Utils";
+import { Align, Color } from "./Utils";
 
 export class BitmapFont {
   data: BitmapFontData;
@@ -78,11 +78,11 @@ export class BitmapFont {
     str: string,
     x: number,
     y: number,
-    start: number,
-    end: number,
     targetWidth: number,
-    halign: number,
-    wrap: boolean,
+    halign: number = Align.left,
+    wrap: boolean = true,
+    start: number = 0,
+    end: number = str.length,
     truncate?: string
   ) => {
     this.cache.clear();
