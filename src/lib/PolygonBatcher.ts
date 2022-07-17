@@ -11,10 +11,11 @@ const quad = [
   0, 0, 1, 1, 1, 1, 0, 0,
   0, 0, 1, 1, 1, 1, 0, 0,
 ];
-const QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
 const WHITE = new Color(1, 1, 1, 1);
 
 export class PolygonBatch implements Disposable {
+  public static QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
+
   private context: ManagedWebGLRenderingContext;
   private drawCalls: number;
   private isDrawing = false;
@@ -96,9 +97,9 @@ export class PolygonBatch implements Disposable {
     for (let i = 0; i < count; i++) {
       newVertices[i] = vertices[i + offset];
     }
-    this.drawVertices(texture, newVertices, QUAD_TRIANGLES);
+    this.drawVertices(texture, newVertices, PolygonBatch.QUAD_TRIANGLES);
   }
-  drawVertices(texture: Texture, vertices: ArrayLike<number>, indices: Array<number> = QUAD_TRIANGLES) {
+  drawVertices(texture: Texture, vertices: ArrayLike<number>, indices: Array<number> = PolygonBatch.QUAD_TRIANGLES) {
     if (texture !== this.lastTexture) {
       this.flush();
       this.lastTexture = texture;
@@ -339,6 +340,6 @@ export class PolygonBatch implements Disposable {
       quad[i++] = 0;
       quad[i] = 0;
     }
-    this.drawVertices(texture, quad, QUAD_TRIANGLES);
+    this.drawVertices(texture, quad, PolygonBatch.QUAD_TRIANGLES);
   }
 }

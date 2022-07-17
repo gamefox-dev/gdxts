@@ -20,8 +20,8 @@ export class TextureRegion {
   name: string | null = null;
   index = 0;
   texture: Texture = null;
-  x = 0;
-  y = 0;
+  regionX = 0;
+  regionY = 0;
   width = 0;
   height = 0;
   invTexWidth = 0;
@@ -34,7 +34,7 @@ export class TextureRegion {
   v = 0;
   u2 = 0;
   v2 = 0;
-  rotate = false;
+  rotated = false;
 
   constructor(
     tex: Texture,
@@ -57,8 +57,8 @@ export class TextureRegion {
     const v2 = y * invTexHeight;
 
     this.texture = tex;
-    this.x = x;
-    this.y = y;
+    this.regionX = x;
+    this.regionY = y;
     this.width = width;
     this.height = height;
 
@@ -72,7 +72,7 @@ export class TextureRegion {
     this.u2 = u2;
     this.v2 = v2;
 
-    this.rotate = rotate;
+    this.rotated = rotate;
 
     for (let key in extraData) {
       this[key] = extraData[key];
@@ -126,7 +126,7 @@ export class TextureRegion {
       this.v,
       this.u2,
       this.v2,
-      this.rotate
+      this.rotated
     );
   }
 }

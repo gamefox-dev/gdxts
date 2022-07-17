@@ -15,7 +15,10 @@ import {
   Game,
   Screen,
   Align,
-  BitmapFont
+  BitmapFont,
+  Sprite,
+  MathUtils,
+  Vector2
 } from './lib';
 
 const YDOWN = true;
@@ -23,7 +26,7 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
   const camera = viewport.getCamera();
 
-  camera.setYDown(true);
+  camera.setYDown(YDOWN);
 
   const inputHandler = new ViewportInputHandler(viewport);
 
@@ -102,6 +105,7 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
 const createTestScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
   const camera = viewport.getCamera();
+  camera.setYDown(YDOWN);
 
   const batch = new PolygonBatch(gl);
   batch.setYDown(YDOWN);
@@ -130,15 +134,14 @@ const createTestScreen = async (viewport: Viewport): Promise<Screen> => {
   };
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const createTestBitmapFontScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
   const camera = viewport.getCamera();
   camera.setYDown(YDOWN);
-  camera.update();
 
   const batch = new PolygonBatch(gl);
   batch.setYDown(YDOWN);
-  camera.setYDown(YDOWN);
 
   const shapeRenderer = new ShapeRenderer(gl);
 
@@ -171,6 +174,68 @@ const createTestBitmapFontScreen = async (viewport: Viewport): Promise<Screen> =
   };
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const createTestSpriteScreen = async (viewport: Viewport): Promise<Screen> => {
+  const gl = viewport.getContext();
+  const camera = viewport.getCamera();
+  camera.setYDown(YDOWN);
+
+  const batch = new PolygonBatch(gl);
+  batch.setYDown(YDOWN);
+
+  const shapeRenderer = new ShapeRenderer(gl);
+
+  const atlas = await TextureAtlas.load(gl, './gem.atlas');
+  const region = atlas.findRegion('gem_01');
+  const sprite = new Sprite(region);
+  sprite.setOriginCenter();
+
+  const position = new Vector2(0, 500);
+  let translateX = 250;
+
+  let scale = 0.5;
+  let scaleSpeed = -0.5;
+
+  return {
+    update(delta: number, game: Game) {
+      shapeRenderer.setProjection(camera.projectionView.values);
+      shapeRenderer.begin();
+      shapeRenderer.rect(true, 0, 0, 500, 1000, Color.RED);
+      shapeRenderer.end();
+
+      position.x += translateX * delta;
+      if (position.x > 500 || position.x < 0) {
+        position.x = MathUtils.clamp(position.x, 0, 500);
+        translateX *= -1;
+      }
+
+      scale += scaleSpeed * delta;
+      if (scale < 0 || scale > 0.5) {
+        scale = MathUtils.clamp(scale, 0, 0.5);
+        scaleSpeed *= -1;
+      }
+      sprite.setScale(scale, scale);
+
+      sprite.rotate(Math.PI * delta);
+
+      sprite.setCenter(position.x, position.y);
+      batch.setProjection(camera.projectionView.values);
+      batch.begin();
+      sprite.draw(batch);
+      batch.end();
+
+      const rect = sprite.getBoundingRectangle();
+      shapeRenderer.begin();
+      shapeRenderer.rect(false, rect.x, rect.y, rect.width, rect.height, Color.WHITE);
+      shapeRenderer.end();
+    },
+    dispose() {
+      batch.dispose();
+      atlas.dispose();
+    }
+  };
+};
+
 const init = async () => {
   const stage = createStage();
   const canvas = stage.getCanvas();
@@ -180,7 +245,7 @@ const init = async () => {
   });
   const gl = viewport.getContext();
 
-  Game.shared.setScreen(await createTestBitmapFontScreen(viewport));
+  Game.shared.setScreen(await createTestSpriteScreen(viewport));
 
   gl.clearColor(0, 0, 0, 1);
   createGameLoop((delta: number) => {

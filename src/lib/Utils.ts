@@ -608,3 +608,15 @@ export interface Rectangle {
   width: number;
   height: number;
 }
+
+export const copyArray = (
+  src: ArrayLike<number>,
+  target: ArrayLike<number>,
+  targetOffset = 0,
+  srcOffset = 0,
+  count = target.length
+) => {
+  for (let i = 0; i < count; i++) {
+    target[targetOffset + i] = src[srcOffset + i];
+  }
+};
