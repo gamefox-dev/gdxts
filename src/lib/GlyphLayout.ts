@@ -1,12 +1,12 @@
-import { BitmapFont } from "./BitmapFont";
-import { BitmapFontData } from "./BitmapFontData";
-import { Glyph } from "./Glyph";
-import { GlyphRun } from "./GlyphRun";
-import { Align, Color, Pool, Poolable, Pools, Utils } from "./Utils";
+import { BitmapFont } from './BitmapFont';
+import { BitmapFontData } from './BitmapFontData';
+import { Glyph } from './Glyph';
+import { GlyphRun } from './GlyphRun';
+import { Align, Color, Pool, Poolable, Pools, Utils } from './Utils';
 
 export class GlyphLayout implements Poolable {
   epsilon = 0.0001;
-  glyphRunPool: Pool<GlyphRun> = Pools.get("GlyphRun", () => new GlyphRun());
+  glyphRunPool: Pool<GlyphRun> = Pools.get('GlyphRun', () => new GlyphRun());
   colorStack: number[] = new Array(4);
 
   runs: GlyphRun[] = [];
@@ -27,17 +27,7 @@ export class GlyphLayout implements Poolable {
     wrap: boolean,
     truncate?: string
   ) {
-    this.setText(
-      font,
-      str,
-      start,
-      end,
-      color,
-      targetWidth,
-      hAlign,
-      wrap,
-      truncate
-    );
+    this.setText(font, str, start, end, color, targetWidth, hAlign, wrap, truncate);
   }
 
   setText = (
@@ -88,7 +78,7 @@ export class GlyphLayout implements Poolable {
       } else {
         // Each run is delimited by newline or left square bracket.
         switch (str.charAt(start++)) {
-          case "\n": // End of line.
+          case '\n': // End of line.
             runEnd = start - 1;
             newline = true;
             break;
@@ -226,10 +216,7 @@ export class GlyphLayout implements Poolable {
         runWidth += xAdvances[ii] ?? 0;
       }
       run.width = Math.max(runWidth, max) - run.x;
-      width = Math.max(
-        width,
-        run.x + (isNaN(run.width) ? runWidth : run.width)
-      );
+      width = Math.max(width, run.x + (isNaN(run.width) ? runWidth : run.width));
     }
     this.width = width;
   };
@@ -242,20 +229,13 @@ export class GlyphLayout implements Poolable {
 
       for (let i = 0, n = this.runs.length; i < n; i++) {
         const run: GlyphRun = runsItems[i];
-        run.x += center
-          ? 0.5 * (targetWidth - run.width)
-          : targetWidth - run.width;
+        run.x += center ? 0.5 * (targetWidth - run.width) : targetWidth - run.width;
       }
     }
   };
 
   /** @param truncate May be empty string. */
-  private truncate = (
-    fontData: BitmapFontData,
-    run: GlyphRun,
-    targetWidth: number,
-    truncate: string
-  ) => {
+  private truncate = (fontData: BitmapFontData, run: GlyphRun, targetWidth: number, truncate: string) => {
     let glyphCount: number = run.glyphs.length;
 
     // Determine truncate string size.
@@ -311,34 +291,19 @@ export class GlyphLayout implements Poolable {
       run.glyphs.length = 0;
       run.xAdvances.length = 0;
       // run.xAdvances.addAll(truncateRun.xAdvances);
-      Utils.arrayCopy(
-        truncateRun.xAdvances,
-        0,
-        run.xAdvances,
-        run.xAdvances.length,
-        truncateRun.xAdvances.length
-      );
+      Utils.arrayCopy(truncateRun.xAdvances, 0, run.xAdvances, run.xAdvances.length, truncateRun.xAdvances.length);
     }
 
     const droppedGlyphCount = glyphCount - run.glyphs.length;
     if (droppedGlyphCount > 0) {
       this.glyphCount -= droppedGlyphCount;
       if (fontData.markupEnabled) {
-        while (
-          this.colors.length > 2 &&
-          this.colors[this.colors.length - 2] >= this.glyphCount
-        )
+        while (this.colors.length > 2 && this.colors[this.colors.length - 2] >= this.glyphCount)
           this.colors.length -= 2;
       }
     }
 
-    Utils.arrayCopy(
-      truncateRun.glyphs,
-      0,
-      run.glyphs,
-      run.glyphs.length,
-      truncateRun.glyphs.length
-    );
+    Utils.arrayCopy(truncateRun.glyphs, 0, run.glyphs, run.glyphs.length, truncateRun.glyphs.length);
 
     this.glyphCount += truncate.length;
 
@@ -347,24 +312,18 @@ export class GlyphLayout implements Poolable {
 
   /** Breaks a run into two runs at the specified wrapIndex.
    * @return May be null if second run is all whitespace. */
-  private wrap(
-    fontData: BitmapFontData,
-    first: GlyphRun,
-    wrapIndex: number
-  ): GlyphRun {
+  private wrap(fontData: BitmapFontData, first: GlyphRun, wrapIndex: number): GlyphRun {
     const glyphCount: number = first.glyphs.length;
     let glyphs2: Glyph[] = first.glyphs; // Starts with all the glyphs.
     let xAdvances2: number[] = first.xAdvances; // Starts with all the xadvances.
 
     // Skip whitespace before the wrap index.
     let firstEnd = wrapIndex;
-    for (; firstEnd > 0; firstEnd--)
-      if (!fontData.isWhitespace(glyphs2[firstEnd - 1].id)) break;
+    for (; firstEnd > 0; firstEnd--) if (!fontData.isWhitespace(glyphs2[firstEnd - 1].id)) break;
 
     // Skip whitespace after the wrap index.
     let secondStart = wrapIndex;
-    for (; secondStart < glyphCount; secondStart++)
-      if (!fontData.isWhitespace(glyphs2[secondStart].id)) break;
+    for (; secondStart < glyphCount; secondStart++) if (!fontData.isWhitespace(glyphs2[secondStart].id)) break;
 
     // Copy wrapped glyphs and xadvances to second run.
     // The second run will contain the remaining glyph data, so swap instances rather than copying.
@@ -381,13 +340,7 @@ export class GlyphLayout implements Poolable {
       second!.glyphs = glyphs2;
 
       const xAdvances1: number[] = second!.xAdvances; // Starts empty.
-      Utils.arrayCopy(
-        xAdvances2,
-        0,
-        xAdvances1,
-        xAdvances1.length,
-        firstEnd + 1
-      );
+      Utils.arrayCopy(xAdvances2, 0, xAdvances1, xAdvances1.length, firstEnd + 1);
       // xAdvances2.removeRange(1, secondStart); // Leave first entry to be overwritten by next line.
       xAdvances2.splice(1, secondStart); // Leave first entry to be overwritten by next line.
       xAdvances2[0] = this.getLineOffset(glyphs2, fontData);
@@ -416,14 +369,10 @@ export class GlyphLayout implements Poolable {
       const droppedGlyphCount = secondStart - firstEnd;
       if (droppedGlyphCount > 0) {
         this.glyphCount -= droppedGlyphCount;
-        if (
-          fontData.markupEnabled &&
-          this.colors[this.colors.length - 2] > this.glyphCount
-        ) {
+        if (fontData.markupEnabled && this.colors[this.colors.length - 2] > this.glyphCount) {
           // Many color changes can be hidden in the dropped whitespace, so keep only the very last color entry.
           const lastColor = this.colors[this.colors.length - 1];
-          while (this.colors[this.colors.length - 2] > this.glyphCount)
-            this.colors.length -= 2;
+          while (this.colors[this.colors.length - 2] > this.glyphCount) this.colors.length -= 2;
           this.colors[this.colors.length - 2] = this.glyphCount; // Update color change index.
           this.colors[this.colors.length - 1] = lastColor; // Update color entry.
         }
@@ -442,11 +391,7 @@ export class GlyphLayout implements Poolable {
   /** Sets the xadvance of the last glyph to use its width instead of xadvance. */
   private setLastGlyphXAdvance = (fontData: BitmapFontData, run: GlyphRun) => {
     const last: Glyph = run.glyphs[run.glyphs.length - 1];
-    if (!last.fixedWidth)
-      run.xAdvances[run.xAdvances.length - 1] = this.getGlyphWidth(
-        last,
-        fontData
-      );
+    if (!last.fixedWidth) run.xAdvances[run.xAdvances.length - 1] = this.getGlyphWidth(last, fontData);
   };
 
   /** Returns the distance from the glyph's drawing position to the right edge of the glyph. */
@@ -455,10 +400,7 @@ export class GlyphLayout implements Poolable {
   };
 
   /** Returns an X offset for the first glyph so when drawn, none of it is left of the line's drawing position. */
-  private getLineOffset = (
-    glyphs: Glyph[],
-    fontData: BitmapFontData
-  ): number => {
+  private getLineOffset = (glyphs: Glyph[], fontData: BitmapFontData): number => {
     return -glyphs[0].xoffset * fontData.scaleX - fontData.padLeft;
   };
 

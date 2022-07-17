@@ -1,7 +1,7 @@
-import { OrthoCamera } from "./Camera";
-import { InputEvent, InputHandler } from "./InputHandler";
-import { Vector2 } from "./Vector2";
-import { Viewport } from "./Viewport";
+import { OrthoCamera } from './Camera';
+import { InputEvent, InputHandler } from './InputHandler';
+import { Vector2 } from './Vector2';
+import { Viewport } from './Viewport';
 
 const createViewportAwareInputListener = (handler, viewport) => {
   return (x, y) => {
@@ -32,14 +32,8 @@ export class ViewportInputHandler {
   cleanup() {
     this.inputHandler.cleanup();
   }
-  addEventListener(
-    event: InputEvent,
-    listener: (x: number, y: number) => void
-  ) {
-    this.inputHandler.addEventListener(
-      event,
-      createViewportAwareInputListener(listener, this.viewport)
-    );
+  addEventListener(event: InputEvent, listener: (x: number, y: number) => void) {
+    this.inputHandler.addEventListener(event, createViewportAwareInputListener(listener, this.viewport));
   }
   getX(): number {
     const { x: vX, pixelRatio } = this.viewport.getViewportInfo();

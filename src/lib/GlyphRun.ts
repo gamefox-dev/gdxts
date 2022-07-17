@@ -1,5 +1,5 @@
-import { Glyph } from "./Glyph";
-import { Poolable } from "./Utils";
+import { Glyph } from './Glyph';
+import { Poolable } from './Utils';
 
 export class GlyphRun implements Poolable {
   glyphs: Glyph[] = [];

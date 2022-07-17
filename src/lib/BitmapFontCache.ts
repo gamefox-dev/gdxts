@@ -1,11 +1,11 @@
-import { BitmapFont } from "./BitmapFont";
-import { Glyph } from "./Glyph";
-import { GlyphLayout } from "./GlyphLayout";
-import { GlyphRun } from "./GlyphRun";
-import { NumberUtil } from "./NumberUtils";
-import { PolygonBatch } from "./PolygonBatcher";
-import { TextureRegion } from "./TextureRegion";
-import { Color, Pools, Utils, Align } from "./Utils";
+import { BitmapFont } from './BitmapFont';
+import { Glyph } from './Glyph';
+import { GlyphLayout } from './GlyphLayout';
+import { GlyphRun } from './GlyphRun';
+import { NumberUtil } from './NumberUtils';
+import { PolygonBatch } from './PolygonBatcher';
+import { TextureRegion } from './TextureRegion';
+import { Color, Pools, Utils, Align } from './Utils';
 
 export class BitmapFontCache {
   private tempColor: Color = new Color(1, 1, 1, 1);
@@ -37,23 +37,18 @@ export class BitmapFontCache {
     this.integer = integer;
 
     const pageCount = font.regions.length;
-    if (pageCount === 0)
-      console.log("The specified font must contain at least one texture page.");
+    if (pageCount === 0) console.log('The specified font must contain at least one texture page.');
 
     this.pageVertices = new Array(pageCount).fill([]);
     this.idx = new Array(pageCount);
     if (pageCount > 1) {
       // Contains the indices of the glyph in the cache as they are added.
       this.pageGlyphIndices = new Array(pageCount);
-      for (let i = 0, n = this.pageGlyphIndices.length; i < n; i++)
-        this.pageGlyphIndices[i] = [];
+      for (let i = 0, n = this.pageGlyphIndices.length; i < n; i++) this.pageGlyphIndices[i] = [];
     }
     this.tempGlyphCount = new Array(pageCount);
 
-    Pools.get(
-      "GlyphLayout",
-      () => new GlyphLayout(font, "", 0, 0, Color.WHITE, 0, Align.left, false)
-    );
+    Pools.get('GlyphLayout', () => new GlyphLayout(font, '', 0, 0, Color.WHITE, 0, Align.left, false));
   }
 
   /** Sets the position of the text, relative to the position when the cached text was created.
@@ -150,8 +145,7 @@ export class BitmapFontCache {
   // };
 
   public setColors = (r: number, g: number, b: number, a: number) => {
-    const intBits =
-      (255 << 24) | ((255 * b) << 16) | ((255 * g) << 8) | (255 * r);
+    const intBits = (255 << 24) | ((255 * b) << 16) | ((255 * g) << 8) | (255 * r);
     const value = NumberUtil.intToFloatColor(intBits);
 
     for (let j = 0, length = this.pageVertices.length; j < length; j++) {
@@ -178,9 +172,7 @@ export class BitmapFontCache {
         const vertices = this.pageVertices[i];
         for (let j = 0; j < this.idx[i] / 20; j++) {
           const offset = 20 * j;
-          const region = regions.find(
-            (item) => (item as any).id === this.drawingTexts?.[j]
-          );
+          const region = regions.find(item => (item as any).id === this.drawingTexts?.[j]);
           if (region) {
             region.draw(
               batch,
@@ -199,7 +191,7 @@ export class BitmapFontCache {
   public clear = () => {
     this.x = 0;
     this.y = 0;
-    Pools.freeAll("GlyphLayout", this.pooledLayouts);
+    Pools.freeAll('GlyphLayout', this.pooledLayouts);
     this.pooledLayouts.length = 0;
     this.layouts.length = 0;
     for (let i = 0, n = this.idx.length; i < n; i++) {
@@ -222,12 +214,10 @@ export class BitmapFontCache {
       for (let i = 0, n = layout.runs.length; i < n; i++) {
         const glyphs: Glyph[] = layout.runs[i].glyphs;
         const glyphItems: Glyph[] = glyphs;
-        for (let ii = 0, nn = glyphs.length; ii < nn; ii++)
-          tempGlyphCount[glyphItems[ii].page]++;
+        for (let ii = 0, nn = glyphs.length; ii < nn; ii++) tempGlyphCount[glyphItems[ii].page]++;
       }
       // Require that many for each page.
-      for (let i = 0, n = tempGlyphCount.length; i < n; i++)
-        this.requirePageGlyphs(i, tempGlyphCount[i]);
+      for (let i = 0, n = tempGlyphCount.length; i < n; i++) this.requirePageGlyphs(i, tempGlyphCount[i]);
     }
   };
 
@@ -250,13 +240,7 @@ export class BitmapFontCache {
 
   private setPageCount = (pageCount: number) => {
     const newPageVertices: number[][] = new Array(pageCount).fill([]);
-    Utils.arrayCopy(
-      this.pageVertices,
-      0,
-      newPageVertices,
-      0,
-      this.pageVertices.length
-    );
+    Utils.arrayCopy(this.pageVertices, 0, newPageVertices, 0, this.pageVertices.length);
     this.pageVertices = [...newPageVertices];
 
     const newIdx: number[] = new Array(pageCount);
@@ -267,16 +251,9 @@ export class BitmapFontCache {
     let pageGlyphIndicesLength = 0;
     if (this.pageGlyphIndices != null) {
       pageGlyphIndicesLength = this.pageGlyphIndices.length;
-      Utils.arrayCopy(
-        this.pageGlyphIndices,
-        0,
-        newPageGlyphIndices,
-        0,
-        this.pageGlyphIndices.length
-      );
+      Utils.arrayCopy(this.pageGlyphIndices, 0, newPageGlyphIndices, 0, this.pageGlyphIndices.length);
     }
-    for (let i = pageGlyphIndicesLength; i < pageCount; i++)
-      newPageGlyphIndices[i] = [];
+    for (let i = pageGlyphIndicesLength; i < pageCount; i++) newPageGlyphIndices[i] = [];
     this.pageGlyphIndices = newPageGlyphIndices;
 
     this.tempGlyphCount = new Array(pageCount);
@@ -287,8 +264,7 @@ export class BitmapFontCache {
     if (runCount === 0) return;
 
     // Check if the number of font pages has changed.
-    if (this.pageVertices.length < this.font.regions.length)
-      this.setPageCount(this.font.regions.length);
+    if (this.pageVertices.length < this.font.regions.length) this.setPageCount(this.font.regions.length);
 
     this.layouts.push(layout);
     this.requireGlyphs(layout);
@@ -307,11 +283,8 @@ export class BitmapFontCache {
         gy = y + run.y;
       for (let ii = 0, nn = run.glyphs.length; ii < nn; ii++) {
         if (glyphIndex++ === nextColorGlyphIndex) {
-          lastColorFloatBits = NumberUtil.intToFloatColor(
-            colors[++colorsIndex]
-          );
-          nextColorGlyphIndex =
-            ++colorsIndex < colors.length ? colors[colorsIndex] : -1;
+          lastColorFloatBits = NumberUtil.intToFloatColor(colors[++colorsIndex]);
+          nextColorGlyphIndex = ++colorsIndex < colors.length ? colors[colorsIndex] : -1;
         }
         gx += xAdvances[ii];
         this.drawingTexts.push(glyphs[ii].id);
@@ -348,8 +321,7 @@ export class BitmapFontCache {
     let idx = this.idx[page];
     this.idx[page] += 20;
 
-    if (this.pageGlyphIndices != null)
-      this.pageGlyphIndices[page].push(this.glyphCount++);
+    if (this.pageGlyphIndices != null) this.pageGlyphIndices[page].push(this.glyphCount++);
 
     const vertices: number[] = this.pageVertices[page];
     vertices[idx++] = x;
@@ -405,17 +377,7 @@ export class BitmapFontCache {
     truncate?: string
   ): GlyphLayout => {
     this.clear();
-    return this.addText(
-      str,
-      x,
-      y,
-      start,
-      end,
-      targetWidth,
-      halign,
-      wrap,
-      truncate
-    );
+    return this.addText(str, x, y, start, end, targetWidth, halign, wrap, truncate);
   };
 
   public setTextToCache = (layout: GlyphLayout, x: number, y: number) => {
@@ -447,20 +409,10 @@ export class BitmapFontCache {
     wrap: boolean,
     truncate?: string
   ): GlyphLayout => {
-    const layout: GlyphLayout = Pools.obtain("GlyphLayout");
+    const layout: GlyphLayout = Pools.obtain('GlyphLayout');
 
     this.pooledLayouts.push(layout);
-    layout.setText(
-      this.font,
-      str,
-      start,
-      end,
-      this.color,
-      targetWidth,
-      halign,
-      wrap,
-      truncate
-    );
+    layout.setText(this.font, str, start, end, this.color, targetWidth, halign, wrap, truncate);
     this.addTextToCache(layout, x, y);
     return layout;
   };

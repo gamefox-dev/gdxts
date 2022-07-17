@@ -1,11 +1,11 @@
-import { TextureRegion } from "./TextureRegion";
+import { TextureRegion } from './TextureRegion';
 
 export enum PlayMode {
   NORMAL = 0,
   LOOP = 1,
   LOOP_PINGPONG = 2,
   REVERSED = 3,
-  LOOP_REVERSED = 4,
+  LOOP_REVERSED = 4
 }
 
 export class Animation {
@@ -50,23 +50,16 @@ export class Animation {
     let frameNumber = 0;
     switch (mode) {
       case PlayMode.NORMAL:
-        frameNumber =
-          runIndex === 0
-            ? this.getFrameNumber(stateTimeRemainder)
-            : frameDurations.length - 1;
+        frameNumber = runIndex === 0 ? this.getFrameNumber(stateTimeRemainder) : frameDurations.length - 1;
         break;
       case PlayMode.LOOP:
         frameNumber = this.getFrameNumber(stateTimeRemainder);
         break;
       case PlayMode.LOOP_PINGPONG:
-        frameNumber = this.getFrameNumber(
-          stateTimeRemainder,
-          runIndex % 2 === 1
-        );
+        frameNumber = this.getFrameNumber(stateTimeRemainder, runIndex % 2 === 1);
         break;
       case PlayMode.REVERSED:
-        frameNumber =
-          runIndex === 0 ? this.getFrameNumber(stateTimeRemainder, true) : 0;
+        frameNumber = runIndex === 0 ? this.getFrameNumber(stateTimeRemainder, true) : 0;
         break;
       case PlayMode.LOOP_REVERSED:
         frameNumber = this.getFrameNumber(stateTimeRemainder, true);

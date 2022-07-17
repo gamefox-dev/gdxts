@@ -1,22 +1,4 @@
-import {
-  Matrix4,
-  M00,
-  M01,
-  M02,
-  M03,
-  M10,
-  M11,
-  M12,
-  M13,
-  M20,
-  M21,
-  M22,
-  M23,
-  M30,
-  M31,
-  M32,
-  M33,
-} from "./Matrix4";
+import { Matrix4, M00, M01, M02, M03, M10, M11, M12, M13, M20, M21, M22, M23, M30, M31, M32, M33 } from './Matrix4';
 
 export class Vector3 {
   x = 0;
@@ -75,55 +57,25 @@ export class Vector3 {
   }
 
   cross(v: Vector3): Vector3 {
-    return this.set(
-      this.y * v.z - this.z * v.y,
-      this.z * v.x - this.x * v.z,
-      this.x * v.y - this.y * v.x
-    );
+    return this.set(this.y * v.z - this.z * v.y, this.z * v.x - this.x * v.z, this.x * v.y - this.y * v.x);
   }
 
   multiply(matrix: Matrix4): Vector3 {
     let l_mat = matrix.values;
     return this.set(
-      this.x * l_mat[M00] +
-        this.y * l_mat[M01] +
-        this.z * l_mat[M02] +
-        l_mat[M03],
-      this.x * l_mat[M10] +
-        this.y * l_mat[M11] +
-        this.z * l_mat[M12] +
-        l_mat[M13],
-      this.x * l_mat[M20] +
-        this.y * l_mat[M21] +
-        this.z * l_mat[M22] +
-        l_mat[M23]
+      this.x * l_mat[M00] + this.y * l_mat[M01] + this.z * l_mat[M02] + l_mat[M03],
+      this.x * l_mat[M10] + this.y * l_mat[M11] + this.z * l_mat[M12] + l_mat[M13],
+      this.x * l_mat[M20] + this.y * l_mat[M21] + this.z * l_mat[M22] + l_mat[M23]
     );
   }
 
   project(matrix: Matrix4): Vector3 {
     let l_mat = matrix.values;
-    let l_w =
-      1 /
-      (this.x * l_mat[M30] +
-        this.y * l_mat[M31] +
-        this.z * l_mat[M32] +
-        l_mat[M33]);
+    let l_w = 1 / (this.x * l_mat[M30] + this.y * l_mat[M31] + this.z * l_mat[M32] + l_mat[M33]);
     return this.set(
-      (this.x * l_mat[M00] +
-        this.y * l_mat[M01] +
-        this.z * l_mat[M02] +
-        l_mat[M03]) *
-        l_w,
-      (this.x * l_mat[M10] +
-        this.y * l_mat[M11] +
-        this.z * l_mat[M12] +
-        l_mat[M13]) *
-        l_w,
-      (this.x * l_mat[M20] +
-        this.y * l_mat[M21] +
-        this.z * l_mat[M22] +
-        l_mat[M23]) *
-        l_w
+      (this.x * l_mat[M00] + this.y * l_mat[M01] + this.z * l_mat[M02] + l_mat[M03]) * l_w,
+      (this.x * l_mat[M10] + this.y * l_mat[M11] + this.z * l_mat[M12] + l_mat[M13]) * l_w,
+      (this.x * l_mat[M20] + this.y * l_mat[M21] + this.z * l_mat[M22] + l_mat[M23]) * l_w
     );
   }
 

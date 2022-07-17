@@ -1,13 +1,13 @@
-import { Disposable, Restorable } from "./Utils";
-import { ManagedWebGLRenderingContext } from "./WebGL";
+import { Disposable, Restorable } from './Utils';
+import { ManagedWebGLRenderingContext } from './WebGL';
 
 export class Shader implements Disposable, Restorable {
-  public static MVP_MATRIX = "u_projTrans";
-  public static POSITION = "a_position";
-  public static COLOR = "a_color";
-  public static COLOR2 = "a_color2";
-  public static TEXCOORDS = "a_texCoords";
-  public static SAMPLER = "u_texture";
+  public static MVP_MATRIX = 'u_projTrans';
+  public static POSITION = 'a_position';
+  public static COLOR = 'a_color';
+  public static COLOR2 = 'a_color2';
+  public static TEXCOORDS = 'a_texCoords';
+  public static SAMPLER = 'u_texture';
 
   private context: ManagedWebGLRenderingContext;
   private vs: WebGLShader = null;
@@ -43,9 +43,7 @@ export class Shader implements Disposable, Restorable {
     this.vsSource = vertexShader;
     this.fsSource = fragmentShader;
     this.context =
-      context instanceof ManagedWebGLRenderingContext
-        ? context
-        : new ManagedWebGLRenderingContext(context);
+      context instanceof ManagedWebGLRenderingContext ? context : new ManagedWebGLRenderingContext(context);
     this.context.addRestorable(this);
     this.compile();
   }
@@ -83,8 +81,7 @@ export class Shader implements Disposable, Restorable {
     gl.linkProgram(program);
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      let error =
-        "Couldn't compile shader program: " + gl.getProgramInfoLog(program);
+      let error = "Couldn't compile shader program: " + gl.getProgramInfoLog(program);
       gl.deleteProgram(program);
       if (!gl.isContextLost()) throw new Error(error);
     }
@@ -115,34 +112,12 @@ export class Shader implements Disposable, Restorable {
     this.context.gl.uniform2f(this.getUniformLocation(uniform), value, value2);
   }
 
-  public setUniform3f(
-    uniform: string,
-    value: number,
-    value2: number,
-    value3: number
-  ) {
-    this.context.gl.uniform3f(
-      this.getUniformLocation(uniform),
-      value,
-      value2,
-      value3
-    );
+  public setUniform3f(uniform: string, value: number, value2: number, value3: number) {
+    this.context.gl.uniform3f(this.getUniformLocation(uniform), value, value2, value3);
   }
 
-  public setUniform4f(
-    uniform: string,
-    value: number,
-    value2: number,
-    value3: number,
-    value4: number
-  ) {
-    this.context.gl.uniform4f(
-      this.getUniformLocation(uniform),
-      value,
-      value2,
-      value3,
-      value4
-    );
+  public setUniform4f(uniform: string, value: number, value2: number, value3: number, value4: number) {
+    this.context.gl.uniform4f(this.getUniformLocation(uniform), value, value2, value3, value4);
   }
 
   public setUniform2x2f(uniform: string, value: ArrayLike<number>) {
@@ -166,16 +141,14 @@ export class Shader implements Disposable, Restorable {
   public getUniformLocation(uniform: string): WebGLUniformLocation {
     let gl = this.context.gl;
     let location = gl.getUniformLocation(this.program, uniform);
-    if (!location && !gl.isContextLost())
-      throw new Error(`Couldn't find location for uniform ${uniform}`);
+    if (!location && !gl.isContextLost()) throw new Error(`Couldn't find location for uniform ${uniform}`);
     return location;
   }
 
   public getAttributeLocation(attribute: string): number {
     let gl = this.context.gl;
     let location = gl.getAttribLocation(this.program, attribute);
-    if (location === -1 && !gl.isContextLost())
-      throw new Error(`Couldn't find location for attribute ${attribute}`);
+    if (location === -1 && !gl.isContextLost()) throw new Error(`Couldn't find location for attribute ${attribute}`);
     return location;
   }
 
@@ -199,9 +172,7 @@ export class Shader implements Disposable, Restorable {
     }
   }
 
-  public static newColoredTextured(
-    context: ManagedWebGLRenderingContext | WebGLRenderingContext
-  ): Shader {
+  public static newColoredTextured(context: ManagedWebGLRenderingContext | WebGLRenderingContext): Shader {
     let vs = `
          attribute vec4 ${Shader.POSITION};
          attribute vec4 ${Shader.COLOR};
@@ -236,9 +207,7 @@ export class Shader implements Disposable, Restorable {
     return new Shader(context, vs, fs);
   }
 
-  public static newTwoColoredTextured(
-    context: ManagedWebGLRenderingContext | WebGLRenderingContext
-  ): Shader {
+  public static newTwoColoredTextured(context: ManagedWebGLRenderingContext | WebGLRenderingContext): Shader {
     let vs = `
          attribute vec4 ${Shader.POSITION};
          attribute vec4 ${Shader.COLOR};
@@ -279,9 +248,7 @@ export class Shader implements Disposable, Restorable {
     return new Shader(context, vs, fs);
   }
 
-  public static newColored(
-    context: ManagedWebGLRenderingContext | WebGLRenderingContext
-  ): Shader {
+  public static newColored(context: ManagedWebGLRenderingContext | WebGLRenderingContext): Shader {
     let vs = `
          attribute vec4 ${Shader.POSITION};
          attribute vec4 ${Shader.COLOR};

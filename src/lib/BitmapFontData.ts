@@ -1,17 +1,17 @@
-import { Glyph, PAGE_SIZE } from "./Glyph";
-import { GlyphRun } from "./GlyphRun";
-import { Texture } from "./Texture";
-import { TextureRegion } from "./TextureRegion";
+import { Glyph, PAGE_SIZE } from './Glyph';
+import { GlyphRun } from './GlyphRun';
+import { Texture } from './Texture';
+import { TextureRegion } from './TextureRegion';
 
 function concatAndResolveUrl(url: string, concat: string) {
-  let url1 = url.split("/");
-  let url2 = concat.split("/");
+  let url1 = url.split('/');
+  let url2 = concat.split('/');
   let url3 = [];
 
   for (let i = 0, l = url1.length; i < l; i++) {
-    if (url1[i] === "..") {
+    if (url1[i] === '..') {
       url3.pop();
-    } else if (url1[i] === ".") {
+    } else if (url1[i] === '.') {
       continue;
     } else {
       url3.push(url1[i]);
@@ -19,15 +19,15 @@ function concatAndResolveUrl(url: string, concat: string) {
   }
 
   for (let i = 0, l = url2.length; i < l; i++) {
-    if (url2[i] === "..") {
+    if (url2[i] === '..') {
       url3.pop();
-    } else if (url2[i] === ".") {
+    } else if (url2[i] === '.') {
       continue;
     } else {
       url3.push(url2[i]);
     }
   }
-  return url3.join("/");
+  return url3.join('/');
 }
 
 const CHARACTER_MAX_VALUE = 65535;
@@ -75,48 +75,34 @@ export class BitmapFontData {
 
   /** Additional characters besides whitespace where text is wrapped. Eg, a hypen (-). */
   public breakChars: string[];
-  public xChars: string[] = [
-    "x",
-    "e",
-    "a",
-    "o",
-    "n",
-    "s",
-    "r",
-    "c",
-    "u",
-    "m",
-    "v",
-    "w",
-    "z",
-  ];
+  public xChars: string[] = ['x', 'e', 'a', 'o', 'n', 's', 'r', 'c', 'u', 'm', 'v', 'w', 'z'];
   public capChars: string[] = [
-    "M",
-    "N",
-    "B",
-    "D",
-    "C",
-    "E",
-    "F",
-    "K",
-    "A",
-    "G",
-    "H",
-    "I",
-    "J",
-    "L",
-    "O",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "U",
-    "V",
-    "W",
-    "X",
-    "Y",
-    "Z",
+    'M',
+    'N',
+    'B',
+    'D',
+    'C',
+    'E',
+    'F',
+    'K',
+    'A',
+    'G',
+    'H',
+    'I',
+    'J',
+    'L',
+    'O',
+    'P',
+    'Q',
+    'R',
+    'S',
+    'T',
+    'U',
+    'V',
+    'W',
+    'X',
+    'Y',
+    'Z'
   ];
 
   /** Creates an empty BitmapFontData for configuration before calling {@link #load(FileHandle, boolean)}, to subclass, or to
@@ -137,17 +123,15 @@ export class BitmapFontData {
 
     fileContent = await res.text();
 
-    const lines = fileContent.split("\n").map((s: string) => s.trim());
+    const lines = fileContent.split('\n').map((s: string) => s.trim());
 
     try {
       let line: string = lines[i];
-      if (typeof line !== "string") throw new Error("File is empty.");
+      if (typeof line !== 'string') throw new Error('File is empty.');
 
-      line = line.substring(line.indexOf("padding=") + 8);
-      const padding: string[] = line
-        .substring(0, line.indexOf(" "))
-        .split(",", 4);
-      if (padding.length !== 4) throw new Error("Invalid padding.");
+      line = line.substring(line.indexOf('padding=') + 8);
+      const padding: string[] = line.substring(0, line.indexOf(' ')).split(',', 4);
+      if (padding.length !== 4) throw new Error('Invalid padding.');
       this.padTop = parseInt(padding[0]);
       this.padRight = parseInt(padding[1]);
       this.padBottom = parseInt(padding[2]);
@@ -156,25 +140,20 @@ export class BitmapFontData {
 
       i++;
       line = lines[i];
-      if (typeof line !== "string") throw new Error("Missing common header.");
-      const common: string[] = line.split(" ", 9); // At most we want the 6th element; i.e. "page=N"
+      if (typeof line !== 'string') throw new Error('Missing common header.');
+      const common: string[] = line.split(' ', 9); // At most we want the 6th element; i.e. "page=N"
 
       // At least lineHeight and base are required.
-      if (common.length < 3) throw new Error("Invalid common header.");
+      if (common.length < 3) throw new Error('Invalid common header.');
 
-      if (!common[1].startsWith("lineHeight="))
-        throw new Error("Missing: lineHeight");
+      if (!common[1].startsWith('lineHeight=')) throw new Error('Missing: lineHeight');
       this.lineHeight = parseInt(common[1].substring(11));
 
-      if (!common[2].startsWith("base=")) throw new Error("Missing: base");
+      if (!common[2].startsWith('base=')) throw new Error('Missing: base');
       const baseLine = parseInt(common[2].substring(5));
 
       let pageCount = 1;
-      if (
-        common.length >= 6 &&
-        common[5] != null &&
-        common[5].startsWith("pages=")
-      ) {
+      if (common.length >= 6 && common[5] != null && common[5].startsWith('pages=')) {
         try {
           pageCount = Math.max(1, parseInt(common[5].substring(6)));
         } catch {
@@ -190,25 +169,22 @@ export class BitmapFontData {
         // Read each "page" info line.
         i++;
         line = lines[i];
-        if (typeof line !== "string")
-          throw new Error("Missing additional page definitions.");
+        if (typeof line !== 'string') throw new Error('Missing additional page definitions.');
 
         // Expect ID to mean "index".
 
-        const idMatches = line.match(new RegExp(".*id=(\\d+)"));
+        const idMatches = line.match(new RegExp('.*id=(\\d+)'));
 
         if (idMatches && idMatches.length > 1) {
           const id = idMatches[1];
           try {
             const pageID = parseInt(id);
-            if (pageID !== p)
-              throw new Error("Page IDs must be indices starting at 0: " + id);
+            if (pageID !== p) throw new Error('Page IDs must be indices starting at 0: ' + id);
           } catch {}
         }
 
         const fileMatches = line.match(new RegExp('.*file="?([^"]+)"?'));
-        if (!fileMatches || fileMatches.length <= 1)
-          throw new Error("Missing: file");
+        if (!fileMatches || fileMatches.length <= 1) throw new Error('Missing: file');
         const fileName = fileMatches[1];
         imagePaths[p] = fileName;
         // this.imagePaths[p] = fontFile.parent().child(fileName).path().replaceAll("\\\\", "/");
@@ -219,20 +195,20 @@ export class BitmapFontData {
         i++;
         line = lines[i];
         if (!line) break; // EOF
-        if (line.startsWith("kernings ")) break; // Starting kernings block.
-        if (line.startsWith("metrics ")) break; // Starting metrics block.
-        if (!line.startsWith("char ")) continue;
+        if (line.startsWith('kernings ')) break; // Starting kernings block.
+        if (line.startsWith('metrics ')) break; // Starting metrics block.
+        if (!line.startsWith('char ')) continue;
 
         const glyph = new Glyph();
 
-        const tokens = new StringTokenizer(line, "=");
+        const tokens = new StringTokenizer(line, '=');
         tokens.nextToken();
         tokens.nextToken();
         const ch = parseInt(tokens.nextToken());
 
         if (ch > 0 && ch > CHARACTER_MAX_VALUE) continue;
 
-        glyph.id = ch + "";
+        glyph.id = ch + '';
         tokens.nextToken();
         glyph.srcX = parseInt(tokens.nextToken());
         tokens.nextToken();
@@ -258,8 +234,7 @@ export class BitmapFontData {
           } catch {}
         }
 
-        if (glyph.width > 0 && glyph.height > 0)
-          this.descent = Math.min(baseLine + glyph.yoffset, this.descent);
+        if (glyph.width > 0 && glyph.height > 0) this.descent = Math.min(baseLine + glyph.yoffset, this.descent);
 
         if (ch <= 0) {
           this.missingGlyph = glyph;
@@ -272,23 +247,17 @@ export class BitmapFontData {
       while (true) {
         i++;
         line = lines[i];
-        if (typeof line !== "string") break;
-        if (!line.startsWith("kerning ")) break;
+        if (typeof line !== 'string') break;
+        if (!line.startsWith('kerning ')) break;
 
-        const tokens = new StringTokenizer(line, "=");
+        const tokens = new StringTokenizer(line, '=');
         tokens.nextToken();
         tokens.nextToken();
         let first = parseInt(tokens.nextToken());
         tokens.nextToken();
         let second = parseInt(tokens.nextToken());
-        if (
-          first < 0 ||
-          first > CHARACTER_MAX_VALUE ||
-          second < 0 ||
-          second > CHARACTER_MAX_VALUE
-        )
-          continue;
-        const glyph: Glyph | undefined = this.getGlyph(first + "");
+        if (first < 0 || first > CHARACTER_MAX_VALUE || second < 0 || second > CHARACTER_MAX_VALUE) continue;
+        const glyph: Glyph | undefined = this.getGlyph(first + '');
         tokens.nextToken();
         const amount = parseInt(tokens.nextToken());
         if (glyph) {
@@ -307,10 +276,10 @@ export class BitmapFontData {
       let overrideXHeight = 0;
 
       // Metrics override
-      if (line != null && line.startsWith("metrics ")) {
+      if (line != null && line.startsWith('metrics ')) {
         hasMetricsOverride = true;
 
-        const tokens = new StringTokenizer(line, "=");
+        const tokens = new StringTokenizer(line, '=');
         tokens.nextToken();
         tokens.nextToken();
         overrideAscent = parseFloat(tokens.nextToken());
@@ -328,12 +297,12 @@ export class BitmapFontData {
         overrideXHeight = parseFloat(tokens.nextToken());
       }
 
-      let spaceGlyph: Glyph | undefined = this.getGlyph("32");
+      let spaceGlyph: Glyph | undefined = this.getGlyph('32');
 
       if (!spaceGlyph) {
         spaceGlyph = new Glyph();
-        spaceGlyph.id = "32";
-        let xadvanceGlyph: Glyph | undefined = this.getGlyph("l");
+        spaceGlyph.id = '32';
+        let xadvanceGlyph: Glyph | undefined = this.getGlyph('l');
         if (!xadvanceGlyph) xadvanceGlyph = this.getFirstGlyph();
         spaceGlyph.xadvance = xadvanceGlyph!.xadvance;
         this.setGlyph(32, spaceGlyph); // space character ascii code
@@ -366,8 +335,7 @@ export class BitmapFontData {
           if (!page) continue;
 
           for (let j = 0; j < page.length; j++) {
-            if (!page[j] || page[j].height === 0 || page[j].width === 0)
-              continue;
+            if (!page[j] || page[j].height === 0 || page[j].width === 0) continue;
             this.capHeight = Math.max(this.capHeight, page[j].height);
           }
         }
@@ -407,7 +375,7 @@ export class BitmapFontData {
             yoffset: values[j].yoffset,
             xadvance: values[j].xadvance,
             page: imagePaths[values[j].page],
-            pageId: values[j].page,
+            pageId: values[j].page
           };
           regionsData.push(region);
         }
@@ -420,16 +388,13 @@ export class BitmapFontData {
       }[] = [];
 
       for (let i = 0; i < pageCount; i++) {
-        const texture = await Texture.load(
-          gl,
-          concatAndResolveUrl(this.fontFile, `../${imagePaths[i]}`)
-        );
+        const texture = await Texture.load(gl, concatAndResolveUrl(this.fontFile, `../${imagePaths[i]}`));
         const invTexWidth = 1 / texture.width;
         const invTexHeight = 1 / texture.height;
         pages.push({
           texture,
           invTexWidth,
-          invTexHeight,
+          invTexHeight
         });
       }
 
@@ -440,16 +405,7 @@ export class BitmapFontData {
         const width = regionData.width;
         const height = regionData.height;
         const { texture, invTexWidth, invTexHeight } = pages[regionData.pageId];
-        const region = new TextureRegion(
-          texture,
-          left,
-          top,
-          width,
-          height,
-          regionData,
-          invTexWidth,
-          invTexHeight
-        );
+        const region = new TextureRegion(texture, left, top, width, height, regionData, invTexWidth, invTexHeight);
         region.originalWidth = width;
         region.originalHeight = height;
         region.offsetX = 0;
@@ -575,13 +531,7 @@ export class BitmapFontData {
    *           square bracket.
    * @param lastGlyph The glyph immediately before this run, or null if this is run is the first on a line of text. Used tp
    *           apply kerning between the specified glyph and the first glyph in this run. */
-  getGlyphs = (
-    run: GlyphRun,
-    str: string,
-    start: number,
-    end: number,
-    lastGlyph: Glyph | null
-  ) => {
+  getGlyphs = (run: GlyphRun, str: string, start: number, end: number, lastGlyph: Glyph | null) => {
     const max = end - start;
     if (max === 0) return;
     let markupEnabled = this.markupEnabled;
@@ -595,7 +545,7 @@ export class BitmapFontData {
 
     do {
       const ch = str.charAt(start++);
-      if (ch === "\r") continue; // Ignore.
+      if (ch === '\r') continue; // Ignore.
       let glyph = this.getGlyph(ch);
 
       if (!glyph) {
@@ -613,13 +563,7 @@ export class BitmapFontData {
       lastGlyph = glyph;
 
       // "[[" is an escaped left square bracket, skip second character.
-      if (
-        markupEnabled &&
-        ch === "[" &&
-        start < end &&
-        str.charAt(start) === "["
-      )
-        start++;
+      if (markupEnabled && ch === '[' && start < end && str.charAt(start) === '[') start++;
     } while (start < end);
     if (lastGlyph) {
       const lastGlyphWidth = lastGlyph.fixedWidth
@@ -636,11 +580,11 @@ export class BitmapFontData {
     const glyphsItems = glyphs;
     let ch = glyphsItems[i].id;
 
-    if (this.isWhitespace(ch + "")) return i;
-    if (this.isBreakChar(ch + "")) i--;
+    if (this.isWhitespace(ch + '')) return i;
+    if (this.isBreakChar(ch + '')) i--;
     for (; i > 0; i--) {
       ch = glyphsItems[i].id;
-      if (this.isWhitespace(ch + "") || this.isBreakChar(ch + "")) {
+      if (this.isWhitespace(ch + '') || this.isBreakChar(ch + '')) {
         return i + 1;
       }
     }
@@ -660,10 +604,10 @@ export class BitmapFontData {
   isWhitespace = (c: string): boolean => {
     const character = String.fromCharCode(parseInt(c));
     switch (character) {
-      case "\n":
-      case "\r":
-      case "\t":
-      case " ":
+      case '\n':
+      case '\r':
+      case '\t':
+      case ' ':
         return true;
       default:
         return false;

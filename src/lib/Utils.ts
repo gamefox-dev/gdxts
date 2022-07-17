@@ -111,12 +111,7 @@ export class Color {
   public static BLUE = new Color(0, 0, 1, 1);
   public static MAGENTA = new Color(1, 0, 1, 1);
 
-  constructor(
-    public r: number = 0,
-    public g: number = 0,
-    public b: number = 0,
-    public a: number = 0
-  ) {}
+  constructor(public r: number = 0, public g: number = 0, public b: number = 0, public a: number = 0) {}
 
   set(r: number, g: number, b: number, a: number) {
     this.r = r;
@@ -135,7 +130,7 @@ export class Color {
   }
 
   setFromString(hex: string) {
-    hex = hex.charAt(0) === "#" ? hex.substring(1) : hex;
+    hex = hex.charAt(0) === '#' ? hex.substring(1) : hex;
     this.r = parseInt(hex.substring(0, 2), 16) / 255;
     this.g = parseInt(hex.substring(2, 4), 16) / 255;
     this.b = parseInt(hex.substring(4, 6), 16) / 255;
@@ -167,12 +162,7 @@ export class Color {
   }
 
   toIntBits() {
-    return (
-      ((255 * this.a) << 24) |
-      ((255 * this.b) << 16) |
-      ((255 * this.g) << 8) |
-      (255 * this.r)
-    );
+    return ((255 * this.a) << 24) | ((255 * this.b) << 16) | ((255 * this.g) << 8) | (255 * this.r);
   }
 
   static rgba8888ToColor(color: Color, value: number) {
@@ -261,9 +251,7 @@ export class Pow extends Interpolation {
 
   applyInternal(a: number): number {
     if (a <= 0.5) return Math.pow(a * 2, this.power) / 2;
-    return (
-      Math.pow((a - 1) * 2, this.power) / (this.power % 2 === 0 ? -2 : 2) + 1
-    );
+    return Math.pow((a - 1) * 2, this.power) / (this.power % 2 === 0 ? -2 : 2) + 1;
   }
 }
 
@@ -278,7 +266,7 @@ export class PowOut extends Pow {
 }
 
 export class Utils {
-  static SUPPORTS_TYPED_ARRAYS = typeof Float32Array !== "undefined";
+  static SUPPORTS_TYPED_ARRAYS = typeof Float32Array !== 'undefined';
 
   static arrayCopy<T>(
     source: ArrayLike<T>,
@@ -287,29 +275,16 @@ export class Utils {
     destStart: number,
     numElements: number
   ) {
-    for (
-      let i = sourceStart, j = destStart;
-      i < sourceStart + numElements;
-      i++, j++
-    ) {
+    for (let i = sourceStart, j = destStart; i < sourceStart + numElements; i++, j++) {
       dest[j] = source[i];
     }
   }
 
-  static arrayFill<T>(
-    array: ArrayLike<T>,
-    fromIndex: number,
-    toIndex: number,
-    value: T
-  ) {
+  static arrayFill<T>(array: ArrayLike<T>, fromIndex: number, toIndex: number, value: T) {
     for (let i = fromIndex; i < toIndex; i++) array[i] = value;
   }
 
-  static setArraySize<T>(
-    array: Array<T>,
-    size: number,
-    value: any = 0
-  ): Array<T> {
+  static setArraySize<T>(array: Array<T>, size: number, value: any = 0): Array<T> {
     let oldSize = array.length;
     if (oldSize === size) return array;
     array.length = size;
@@ -319,11 +294,7 @@ export class Utils {
     return array;
   }
 
-  static ensureArrayCapacity<T>(
-    array: Array<T>,
-    size: number,
-    value: any = 0
-  ): Array<T> {
+  static ensureArrayCapacity<T>(array: Array<T>, size: number, value: any = 0): Array<T> {
     if (array.length >= size) return array;
     return Utils.setArraySize(array, size, value);
   }
@@ -361,8 +332,7 @@ export class Utils {
   }
 
   static contains<T>(array: Array<T>, element: T, identity = true) {
-    for (var i = 0; i < array.length; i++)
-      if (array[i] === element) return true;
+    for (var i = 0; i < array.length; i++) if (array[i] === element) return true;
     return false;
   }
 
@@ -561,14 +531,11 @@ export const createGameLoop = (update: (delta: number) => void): GameLoop => {
       }
       running = false;
     },
-    getFps: () => fps,
+    getFps: () => fps
   };
 };
 
-export const resizeCanvas = (
-  canvas: HTMLCanvasElement,
-  deviceRatio: number
-): [number, number] => {
+export const resizeCanvas = (canvas: HTMLCanvasElement, deviceRatio: number): [number, number] => {
   const devicePixelRatio = deviceRatio || window.devicePixelRatio || 1;
 
   const displayWidth = canvas.clientWidth * devicePixelRatio;
@@ -581,14 +548,7 @@ export const resizeCanvas = (
   return [displayWidth, displayHeight];
 };
 
-export const pointInRect = (
-  pX: number,
-  pY: number,
-  x: number,
-  y: number,
-  width: number,
-  height: number
-): boolean => {
+export const pointInRect = (pX: number, pY: number, x: number, y: number, width: number, height: number): boolean => {
   return pX > x && pX < x + width && pY > y && pY < y + height;
 };
 
@@ -609,27 +569,24 @@ export interface Stage {
 export const createStage = (options?: StageOptions) => {
   const defaultOptions = {
     hidden: false,
-    info: true,
+    info: true
   };
   options = { ...defaultOptions, ...options };
-  const wrapper = document.createElement("div");
-  wrapper.setAttribute(
-    "style",
-    `position:fixed;top:0;left:0;right:0;bottom:0;`
-  );
+  const wrapper = document.createElement('div');
+  wrapper.setAttribute('style', `position:fixed;top:0;left:0;right:0;bottom:0;`);
   if (options.wrapperClassName) {
     wrapper.className = options.wrapperClassName;
   }
   if (options.hidden) {
-    wrapper.style.display = "none";
+    wrapper.style.display = 'none';
   }
-  const canvas = document.createElement("canvas");
-  canvas.setAttribute("style", `width:100%;height:100%;`);
-  const info = document.createElement("div");
-  info.setAttribute("style", `position:absolute;top:1em;left:1em;color:white`);
+  const canvas = document.createElement('canvas');
+  canvas.setAttribute('style', `width:100%;height:100%;`);
+  const info = document.createElement('div');
+  info.setAttribute('style', `position:absolute;top:1em;left:1em;color:white`);
 
   if (!options.info) {
-    info.style.display = "none";
+    info.style.display = 'none';
   }
 
   wrapper.appendChild(canvas);
@@ -639,8 +596,8 @@ export const createStage = (options?: StageOptions) => {
   return {
     getCanvas: () => canvas,
     getInfo: () => info,
-    show: () => (wrapper.style.display = "block"),
-    hide: () => (wrapper.style.display = "none"),
-    cleanup: () => document.body.removeChild(wrapper),
+    show: () => (wrapper.style.display = 'block'),
+    hide: () => (wrapper.style.display = 'none'),
+    cleanup: () => document.body.removeChild(wrapper)
   };
 };

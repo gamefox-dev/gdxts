@@ -1,5 +1,5 @@
-import { PolygonBatch } from "./PolygonBatcher";
-import { Texture } from "./Texture";
+import { PolygonBatch } from './PolygonBatcher';
+import { Texture } from './Texture';
 
 export class TextureRegion {
   static splitTexture(texture, cols, rows): TextureRegion[] {
@@ -11,16 +11,7 @@ export class TextureRegion {
 
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
-        regions.push(
-          new TextureRegion(
-            texture,
-            x * regionWidth,
-            y * regionHeight,
-            regionWidth,
-            regionHeight,
-            {}
-          )
-        );
+        regions.push(new TextureRegion(texture, x * regionWidth, y * regionHeight, regionWidth, regionHeight, {}));
       }
     }
     return regions;
@@ -100,14 +91,7 @@ export class TextureRegion {
     scaleX = 1,
     scaleY = 1
   ) {
-    const {
-      originalWidth,
-      originalHeight,
-      offsetX,
-      offsetY,
-      width: regionWidth,
-      height: regionHeight,
-    } = this;
+    const { originalWidth, originalHeight, offsetX, offsetY, width: regionWidth, height: regionHeight } = this;
 
     const xRatio = width / originalWidth;
     const yRatio = height / originalHeight;

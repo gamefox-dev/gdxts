@@ -1,5 +1,5 @@
-import { Texture } from "./Texture";
-import { TextureAtlas } from "./TextureAtlas";
+import { Texture } from './Texture';
+import { TextureAtlas } from './TextureAtlas';
 
 export default class AssetManager {
   gl: WebGLRenderingContext;
@@ -20,14 +20,11 @@ export default class AssetManager {
   reportDone() {
     this.done++;
     for (const handler of this.listeners) {
-      handler(
-        (this.done / this.getTotal()) * 100,
-        this.done >= this.getTotal()
-      );
+      handler((this.done / this.getTotal()) * 100, this.done >= this.getTotal());
     }
   }
   loadAtlas(path: string, name: string): Promise<TextureAtlas> {
-    const promise = TextureAtlas.load(this.gl, path, {}).then((atlas) => {
+    const promise = TextureAtlas.load(this.gl, path, {}).then(atlas => {
       this.atlases.set(name, atlas);
       this.reportDone();
       return atlas;
@@ -40,8 +37,8 @@ export default class AssetManager {
   }
   loadJsonData(path: string, name: string): Promise<any> {
     const promise = fetch(path)
-      .then((res) => res.json())
-      .then((json) => {
+      .then(res => res.json())
+      .then(json => {
         this.jsonData.set(name, json);
         this.reportDone();
         return json;
@@ -54,8 +51,8 @@ export default class AssetManager {
   }
   loadBinaryData(path: string, name: string): Promise<ArrayBuffer> {
     const promise = fetch(path)
-      .then((res) => res.arrayBuffer())
-      .then((buffer) => {
+      .then(res => res.arrayBuffer())
+      .then(buffer => {
         this.binaryData.set(name, buffer);
         this.reportDone();
         return buffer;
@@ -80,7 +77,7 @@ export default class AssetManager {
   //   return this.fonts.get(name);
   // }
   loadTexture(path: string, name: string): Promise<Texture> {
-    const promise = Texture.load(this.gl, path).then((texture) => {
+    const promise = Texture.load(this.gl, path).then(texture => {
       this.textures.set(name, texture);
       this.reportDone();
       return texture;
@@ -102,16 +99,16 @@ export default class AssetManager {
   }
   disposeAll(): void {
     const atlasKeys = [...this.atlases.keys()];
-    atlasKeys.forEach((key) => {
+    atlasKeys.forEach(key => {
       const textureRegions = this.atlases.get(key)?.getRegions() || [];
-      textureRegions.forEach((texture) => {
+      textureRegions.forEach(texture => {
         (texture.texture as any)?.destroy();
       });
       this.atlases.delete(key);
     });
 
     const localTextureKeys = [...this.textures.keys()];
-    localTextureKeys.forEach((key) => {
+    localTextureKeys.forEach(key => {
       (this.textures.get(key) as any)?.destroy();
       this.textures.delete(key);
     });

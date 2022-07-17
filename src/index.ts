@@ -15,8 +15,8 @@ import {
   Game,
   Screen,
   Align,
-  BitmapFont,
-} from "./lib";
+  BitmapFont
+} from './lib';
 
 const YDOWN = true;
 const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
@@ -27,18 +27,12 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
 
   const inputHandler = new ViewportInputHandler(viewport);
 
-  const kitGardenAtlas = await TextureAtlas.load(gl, "./kit-garden.atlas");
-  const atlas = await TextureAtlas.load(gl, "./gem.atlas");
+  const kitGardenAtlas = await TextureAtlas.load(gl, './kit-garden.atlas');
+  const atlas = await TextureAtlas.load(gl, './gem.atlas');
 
-  const kitFullRun = new Animation(
-    kitGardenAtlas.findRegions("char_run_full"),
-    [1 / 30]
-  );
+  const kitFullRun = new Animation(kitGardenAtlas.findRegions('char_run_full'), [1 / 30]);
 
-  const kitFullHalf = new Animation(
-    kitGardenAtlas.findRegions("char_run_half"),
-    [1 / 30]
-  );
+  const kitFullHalf = new Animation(kitGardenAtlas.findRegions('char_run_half'), [1 / 30]);
 
   const batch = new PolygonBatch(gl);
 
@@ -53,7 +47,7 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
       gems.push({
         x: x * 52,
         y: y * 52,
-        type: Math.floor(Math.random() * 4),
+        type: Math.floor(Math.random() * 4)
       });
     }
   }
@@ -64,7 +58,7 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
     gems.push({
       x: coord.x - 25,
       y: coord.y - 25,
-      type: Math.floor(Math.random() * 4),
+      type: Math.floor(Math.random() * 4)
     });
 
     if (gems.length > 30 && !transitioning) {
@@ -88,26 +82,20 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
       batch.setProjection(camera.projectionView.values);
       batch.begin();
       for (let gem of gems) {
-        atlas
-          .findRegion(`gem_0${gem.type + 1}`, 1)
-          .draw(batch, gem.x, gem.y, 50, 50);
+        atlas.findRegion(`gem_0${gem.type + 1}`, 1).draw(batch, gem.x, gem.y, 50, 50);
       }
-      kitFullRun
-        .getKeyFrame(stateTime, PlayMode.LOOP)
-        .draw(batch, 300, 100, 75, 100);
+      kitFullRun.getKeyFrame(stateTime, PlayMode.LOOP).draw(batch, 300, 100, 75, 100);
 
-      kitFullHalf
-        .getKeyFrame(stateTime, PlayMode.LOOP)
-        .draw(batch, 400, 100, 75, 100);
+      kitFullHalf.getKeyFrame(stateTime, PlayMode.LOOP).draw(batch, 400, 100, 75, 100);
       batch.end();
     },
     dispose() {
-      console.log("main screen disposed");
+      console.log('main screen disposed');
       batch.dispose();
       shapeRenderer.dispose();
       atlas.dispose();
       kitGardenAtlas.dispose();
-    },
+    }
   };
 };
 
@@ -118,7 +106,7 @@ const createTestScreen = async (viewport: Viewport): Promise<Screen> => {
   const batch = new PolygonBatch(gl);
   batch.setYDown(YDOWN);
 
-  const texture = await Texture.load(gl, "test.jpg");
+  const texture = await Texture.load(gl, 'test.jpg');
   let accumulate = 0;
   let transitioning = false;
 
@@ -127,7 +115,7 @@ const createTestScreen = async (viewport: Viewport): Promise<Screen> => {
       accumulate += delta;
       if (accumulate >= 2 && !transitioning) {
         transitioning = true;
-        createMainScreen(viewport).then((screen) => game.setScreen(screen));
+        createMainScreen(viewport).then(screen => game.setScreen(screen));
       }
       batch.setProjection(camera.projectionView.values);
       batch.begin();
@@ -135,16 +123,14 @@ const createTestScreen = async (viewport: Viewport): Promise<Screen> => {
       batch.end();
     },
     dispose() {
-      console.log("test screen disposed");
+      console.log('test screen disposed');
       batch.dispose();
       texture.dispose();
-    },
+    }
   };
 };
 
-const createTestBitmapFontScreen = async (
-  viewport: Viewport
-): Promise<Screen> => {
+const createTestBitmapFontScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
   const camera = viewport.getCamera();
   camera.setYDown(YDOWN);
@@ -156,12 +142,12 @@ const createTestBitmapFontScreen = async (
 
   const shapeRenderer = new ShapeRenderer(gl);
 
-  const font = await BitmapFont.load(gl, "./number.fnt", YDOWN, false);
+  const font = await BitmapFont.load(gl, './number.fnt', YDOWN, false);
 
   const strs = [
-    "Strings are useful for holding data that can be represented in text form. Some of the most-used operations on strings are to check their",
+    'Strings are useful for holding data that can be represented in text form. Some of the most-used operations on strings are to check their',
     "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever",
-    "Strings are useful for holding data",
+    'Strings are useful for holding data'
   ];
 
   const color = new Color(1, 1, 0, 0.6);
@@ -176,21 +162,12 @@ const createTestBitmapFontScreen = async (
       batch.setProjection(camera.projectionView.values);
       batch.begin();
       batch.setColor(color);
-      strs.map((str, i) =>
-        font.draw(
-          batch,
-          str,
-          0,
-          (i + 1) * 300,
-          500,
-          [Align.left, Align.center, Align.right][i]
-        )
-      );
+      strs.map((str, i) => font.draw(batch, str, 0, (i + 1) * 300, 500, [Align.left, Align.center, Align.right][i]));
       batch.end();
     },
     dispose() {
       batch.dispose();
-    },
+    }
   };
 };
 
@@ -199,7 +176,7 @@ const init = async () => {
   const canvas = stage.getCanvas();
 
   const viewport = createViewport(canvas, 500, 1000, {
-    crop: false,
+    crop: false
   });
   const gl = viewport.getContext();
 

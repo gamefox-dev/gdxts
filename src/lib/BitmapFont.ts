@@ -1,9 +1,9 @@
-import { BitmapFontCache } from "./BitmapFontCache";
-import { BitmapFontData } from "./BitmapFontData";
-import { Glyph } from "./Glyph";
-import { PolygonBatch } from "./PolygonBatcher";
-import { TextureRegion } from "./TextureRegion";
-import { Align, Color } from "./Utils";
+import { BitmapFontCache } from './BitmapFontCache';
+import { BitmapFontData } from './BitmapFontData';
+import { Glyph } from './Glyph';
+import { PolygonBatch } from './PolygonBatcher';
+import { TextureRegion } from './TextureRegion';
+import { Align, Color } from './Utils';
 
 export class BitmapFont {
   data: BitmapFontData;
@@ -17,11 +17,7 @@ export class BitmapFont {
    * is null or empty, the image path(s) will be read from the BitmapFontData. The dispose() method will not dispose the texture
    * of the region(s) if the regions array is != null and not empty.
    * @param integer If true, rendering positions will be at integer values to avoid filtering artifacts. */
-  constructor(
-    data: BitmapFontData,
-    regions: TextureRegion[],
-    integer: boolean
-  ) {
+  constructor(data: BitmapFontData, regions: TextureRegion[], integer: boolean) {
     this.regions = regions;
 
     this.flipped = data.flipped;
@@ -29,7 +25,7 @@ export class BitmapFont {
     this.integer = integer;
 
     if (this.regions.length === 0) {
-      console.log("No texture region were found");
+      console.log('No texture region were found');
       return;
     } else {
       this.ownsTexture = false;
@@ -40,12 +36,7 @@ export class BitmapFont {
     this.load(data);
   }
 
-  public static load = async (
-    gl: WebGLRenderingContext,
-    fontFile: string,
-    flip: boolean,
-    interger: boolean
-  ) => {
+  public static load = async (gl: WebGLRenderingContext, fontFile: string, flip: boolean, interger: boolean) => {
     const fontData = new BitmapFontData(fontFile, flip);
     await fontData.loadFont(gl);
     return new BitmapFont(fontData, fontData.regions, interger);
@@ -64,11 +55,7 @@ export class BitmapFont {
       }
     }
 
-    if (data.missingGlyph != null)
-      data.setGlyphRegion(
-        data.missingGlyph,
-        this.regions[data.missingGlyph.page]
-      );
+    if (data.missingGlyph != null) data.setGlyphRegion(data.missingGlyph, this.regions[data.missingGlyph.page]);
   };
 
   /** Draws text at the specified position.
@@ -86,17 +73,7 @@ export class BitmapFont {
     truncate?: string
   ) => {
     this.cache.clear();
-    this.cache.addText(
-      str,
-      x,
-      y,
-      start,
-      end,
-      targetWidth,
-      halign,
-      wrap,
-      truncate
-    );
+    this.cache.addText(str, x, y, start, end, targetWidth, halign, wrap, truncate);
     this.cache.draw(batch);
   };
 

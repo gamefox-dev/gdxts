@@ -1,14 +1,8 @@
-import { Color, Disposable } from "./Utils";
-import { Texture } from "./Texture";
-import {
-  Mesh,
-  Position2Attribute,
-  ColorAttribute,
-  TexCoordAttribute,
-  Color2Attribute,
-} from "./Mesh";
-import { Shader } from "./Shader";
-import { ManagedWebGLRenderingContext } from "./WebGL";
+import { Color, Disposable } from './Utils';
+import { Texture } from './Texture';
+import { Mesh, Position2Attribute, ColorAttribute, TexCoordAttribute, Color2Attribute } from './Mesh';
+import { Shader } from './Shader';
+import { ManagedWebGLRenderingContext } from './WebGL';
 
 // prettier-ignore
 const quad = [
@@ -41,26 +35,12 @@ export class PolygonBatch implements Disposable {
     twoColorTint: boolean = true,
     maxVertices: number = 10920
   ) {
-    if (maxVertices > 10920)
-      throw new Error(
-        "Can't have more than 10920 triangles per batch: " + maxVertices
-      );
+    if (maxVertices > 10920) throw new Error("Can't have more than 10920 triangles per batch: " + maxVertices);
     this.context =
-      context instanceof ManagedWebGLRenderingContext
-        ? context
-        : new ManagedWebGLRenderingContext(context);
+      context instanceof ManagedWebGLRenderingContext ? context : new ManagedWebGLRenderingContext(context);
     let attributes = twoColorTint
-      ? [
-          new Position2Attribute(),
-          new ColorAttribute(),
-          new TexCoordAttribute(),
-          new Color2Attribute(),
-        ]
-      : [
-          new Position2Attribute(),
-          new ColorAttribute(),
-          new TexCoordAttribute(),
-        ];
+      ? [new Position2Attribute(), new ColorAttribute(), new TexCoordAttribute(), new Color2Attribute()]
+      : [new Position2Attribute(), new ColorAttribute(), new TexCoordAttribute()];
     this.mesh = new Mesh(context, attributes, maxVertices, maxVertices * 3);
     this.shader = Shader.newTwoColoredTextured(context);
     let gl = this.context.gl;
@@ -84,9 +64,7 @@ export class PolygonBatch implements Disposable {
 
   begin() {
     if (this.isDrawing)
-      throw new Error(
-        "PolygonBatch is already drawing. Call PolygonBatch.end() before calling PolygonBatch.begin()"
-      );
+      throw new Error('PolygonBatch is already drawing. Call PolygonBatch.end() before calling PolygonBatch.begin()');
     this.drawCalls = 0;
     const shader = this.shader;
     this.lastTexture = null;
@@ -94,24 +72,15 @@ export class PolygonBatch implements Disposable {
 
     shader.bind();
     shader.setUniform4x4f(Shader.MVP_MATRIX, this.projectionValues);
-    shader.setUniformi("u_texture", 0);
+    shader.setUniformi('u_texture', 0);
 
     let gl = this.context.gl;
     gl.enable(gl.BLEND);
-    gl.blendFuncSeparate(
-      this.srcColorBlend,
-      this.dstBlend,
-      this.srcAlphaBlend,
-      this.dstBlend
-    );
+    gl.blendFuncSeparate(this.srcColorBlend, this.dstBlend, this.srcAlphaBlend, this.dstBlend);
   }
 
   setBlendMode(srcColorBlend: number, srcAlphaBlend: number, dstBlend: number) {
-    if (
-      this.srcColorBlend === srcColorBlend &&
-      this.srcAlphaBlend === srcAlphaBlend &&
-      this.dstBlend === dstBlend
-    )
+    if (this.srcColorBlend === srcColorBlend && this.srcAlphaBlend === srcAlphaBlend && this.dstBlend === dstBlend)
       return;
     this.srcColorBlend = srcColorBlend;
     this.srcAlphaBlend = srcAlphaBlend;
@@ -123,11 +92,7 @@ export class PolygonBatch implements Disposable {
     }
   }
 
-  drawVertices(
-    texture: Texture,
-    vertices: ArrayLike<number>,
-    indices: Array<number>
-  ) {
+  drawVertices(texture: Texture, vertices: ArrayLike<number>, indices: Array<number>) {
     if (texture !== this.lastTexture) {
       this.flush();
       this.lastTexture = texture;
@@ -144,8 +109,7 @@ export class PolygonBatch implements Disposable {
     this.mesh.setVerticesLength(this.verticesLength);
 
     let indicesArray = this.mesh.getIndices();
-    for (let i = this.indicesLength, j = 0; j < indices.length; i++, j++)
-      indicesArray[i] = indices[j] + indexStart;
+    for (let i = this.indicesLength, j = 0; j < indices.length; i++, j++) indicesArray[i] = indices[j] + indexStart;
     this.indicesLength += indices.length;
     this.mesh.setIndicesLength(this.indicesLength);
   }
@@ -165,9 +129,7 @@ export class PolygonBatch implements Disposable {
 
   end() {
     if (!this.isDrawing)
-      throw new Error(
-        "PolygonBatch is not drawing. Call PolygonBatch.begin() before calling PolygonBatch.end()"
-      );
+      throw new Error('PolygonBatch is not drawing. Call PolygonBatch.begin() before calling PolygonBatch.end()');
     if (this.verticesLength > 0 || this.indicesLength > 0) this.flush();
 
     this.shader.unbind();
