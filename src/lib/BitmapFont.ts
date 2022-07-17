@@ -36,7 +36,12 @@ export class BitmapFont {
     this.load(data);
   }
 
-  public static load = async (gl: WebGLRenderingContext, fontFile: string, flip: boolean, interger: boolean) => {
+  public static load = async (
+    gl: WebGLRenderingContext,
+    fontFile: string,
+    flip: boolean = false,
+    interger: boolean = false
+  ) => {
     const fontData = new BitmapFontData(fontFile, flip);
     await fontData.loadFont(gl);
     return new BitmapFont(fontData, fontData.regions, interger);
