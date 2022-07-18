@@ -111,6 +111,10 @@ export class Attributes {
     for (const attr of attributes) this.set(attr);
   }
 
+  setAttribute(attribute: Attribute) {
+    this.set(attribute);
+  }
+
   remove(mask: number) {
     for (let i = this.attributes.length - 1; i >= 0; i--) {
       const type = this.attributes[i].type;
@@ -125,5 +129,22 @@ export class Attributes {
 
   compare(arg0: Attribute, arg1: Attribute): number {
     return arg0.type - arg1.type;
+  }
+
+  public same(other: Attributes, compareValues: boolean): boolean {
+    if (other == this) return true;
+    if (other == null || this.mask != other.mask) return false;
+    if (!compareValues) return true;
+    // sort();
+    // other.sort();
+    for (let i = 0; i < this.attributes.length; i++)
+      if (!this.attributes[i].equals(other.attributes[i])) return false;
+    return true;
+  }
+
+  public equals(other: Attributes): boolean {
+    if (!other) return false;
+    if (other === this) return true;
+    return this.same(other, true);
   }
 }

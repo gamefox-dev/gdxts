@@ -69,4 +69,8 @@ export class ColorAttribute extends Attribute {
     this.Attribute(type);
     if (color != null) this.color.set(color.r, color.g, color.b, color.a);
   }
+
+  public copy(): Attribute {
+    return new ColorAttribute(this.type, this.color);
+  }
 }

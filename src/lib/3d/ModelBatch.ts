@@ -1,17 +1,14 @@
-import { Disposable, Pool } from "../Utils";
+import { Disposable, FlushablePool } from "../Utils";
 import { DefaultRenderableSorter } from "./DefaultRenderableSorter";
 import { DefaultShaderProvider } from "./DefaultShaderProvider";
 import { DefaultTextureBinder } from "./DefaultTextureBinder";
+import { ModelInstance } from "./ModelInstance";
 import { PerspectiveCamera } from "./PerspectiveCamera";
 import { Renderable } from "./Renderable";
 import { RenderContext } from "./RenderContext";
 import { Shader } from "./Shader";
 
-class RenderablePool extends Pool<Renderable> {
-  protected newObject(): Renderable {
-    return new Renderable();
-  }
-
+class RenderablePool extends FlushablePool<Renderable> {
   obtain(): Renderable {
     const renderable = super.obtain();
     //renderable.environment = null;
@@ -21,10 +18,6 @@ class RenderablePool extends Pool<Renderable> {
     //renderable.userData = null;
     return renderable;
   }
-
-  public flush() {
-    this.clear();
-  }
 }
 
 export class ModelBatch implements Disposable {
@@ -33,7 +26,11 @@ export class ModelBatch implements Disposable {
   }
 
   protected camera: PerspectiveCamera;
-  protected renderablesPool: RenderablePool = new RenderablePool(null);
+  protected renderablesPool: RenderablePool = new RenderablePool(
+    (): Renderable => {
+      return new Renderable();
+    }
+  );
   protected renderables: Renderable[] = [];
   protected context: RenderContext;
   private ownContext: boolean;
@@ -113,5 +110,14 @@ export class ModelBatch implements Disposable {
   public render(renderable: Renderable) {
     renderable.shader = this.shaderProvider.getShader(renderable);
     this.renderables.push(renderable);
+  }
+
+  public renderWithModelInstance(renderableProvider: ModelInstance) {
+    const offset = this.renderables.length;
+    renderableProvider.getRenderables(this.renderables, this.renderablesPool);
+    for (let i = offset; i < this.renderables.length; i++) {
+      const renderable = this.renderables[i];
+      renderable.shader = this.shaderProvider.getShader(renderable);
+    }
   }
 }

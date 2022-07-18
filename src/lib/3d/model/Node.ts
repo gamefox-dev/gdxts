@@ -227,7 +227,9 @@ export class Node {
     const n = nodes.length;
     let node: Node;
     if (ignoreCase) {
-      for (let i = 0; i < n; i++) if ((node = nodes[i]).id === id) return node;
+      for (let i = 0; i < n; i++)
+        if ((node = nodes[i]).id.toUpperCase() === id.toUpperCase())
+          return node;
     } else {
       for (let i = 0; i < n; i++) if ((node = nodes[i]).id === id) return node;
     }

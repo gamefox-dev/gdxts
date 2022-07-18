@@ -529,6 +529,27 @@ export class Matrix4 {
     return this.set(this.temp);
   }
 
+  public idt(): Matrix4 {
+    const val = this.values;
+    val[M00] = 1;
+    val[M01] = 0;
+    val[M02] = 0;
+    val[M03] = 0;
+    val[M10] = 0;
+    val[M11] = 1;
+    val[M12] = 0;
+    val[M13] = 0;
+    val[M20] = 0;
+    val[M21] = 0;
+    val[M22] = 1;
+    val[M23] = 0;
+    val[M30] = 0;
+    val[M31] = 0;
+    val[M32] = 0;
+    val[M33] = 1;
+    return this;
+  }
+
   lookAt(position: Vector3, direction: Vector3, up: Vector3) {
     Matrix4.initTemps();
     let xAxis = Matrix4.xAxis,

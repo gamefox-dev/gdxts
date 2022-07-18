@@ -32,6 +32,18 @@ export class Attribute {
     this.typeBit = this.numberOfTrailingZeros(type);
   }
 
+  public hashCode(): number {
+    return 7489 * this.typeBit;
+  }
+
+  public equals(obj: Attribute): boolean {
+    if (obj == null) return false;
+    if (obj == this) return true;
+    if (!obj) return false;
+    if (this.type != obj.type) return false;
+    return obj.hashCode() == this.hashCode();
+  }
+
   protected numberOfTrailingZeros(i: number): number {
     let x, y;
     if (i === 0) return 64;
@@ -66,5 +78,9 @@ export class Attribute {
 
   toString(): string {
     return Attribute.getAttributeAlias(this.type);
+  }
+
+  public copy(): Attribute {
+    return new Attribute();
   }
 }

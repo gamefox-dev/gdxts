@@ -129,6 +129,22 @@ export class Color {
     return this;
   }
 
+  lerp(target: Color, t: number) {
+    this.r += t * (target.r - this.r);
+    this.g += t * (target.g - this.g);
+    this.b += t * (target.b - this.b);
+    this.a += t * (target.a - this.a);
+    return this.clamp();
+  }
+
+  mul(r: number, g: number, b: number, a: number) {
+    this.r *= r;
+    this.g *= g;
+    this.b *= b;
+    this.a *= a;
+    return this.clamp();
+  }
+
   static rgba8888ToColor(color: Color, value: number) {
     color.r = ((value & 0xff000000) >>> 24) / 255;
     color.g = ((value & 0x00ff0000) >>> 16) / 255;
@@ -370,6 +386,43 @@ export class Pool<T> {
 
   clear() {
     this.items.length = 0;
+  }
+}
+
+export class FlushablePool<T> extends Pool<T> {
+  protected obtained = new Array<T>();
+
+  public constructor(instantiator: () => T) {
+    super(instantiator);
+  }
+
+  public obtain() {
+    const result = super.obtain();
+    this.obtained.push(result);
+    return result;
+  }
+
+  public flush() {
+    super.freeAll(this.obtained);
+    this.obtained.length = 0;
+  }
+
+  public free(object: T) {
+    const index = this.obtained.indexOf(object);
+    if (index > -1) {
+      this.obtained.splice(index, 1);
+    }
+    super.free(object);
+  }
+
+  public freeAll(objects: ArrayLike<T>) {
+    for (let i = 0; i < objects.length; i++) {
+      const index = this.obtained.indexOf(objects[i]);
+      if (index >= 0) {
+        this.obtained.splice(index, 1);
+      }
+    }
+    super.freeAll(objects);
   }
 }
 

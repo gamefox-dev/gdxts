@@ -162,7 +162,7 @@ export class Mesh implements Disposable {
     count: number = -1
   ): Mesh {
     if (count < 0) count = vertices.length;
-    this.vertices.setVertices(vertices, 0, vertices.length);
+    this.vertices.setVertices(vertices, offset, vertices.length);
 
     return this;
   }
@@ -214,9 +214,8 @@ export class Mesh implements Disposable {
   public setIndices(
     indices: number[],
     offset: number = 0,
-    count: number = -1
+    count: number = indices.length
   ): Mesh {
-    if (count < 0) count = indices.length;
     this.indices.setIndices(indices, offset, count);
 
     return this;

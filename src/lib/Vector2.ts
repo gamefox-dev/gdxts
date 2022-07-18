@@ -93,4 +93,11 @@ export class Vector2 {
     this.y = y;
     return this;
   }
+
+  lerp(target: Vector2, alpha: number) {
+    const invAlpha = 1.0 - alpha;
+    this.x = this.x * invAlpha + target.x * alpha;
+    this.y = this.y * invAlpha + target.y * alpha;
+    return this;
+  }
 }

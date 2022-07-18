@@ -1,5 +1,5 @@
 import { Matrix4 } from "../../Matrix4";
-import { Mesh } from "../../Mesh";
+import { Mesh } from "../Mesh";
 import { Node } from "./Node";
 import { Disposable } from "../../Utils";
 import { ModelData } from "../data/ModelData";
@@ -375,7 +375,10 @@ export class Model implements Disposable {
     let material: Material;
     if (ignoreCase) {
       for (let i = 0; i < n; i++)
-        if ((material = this.materials[i]).id === id) return material;
+        if (
+          (material = this.materials[i]).id.toUpperCase() === id.toUpperCase()
+        )
+          return material;
     } else {
       for (let i = 0; i < n; i++)
         if ((material = this.materials[i]).id === id) return material;

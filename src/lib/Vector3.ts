@@ -1,3 +1,4 @@
+import { Matrix3 } from "./3d/Matrix3";
 import {
   Matrix4,
   M00,
@@ -111,6 +112,21 @@ export class Vector3 {
     );
   }
 
+  multiplyMat3(matrix: Matrix3): Vector3 {
+    const l_mat = matrix.val;
+    return this.set(
+      this.x * l_mat[Matrix3.M00] +
+        this.y * l_mat[Matrix3.M01] +
+        this.z * l_mat[Matrix3.M02],
+      this.x * l_mat[Matrix3.M10] +
+        this.y * l_mat[Matrix3.M11] +
+        this.z * l_mat[Matrix3.M12],
+      this.x * l_mat[Matrix3.M20] +
+        this.y * l_mat[Matrix3.M21] +
+        this.z * l_mat[Matrix3.M22]
+    );
+  }
+
   project(matrix: Matrix4): Vector3 {
     let l_mat = matrix.values;
     let l_w =
@@ -172,5 +188,12 @@ export class Vector3 {
     let b = v.y - this.y;
     let c = v.z - this.z;
     return Math.sqrt(a * a + b * b + c * c);
+  }
+
+  lerp(target: Vector3, alpha: number) {
+    this.x += alpha * (target.x - this.x);
+    this.y += alpha * (target.y - this.y);
+    this.z += alpha * (target.z - this.z);
+    return this;
   }
 }

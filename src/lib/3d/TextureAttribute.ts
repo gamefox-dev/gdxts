@@ -112,4 +112,14 @@ export class TextureAttribute extends Attribute {
     this.scaleU = scaleU;
     this.scaleV = scaleV;
   }
+
+  public copy(): Attribute {
+    const att = new TextureAttribute(this.type);
+    att.offsetU = this.offsetU;
+    att.offsetV = this.offsetV;
+    att.scaleU = this.scaleU;
+    att.scaleV = this.scaleV;
+    att.uvIndex = this.uvIndex;
+    return att;
+  }
 }
