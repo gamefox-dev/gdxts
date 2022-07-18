@@ -1,6 +1,6 @@
-import { ShaderProgram } from "../../ShaderProgram";
-import { GL20 } from "../GL20";
-import { VertexAttributes } from "../VertexAttributes";
+import { Shader } from '../../Shader';
+import { GL20 } from '../GL20';
+import { VertexAttributes } from '../VertexAttributes';
 
 export class VertexBufferObject {
   private attributes: VertexAttributes;
@@ -12,12 +12,7 @@ export class VertexBufferObject {
   isDirty = false;
   isBound = false;
 
-  constructor(
-    private gl: WebGLRenderingContext,
-    isStatic: boolean,
-    numVertices: number,
-    attributes: VertexAttributes
-  ) {
+  constructor(private gl: WebGLRenderingContext, isStatic: boolean, numVertices: number, attributes: VertexAttributes) {
     this.bufferHandle = this.gl.createBuffer();
 
     const data = new Float32Array(attributes.vertexSize * numVertices);
@@ -42,13 +37,8 @@ export class VertexBufferObject {
     return this.buffer;
   }
 
-  protected setBuffer(
-    data: Float32Array,
-    ownsBuffer: boolean,
-    value: VertexAttributes
-  ) {
-    if (this.isBound)
-      throw new Error("Cannot change attributes while VBO is bound");
+  protected setBuffer(data: Float32Array, ownsBuffer: boolean, value: VertexAttributes) {
+    if (this.isBound) throw new Error('Cannot change attributes while VBO is bound');
     this.attributes = value;
     this.ownsBuffer = ownsBuffer;
     this.buffer = data;
@@ -56,11 +46,7 @@ export class VertexBufferObject {
 
   private bufferChanged() {
     if (this.isBound) {
-      this.gl.bufferData(
-        GL20.GL_ARRAY_BUFFER,
-        this.buffer.subarray(0, this.verticesLength),
-        this.usage
-      );
+      this.gl.bufferData(GL20.GL_ARRAY_BUFFER, this.buffer.subarray(0, this.verticesLength), this.usage);
       this.isDirty = false;
     }
   }
@@ -72,17 +58,9 @@ export class VertexBufferObject {
     this.bufferChanged();
   }
 
-  public updateVertices(
-    targetOffset: number,
-    vertices: number[],
-    sourceOffset: number,
-    count: number
-  ) {
+  public updateVertices(targetOffset: number, vertices: number[], sourceOffset: number, count: number) {
     this.isDirty = true;
-    this.buffer.set(
-      vertices.slice(sourceOffset, sourceOffset + count),
-      targetOffset
-    );
+    this.buffer.set(vertices.slice(sourceOffset, sourceOffset + count), targetOffset);
     this.verticesLength = targetOffset + count;
     this.bufferChanged();
   }
@@ -92,18 +70,14 @@ export class VertexBufferObject {
   }
 
   protected setUsage(value: number) {
-    if (this.isBound) throw new Error("Cannot change usage while VBO is bound");
+    if (this.isBound) throw new Error('Cannot change usage while VBO is bound');
     this.usage = value;
   }
 
-  public bind(shader: ShaderProgram, locations: number[] = null) {
+  public bind(shader: Shader, locations: number[] = null) {
     this.gl.bindBuffer(GL20.GL_ARRAY_BUFFER, this.bufferHandle);
     if (this.isDirty) {
-      this.gl.bufferData(
-        GL20.GL_ARRAY_BUFFER,
-        this.buffer.subarray(0, this.verticesLength),
-        this.usage
-      );
+      this.gl.bufferData(GL20.GL_ARRAY_BUFFER, this.buffer.subarray(0, this.verticesLength), this.usage);
       this.isDirty = false;
     }
 
@@ -142,7 +116,7 @@ export class VertexBufferObject {
     this.isBound = true;
   }
 
-  public unbind(shader: ShaderProgram, locations: number[] = null) {
+  public unbind(shader: Shader, locations: number[] = null) {
     const numAttributes = this.attributes.size();
     if (locations == null) {
       for (let i = 0; i < numAttributes; i++) {

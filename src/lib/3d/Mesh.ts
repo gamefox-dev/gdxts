@@ -1,22 +1,21 @@
-import { Matrix4 } from "../Matrix4";
-import { ShaderProgram } from "../ShaderProgram";
-import { Disposable } from "../Utils";
-import { Vector2 } from "../Vector2";
-import { Vector3 } from "../Vector3";
-import { BoundingBox } from "./BoundingBox";
-import { GL20 } from "./GL20";
-import { Matrix3 } from "./Matrix3";
-import { IndexBufferObject } from "./utils/IndexBufferObject";
-import { InstanceData } from "./utils/InstanceData";
-import { VertexBufferObject } from "./utils/VertexBufferObject";
-import { Usage, VertexAttribute } from "./VertexAttribute";
-import { VertexAttributes } from "./VertexAttributes";
+import { Matrix4 } from '../Matrix4';
+import { Shader } from '../Shader';
+import { Disposable } from '../Utils';
+import { Vector2 } from '../Vector2';
+import { Vector3 } from '../Vector3';
+import { BoundingBox } from './BoundingBox';
+import { GL20 } from './GL20';
+import { Matrix3 } from './Matrix3';
+import { IndexBufferObject } from './utils/IndexBufferObject';
+import { VertexBufferObject } from './utils/VertexBufferObject';
+import { Usage, VertexAttribute } from './VertexAttribute';
+import { VertexAttributes } from './VertexAttributes';
 
 export enum VertexDataType {
   VertexArray,
   VertexBufferObject,
   VertexBufferObjectSubData,
-  VertexBufferObjectWithVAO,
+  VertexBufferObjectWithVAO
 }
 
 export class Mesh implements Disposable {
@@ -27,14 +26,9 @@ export class Mesh implements Disposable {
   autoBind = true;
   isVertexArray: boolean;
 
-  instances: InstanceData;
   isInstanced = false;
 
-  protected Mesh(
-    vertices: VertexBufferObject,
-    indices: IndexBufferObject,
-    isVertexArray: boolean
-  ) {
+  protected Mesh(vertices: VertexBufferObject, indices: IndexBufferObject, isVertexArray: boolean) {
     this.vertices = vertices;
     this.indices = indices;
     this.isVertexArray = isVertexArray;
@@ -50,11 +44,7 @@ export class Mesh implements Disposable {
     maxIndices: number,
     attributes: VertexAttributes
   ) {
-    this.vertices = this.makeVertexBuffer(
-      staticVertices,
-      maxVertices,
-      attributes
-    );
+    this.vertices = this.makeVertexBuffer(staticVertices, maxVertices, attributes);
     this.indices = new IndexBufferObject(gl, maxIndices, staticIndices);
     this.isVertexArray = false;
     Mesh.addManagedMesh(this);
@@ -65,12 +55,7 @@ export class Mesh implements Disposable {
     maxVertices: number,
     vertexAttributes: VertexAttributes
   ): VertexBufferObject {
-    return new VertexBufferObject(
-      this.gl,
-      isStatic,
-      maxVertices,
-      vertexAttributes
-    );
+    return new VertexBufferObject(this.gl, isStatic, maxVertices, vertexAttributes);
   }
 
   //  public enableInstancedRendering (isStatic: boolean, maxInstances: number, attributes: VertexAttribute): Mesh {
@@ -84,126 +69,79 @@ export class Mesh implements Disposable {
   //      return this;
   //  }
 
-  public disableInstancedRendering(): Mesh {
-    if (this.isInstanced) {
-      this.isInstanced = false;
-      this.instances.dispose();
-      this.instances = null;
-    }
-    return this;
-  }
+  // public disableInstancedRendering(): Mesh {
+  //   if (this.isInstanced) {
+  //     this.isInstanced = false;
+  //     this.instances.dispose();
+  //     this.instances = null;
+  //   }
+  //   return this;
+  // }
 
-  public setInstanceDataWithArray(
-    instanceData: number[],
-    offset: number = 0,
-    count: number = -1
-  ): Mesh {
-    if (this.instances != null) {
-      if (count < 0) count = instanceData.length;
-      this.instances.setInstanceData(instanceData, offset, count);
-    } else {
-      throw new Error(
-        "An InstanceBufferObject must be set before setting instance data!"
-      );
-    }
-    return this;
-  }
+  // public setInstanceDataWithArray(instanceData: number[], offset: number = 0, count: number = -1): Mesh {
+  //   if (this.instances != null) {
+  //     if (count < 0) count = instanceData.length;
+  //     this.instances.setInstanceData(instanceData, offset, count);
+  //   } else {
+  //     throw new Error('An InstanceBufferObject must be set before setting instance data!');
+  //   }
+  //   return this;
+  // }
 
-  public setInstanceDataWithBuffer(
-    instanceData: Float32Array,
-    count: number = -1
-  ): Mesh {
-    if (this.instances != null) {
-      if (count < 0) count = instanceData.length;
-      this.instances.setInstanceData(instanceData, count);
-    } else {
-      throw new Error(
-        "An InstanceBufferObject must be set before setting instance data!"
-      );
-    }
-    return this;
-  }
+  // public setInstanceDataWithBuffer(instanceData: Float32Array, count: number = -1): Mesh {
+  //   if (this.instances != null) {
+  //     if (count < 0) count = instanceData.length;
+  //     this.instances.setInstanceData(instanceData, count);
+  //   } else {
+  //     throw new Error('An InstanceBufferObject must be set before setting instance data!');
+  //   }
+  //   return this;
+  // }
 
-  public updateInstanceDataWithArray(
-    targetOffset: number,
-    source: number[],
-    sourceOffset: number = 0,
-    count: number = -1
-  ): Mesh {
-    if (count < 0) count = source.length;
-    this.instances.updateInstanceData(
-      targetOffset,
-      source,
-      sourceOffset,
-      count
-    );
-    return this;
-  }
+  // public updateInstanceDataWithArray(
+  //   targetOffset: number,
+  //   source: number[],
+  //   sourceOffset: number = 0,
+  //   count: number = -1
+  // ): Mesh {
+  //   if (count < 0) count = source.length;
+  //   this.instances.updateInstanceData(targetOffset, source, sourceOffset, count);
+  //   return this;
+  // }
 
-  public updateInstanceDataWithBuffer(
-    targetOffset: number,
-    source: Float32Array,
-    sourceOffset: number = 0,
-    count: number = -1
-  ): Mesh {
-    if (count < 0) count = source.length;
-    this.instances.updateInstanceData(
-      targetOffset,
-      source,
-      sourceOffset,
-      count
-    );
-    return this;
-  }
+  // public updateInstanceDataWithBuffer(
+  //   targetOffset: number,
+  //   source: Float32Array,
+  //   sourceOffset: number = 0,
+  //   count: number = -1
+  // ): Mesh {
+  //   if (count < 0) count = source.length;
+  //   this.instances.updateInstanceData(targetOffset, source, sourceOffset, count);
+  //   return this;
+  // }
 
-  public setVertices(
-    vertices: number[],
-    offset: number = 0,
-    count: number = -1
-  ): Mesh {
+  public setVertices(vertices: number[], offset: number = 0, count: number = -1): Mesh {
     if (count < 0) count = vertices.length;
     this.vertices.setVertices(vertices, offset, vertices.length);
 
     return this;
   }
 
-  public updateVertices(
-    targetOffset: number,
-    source: number[],
-    sourceOffset: number = 0,
-    count: number = -1
-  ): Mesh {
+  public updateVertices(targetOffset: number, source: number[], sourceOffset: number = 0, count: number = -1): Mesh {
     if (count < 0) count = source.length;
     this.vertices.updateVertices(targetOffset, source, sourceOffset, count);
     return this;
   }
-  public getVertices(
-    vertices: number[],
-    srcOffset: number = 0,
-    count: number = -1,
-    destOffset: number = 0
-  ): number[] {
+  public getVertices(vertices: number[], srcOffset: number = 0, count: number = -1, destOffset: number = 0): number[] {
     const max = (this.getNumVertices() * this.getVertexSize()) / 4;
     if (count === -1) {
       count = max - srcOffset;
-      if (count > vertices.length - destOffset)
-        count = vertices.length - destOffset;
+      if (count > vertices.length - destOffset) count = vertices.length - destOffset;
     }
-    if (
-      srcOffset < 0 ||
-      count <= 0 ||
-      srcOffset + count > max ||
-      destOffset < 0 ||
-      destOffset >= vertices.length
-    )
-      throw new Error("index out of bound");
+    if (srcOffset < 0 || count <= 0 || srcOffset + count > max || destOffset < 0 || destOffset >= vertices.length)
+      throw new Error('index out of bound');
     if (vertices.length - destOffset < count)
-      throw new Error(
-        "not enough room in vertices array, has " +
-          vertices.length +
-          " floats, needs " +
-          count
-      );
+      throw new Error('not enough room in vertices array, has ' + vertices.length + ' floats, needs ' + count);
     const buffer = this.vertices.getBuffer();
     for (let i = srcOffset; i < count; i++) {
       vertices[i] = buffer.at(i - srcOffset + destOffset);
@@ -211,40 +149,19 @@ export class Mesh implements Disposable {
     return vertices;
   }
 
-  public setIndices(
-    indices: number[],
-    offset: number = 0,
-    count: number = indices.length
-  ): Mesh {
+  public setIndices(indices: number[], offset: number = 0, count: number = indices.length): Mesh {
     this.indices.setIndices(indices, offset, count);
 
     return this;
   }
 
-  public getIndices(
-    srcOffset: number,
-    count: number,
-    indices: number[],
-    destOffset: number
-  ) {
+  public getIndices(srcOffset: number, count: number, indices: number[], destOffset: number) {
     const max = this.getNumIndices();
     if (count < 0) count = max - srcOffset;
     if (srcOffset < 0 || srcOffset >= max || srcOffset + count > max)
-      throw new Error(
-        "Invalid range specified, offset: " +
-          srcOffset +
-          ", count: " +
-          count +
-          ", max: " +
-          max
-      );
+      throw new Error('Invalid range specified, offset: ' + srcOffset + ', count: ' + count + ', max: ' + max);
     if (indices.length - destOffset < count)
-      throw new Error(
-        "not enough room in indices array, has " +
-          indices.length +
-          " shorts, needs " +
-          count
-      );
+      throw new Error('not enough room in indices array, has ' + indices.length + ' shorts, needs ' + count);
 
     const buffer = this.indices.getBuffer();
     for (let i = srcOffset; i < count; i++) {
@@ -276,32 +193,26 @@ export class Mesh implements Disposable {
     this.autoBind = autoBind;
   }
 
-  public bind(shader: ShaderProgram, locations: number[] = null) {
+  public bind(shader: Shader, locations: number[] = null) {
     this.vertices.bind(shader, locations);
-    if (this.instances != null && this.instances.getNumInstances() > 0)
-      this.instances.bind(shader, locations);
+    //if (this.instances != null && this.instances.getNumInstances() > 0) this.instances.bind(shader, locations);
     if (this.indices.getNumIndices() > 0) this.indices.bind();
   }
 
-  public unbind(shader: ShaderProgram, locations = null) {
+  public unbind(shader: Shader, locations = null) {
     this.vertices.unbind(shader, locations);
-    if (this.instances != null && this.instances.getNumInstances() > 0)
-      this.instances.unbind(shader, locations);
+    //if (this.instances != null && this.instances.getNumInstances() > 0) this.instances.unbind(shader, locations);
     if (this.indices.getNumIndices() > 0) this.indices.unbind();
   }
 
   public render(
-    shader: ShaderProgram,
+    shader: Shader,
     primitiveType: number,
     offset: number = 0,
     count: number = -1,
     autoBind: boolean = this.autoBind
   ) {
-    if (count < 0)
-      count =
-        this.indices.getNumMaxIndices() > 0
-          ? this.getNumIndices()
-          : this.getNumVertices();
+    if (count < 0) count = this.indices.getNumMaxIndices() > 0 ? this.getNumIndices() : this.getNumVertices();
     if (count === 0) return;
     if (autoBind) this.bind(shader);
     if (this.isVertexArray) {
@@ -313,12 +224,7 @@ export class Mesh implements Disposable {
         //  this.gl.drawElements(primitiveType, count, GL20.GL_UNSIGNED_SHORT, buffer);
         //  ((Buffer)buffer).position(oldPosition);
 
-        this.gl.drawElements(
-          primitiveType,
-          count,
-          GL20.GL_UNSIGNED_SHORT,
-          offset * 2
-        );
+        this.gl.drawElements(primitiveType, count, GL20.GL_UNSIGNED_SHORT, offset * 2);
       } else {
         this.gl.drawArrays(primitiveType, offset, count);
       }
@@ -326,22 +232,17 @@ export class Mesh implements Disposable {
       if (this.indices.getNumIndices() > 0) {
         if (count + offset > this.indices.getNumMaxIndices()) {
           throw new Error(
-            "Mesh attempting to access memory outside of the index buffer (count: " +
+            'Mesh attempting to access memory outside of the index buffer (count: ' +
               count +
-              ", offset: " +
+              ', offset: ' +
               offset +
-              ", max: " +
+              ', max: ' +
               this.indices.getNumMaxIndices() +
-              ")"
+              ')'
           );
         }
 
-        this.gl.drawElements(
-          primitiveType,
-          count,
-          GL20.GL_UNSIGNED_SHORT,
-          offset * 2
-        );
+        this.gl.drawElements(primitiveType, count, GL20.GL_UNSIGNED_SHORT, offset * 2);
       } else {
         this.gl.drawArrays(primitiveType, offset, count);
       }
@@ -357,15 +258,14 @@ export class Mesh implements Disposable {
     }
 
     this.vertices.dispose();
-    if (this.instances != null) this.instances.dispose();
+    //if (this.instances != null) this.instances.dispose();
     this.indices.dispose();
   }
 
   public getVertexAttribute(usage: number): VertexAttribute {
     const attributes = this.vertices.getAttributes();
     const len = attributes.size();
-    for (let i = 0; i < len; i++)
-      if (attributes.get(i).usage === usage) return attributes.get(i);
+    for (let i = 0; i < len; i++) if (attributes.get(i).usage === usage) return attributes.get(i);
 
     return null;
   }
@@ -383,7 +283,7 @@ export class Mesh implements Disposable {
       bbox = new BoundingBox();
     }
     const numVertices = this.getNumVertices();
-    if (numVertices === 0) throw new Error("No vertices defined");
+    if (numVertices === 0) throw new Error('No vertices defined');
 
     const verts = this.vertices.getBuffer();
     bbox.inf();
@@ -415,25 +315,12 @@ export class Mesh implements Disposable {
   }
 
   private tmpV: Vector3 = new Vector3();
-  public extendBoundingBox(
-    out: BoundingBox,
-    offset: number,
-    count: number,
-    transform: Matrix4
-  ): BoundingBox {
+  public extendBoundingBox(out: BoundingBox, offset: number, count: number, transform: Matrix4): BoundingBox {
     const numIndices = this.getNumIndices();
     const numVertices = this.getNumVertices();
     const max = numIndices === 0 ? numVertices : numIndices;
     if (offset < 0 || count < 1 || offset + count > max)
-      throw new Error(
-        "Invalid part specified ( offset=" +
-          offset +
-          ", count=" +
-          count +
-          ", max=" +
-          max +
-          " )"
-      );
+      throw new Error('Invalid part specified ( offset=' + offset + ', count=' + count + ', max=' + max + ' )');
 
     const verts = this.vertices.getBuffer();
     const index = this.indices.getBuffer();
@@ -507,8 +394,7 @@ export class Mesh implements Disposable {
     transform: Matrix4
   ): number {
     const numIndices = this.getNumIndices();
-    if (offset < 0 || count < 1 || offset + count > numIndices)
-      throw new Error("Not enough indices");
+    if (offset < 0 || count < 1 || offset + count > numIndices) throw new Error('Not enough indices');
 
     const verts = this.vertices.getBuffer();
     const index = this.indices.getBuffer();
@@ -525,9 +411,7 @@ export class Mesh implements Disposable {
           const idx = (index[i] & 0xffff) * vertexSize + posoff;
           this.tmpV.set(verts[idx], 0, 0);
           if (transform != null) this.tmpV.multiply(transform);
-          const r = this.tmpV
-            .sub(new Vector3(centerX, centerY, centerZ))
-            .length2();
+          const r = this.tmpV.sub(new Vector3(centerX, centerY, centerZ)).length2();
           if (r > result) result = r;
         }
         break;
@@ -536,9 +420,7 @@ export class Mesh implements Disposable {
           const idx = (index[i] & 0xffff) * vertexSize + posoff;
           this.tmpV.set(verts[i], verts[idx + 1], 0);
           if (transform != null) this.tmpV.multiply(transform);
-          const r = this.tmpV
-            .sub(new Vector3(centerX, centerY, centerZ))
-            .length2();
+          const r = this.tmpV.sub(new Vector3(centerX, centerY, centerZ)).length2();
           if (r > result) result = r;
         }
         break;
@@ -547,9 +429,7 @@ export class Mesh implements Disposable {
           const idx = (index[i] & 0xffff) * vertexSize + posoff;
           this.tmpV.set(verts[i], verts[idx + 1], verts[idx + 2]);
           if (transform != null) this.tmpV.multiply(transform);
-          const r = this.tmpV
-            .sub(new Vector3(centerX, centerY, centerZ))
-            .length2();
+          const r = this.tmpV.sub(new Vector3(centerX, centerY, centerZ)).length2();
           if (r > result) result = r;
         }
         break;
@@ -565,16 +445,7 @@ export class Mesh implements Disposable {
     count: number = this.getNumIndices(),
     transform: Matrix4 = null
   ): number {
-    return Math.sqrt(
-      this.calculateRadiusSquared(
-        centerX,
-        centerY,
-        centerZ,
-        offset,
-        count,
-        transform
-      )
-    );
+    return Math.sqrt(this.calculateRadiusSquared(centerX, centerY, centerZ, offset, count, transform));
   }
 
   public getIndicesBuffer(): Uint16Array {
@@ -636,11 +507,7 @@ export class Mesh implements Disposable {
     this.setVertices(vertices);
   }
 
-  public transform(
-    matrix: Matrix4,
-    start: number = 0,
-    count = this.getNumIndices()
-  ) {
+  public transform(matrix: Matrix4, start: number = 0, count = this.getNumIndices()) {
     const posAttr = this.getVertexAttribute(Usage.Position);
     const posOffset = posAttr.offset / 4;
     const stride = this.getVertexSize() / 4;
@@ -648,15 +515,7 @@ export class Mesh implements Disposable {
 
     const vertices = new Array<number>(count * stride);
     this.getVertices(vertices, start * stride, count * stride);
-    Mesh.transform(
-      matrix,
-      vertices,
-      stride,
-      posOffset,
-      numComponents,
-      0,
-      count
-    );
+    Mesh.transform(matrix, vertices, stride, posOffset, numComponents, 0, count);
     this.updateVertices(start * stride, vertices);
   }
 
@@ -669,22 +528,10 @@ export class Mesh implements Disposable {
     start: number,
     count: number
   ) {
-    if (offset < 0 || dimensions < 1 || offset + dimensions > vertexSize)
-      throw new Error();
-    if (
-      start < 0 ||
-      count < 1 ||
-      (start + count) * vertexSize > vertices.length
-    )
+    if (offset < 0 || dimensions < 1 || offset + dimensions > vertexSize) throw new Error();
+    if (start < 0 || count < 1 || (start + count) * vertexSize > vertices.length)
       throw new Error(
-        "start = " +
-          start +
-          ", count = " +
-          count +
-          ", vertexSize = " +
-          vertexSize +
-          ", length = " +
-          vertices.length
+        'start = ' + start + ', count = ' + count + ', vertexSize = ' + vertexSize + ', length = ' + vertices.length
       );
 
     const tmp = new Vector3();
@@ -708,9 +555,7 @@ export class Mesh implements Disposable {
         break;
       case 3:
         for (let i = 0; i < count; i++) {
-          tmp
-            .set(vertices[idx], vertices[idx + 1], vertices[idx + 2])
-            .multiply(matrix);
+          tmp.set(vertices[idx], vertices[idx + 1], vertices[idx + 2]).multiply(matrix);
           vertices[idx] = tmp.x;
           vertices[idx + 1] = tmp.y;
           vertices[idx + 2] = tmp.z;
@@ -720,11 +565,7 @@ export class Mesh implements Disposable {
     }
   }
 
-  public transformUV(
-    matrix: Matrix3,
-    start: number = 0,
-    count = this.getNumVertices()
-  ) {
+  public transformUV(matrix: Matrix3, start: number = 0, count = this.getNumVertices()) {
     const posAttr = this.getVertexAttribute(Usage.TextureCoordinates);
     const offset = posAttr.offset / 4;
     const vertexSize = this.getVertexSize() / 4;
@@ -744,20 +585,9 @@ export class Mesh implements Disposable {
     start: number,
     count: number
   ) {
-    if (
-      start < 0 ||
-      count < 1 ||
-      (start + count) * vertexSize > vertices.length
-    )
+    if (start < 0 || count < 1 || (start + count) * vertexSize > vertices.length)
       throw new Error(
-        "start = " +
-          start +
-          ", count = " +
-          count +
-          ", vertexSize = " +
-          vertexSize +
-          ", length = " +
-          vertices.length
+        'start = ' + start + ', count = ' + count + ', vertexSize = ' + vertexSize + ', length = ' + vertices.length
       );
 
     const tmp = new Vector2();
@@ -771,11 +601,7 @@ export class Mesh implements Disposable {
     }
   }
 
-  public copy(
-    isStatic: boolean,
-    removeDuplicates: boolean = false,
-    usage: number[] = null
-  ): Mesh {
+  public copy(isStatic: boolean, removeDuplicates: boolean = false, usage: number[] = null): Mesh {
     const vertexSize = this.getVertexSize() / 4;
     let numVertices = this.getNumVertices();
     let vertices = new Array<number>(numVertices * vertexSize);
@@ -799,8 +625,7 @@ export class Mesh implements Disposable {
         for (let i = 0; i < usage.length; i++) {
           const a = this.getVertexAttribute(usage[i]);
           if (a == null) continue;
-          for (let j = 0; j < a.numComponents; j++)
-            checks[++idx] = a.offset + j;
+          for (let j = 0; j < a.numComponents; j++) checks[++idx] = a.offset + j;
           attrs[++ai] = a.copy();
           newVertexSize += a.numComponents;
         }
@@ -836,8 +661,7 @@ export class Mesh implements Disposable {
           if (newIndex > 0) indices[i] = newIndex;
           else {
             const idx = size * newVertexSize;
-            for (let j = 0; j < checks.length; j++)
-              tmp[idx + j] = vertices[idx1 + checks[j]];
+            for (let j = 0; j < checks.length; j++) tmp[idx + j] = vertices[idx1 + checks[j]];
             indices[i] = size;
             size++;
           }

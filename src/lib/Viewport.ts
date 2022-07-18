@@ -1,5 +1,5 @@
-import { OrthoCamera } from "./Camera";
-import { resizeCanvas } from "./Utils";
+import { OrthoCamera } from './Camera';
+import { resizeCanvas } from './Utils';
 
 export interface ViewportInfo {
   pixelRatio: number;
@@ -29,36 +29,28 @@ export interface Viewport {
   addCamera(camera: OrthoCamera): void;
 }
 
-export const createViewport = (
-  canvas: HTMLCanvasElement,
-  width: number,
-  height: number,
-  options?: ViewportOptions
-) => {
+export const createViewport = (canvas: HTMLCanvasElement, width: number, height: number, options?: ViewportOptions) => {
   const defaultOptions = {
     autoUpdate: true,
     pixelRatio: undefined,
-    crop: true,
+    crop: true
   };
 
   options = {
     ...defaultOptions,
-    ...options,
+    ...options
   };
   let contextOption;
   if (options.disablePremultipliedAlpha) {
     contextOption = {
-      premultipliedAlpha: false,
+      premultipliedAlpha: false
     };
   }
   contextOption = {
     ...contextOption,
-    ...options.contextOption,
+    ...options.contextOption
   };
-  const gl = canvas.getContext(
-    "webgl2",
-    contextOption
-  ) as WebGLRenderingContext;
+  const gl = canvas.getContext('webgl2', contextOption) as WebGLRenderingContext;
   const additionalCameras = [];
   let { autoUpdate, pixelRatio, crop } = options;
   pixelRatio = pixelRatio || window.devicePixelRatio || 1;
@@ -69,16 +61,16 @@ export const createViewport = (
     width,
     height,
     worldWidth: width,
-    worldHeight: height,
+    worldHeight: height
   };
   let resizeHandler;
   const [vWidth, vHeight] = resizeCanvas(canvas, pixelRatio);
   const camera = new OrthoCamera(width, height, vWidth, vHeight);
   if (autoUpdate) {
-    resizeHandler = (e) => {
+    resizeHandler = e => {
       viewportObject.update();
     };
-    window.addEventListener("resize", resizeHandler);
+    window.addEventListener('resize', resizeHandler);
   }
 
   const viewportObject = {
@@ -145,25 +137,19 @@ export const createViewport = (
           cameraX = 0;
           cameraY = -(cameraHeight - height) / 2;
         }
-        camera.setPosition(
-          cameraX + cameraWidth / 2,
-          cameraY + cameraHeight / 2
-        );
+        camera.setPosition(cameraX + cameraWidth / 2, cameraY + cameraHeight / 2);
         camera.resize(cameraWidth, cameraHeight, vWidth, vHeight);
         for (let camera of additionalCameras) {
-          camera.setPosition(
-            cameraX + cameraWidth / 2,
-            cameraY + cameraHeight / 2
-          );
+          camera.setPosition(cameraX + cameraWidth / 2, cameraY + cameraHeight / 2);
           camera.resize(cameraWidth, cameraHeight, vWidth, vHeight);
         }
       }
     },
     cleanUp() {
       if (resizeHandler) {
-        window.removeEventListener("resize", resizeHandler);
+        window.removeEventListener('resize', resizeHandler);
       }
-    },
+    }
   };
 
   autoUpdate && viewportObject.update();

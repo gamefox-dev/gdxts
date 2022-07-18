@@ -1,6 +1,6 @@
-import { Disposable, Restorable } from "./Utils";
-import { ShaderProgram } from "./ShaderProgram";
-import { ManagedWebGLRenderingContext } from "./WebGL";
+import { Disposable, Restorable } from './Utils';
+import { Shader } from './Shader';
+import { ManagedWebGLRenderingContext } from './WebGL';
 
 export class Mesh implements Disposable, Restorable {
   private context: ManagedWebGLRenderingContext;
@@ -62,9 +62,7 @@ export class Mesh implements Disposable, Restorable {
     maxIndices: number
   ) {
     this.context =
-      context instanceof ManagedWebGLRenderingContext
-        ? context
-        : new ManagedWebGLRenderingContext(context);
+      context instanceof ManagedWebGLRenderingContext ? context : new ManagedWebGLRenderingContext(context);
     this.elementsPerVertex = 0;
     for (let i = 0; i < attributes.length; i++) {
       this.elementsPerVertex += attributes[i].numElements;
@@ -77,9 +75,7 @@ export class Mesh implements Disposable, Restorable {
   setVertices(vertices: Array<number>) {
     this.dirtyVertices = true;
     if (vertices.length > this.vertices.length)
-      throw Error(
-        "Mesh can't store more than " + this.maxVertices() + " vertices"
-      );
+      throw Error("Mesh can't store more than " + this.maxVertices() + ' vertices');
     this.vertices.set(vertices, 0);
     this.verticesLength = vertices.length;
   }
@@ -87,30 +83,21 @@ export class Mesh implements Disposable, Restorable {
   setIndices(indices: Array<number>) {
     this.dirtyIndices = true;
     if (indices.length > this.indices.length)
-      throw Error(
-        "Mesh can't store more than " + this.maxIndices() + " indices"
-      );
+      throw Error("Mesh can't store more than " + this.maxIndices() + ' indices');
     this.indices.set(indices, 0);
     this.indicesLength = indices.length;
   }
 
-  draw(shader: ShaderProgram, primitiveType: number) {
+  draw(shader: Shader, primitiveType: number) {
     this.drawWithOffset(
       shader,
       primitiveType,
       0,
-      this.indicesLength > 0
-        ? this.indicesLength
-        : this.verticesLength / this.elementsPerVertex
+      this.indicesLength > 0 ? this.indicesLength : this.verticesLength / this.elementsPerVertex
     );
   }
 
-  drawWithOffset(
-    shader: ShaderProgram,
-    primitiveType: number,
-    offset: number,
-    count: number
-  ) {
+  drawWithOffset(shader: Shader, primitiveType: number, offset: number, count: number) {
     let gl = this.context.gl;
     if (this.dirtyVertices || this.dirtyIndices) this.update();
     this.bind(shader);
@@ -122,7 +109,7 @@ export class Mesh implements Disposable, Restorable {
     this.unbind(shader);
   }
 
-  bind(shader: ShaderProgram) {
+  bind(shader: Shader) {
     let gl = this.context.gl;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
     let offset = 0;
@@ -130,21 +117,13 @@ export class Mesh implements Disposable, Restorable {
       let attrib = this.attributes[i];
       let location = shader.getAttributeLocation(attrib.name);
       gl.enableVertexAttribArray(location);
-      gl.vertexAttribPointer(
-        location,
-        attrib.numElements,
-        gl.FLOAT,
-        false,
-        this.elementsPerVertex * 4,
-        offset * 4
-      );
+      gl.vertexAttribPointer(location, attrib.numElements, gl.FLOAT, false, this.elementsPerVertex * 4, offset * 4);
       offset += attrib.numElements;
     }
-    if (this.indicesLength > 0)
-      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer);
+    if (this.indicesLength > 0) gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer);
   }
 
-  unbind(shader: ShaderProgram) {
+  unbind(shader: Shader) {
     let gl = this.context.gl;
     for (let i = 0; i < this.attributes.length; i++) {
       let attrib = this.attributes[i];
@@ -162,11 +141,7 @@ export class Mesh implements Disposable, Restorable {
         this.verticesBuffer = gl.createBuffer();
       }
       gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
-      gl.bufferData(
-        gl.ARRAY_BUFFER,
-        this.vertices.subarray(0, this.verticesLength),
-        gl.DYNAMIC_DRAW
-      );
+      gl.bufferData(gl.ARRAY_BUFFER, this.vertices.subarray(0, this.verticesLength), gl.DYNAMIC_DRAW);
       this.dirtyVertices = false;
     }
 
@@ -175,11 +150,7 @@ export class Mesh implements Disposable, Restorable {
         this.indicesBuffer = gl.createBuffer();
       }
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer);
-      gl.bufferData(
-        gl.ELEMENT_ARRAY_BUFFER,
-        this.indices.subarray(0, this.indicesLength),
-        gl.DYNAMIC_DRAW
-      );
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices.subarray(0, this.indicesLength), gl.DYNAMIC_DRAW);
       this.dirtyIndices = false;
     }
   }
@@ -199,47 +170,39 @@ export class Mesh implements Disposable, Restorable {
 }
 
 export enum VertexAttributeType {
-  Float,
+  Float
 }
 
 export class VertexAttribute {
-  constructor(
-    public name: string,
-    public type: VertexAttributeType,
-    public numElements: number
-  ) {}
+  constructor(public name: string, public type: VertexAttributeType, public numElements: number) {}
 }
 
 export class Position2Attribute extends VertexAttribute {
   constructor() {
-    super(ShaderProgram.POSITION, VertexAttributeType.Float, 2);
+    super(Shader.POSITION, VertexAttributeType.Float, 2);
   }
 }
 
 export class Position3Attribute extends VertexAttribute {
   constructor() {
-    super(ShaderProgram.POSITION, VertexAttributeType.Float, 3);
+    super(Shader.POSITION, VertexAttributeType.Float, 3);
   }
 }
 
 export class TexCoordAttribute extends VertexAttribute {
   constructor(unit: number = 0) {
-    super(
-      ShaderProgram.TEXCOORDS + (unit === 0 ? "" : unit),
-      VertexAttributeType.Float,
-      2
-    );
+    super(Shader.TEXCOORDS + (unit === 0 ? '' : unit), VertexAttributeType.Float, 2);
   }
 }
 
 export class ColorAttribute extends VertexAttribute {
   constructor() {
-    super(ShaderProgram.COLOR, VertexAttributeType.Float, 4);
+    super(Shader.COLOR, VertexAttributeType.Float, 4);
   }
 }
 
 export class Color2Attribute extends VertexAttribute {
   constructor() {
-    super(ShaderProgram.COLOR2, VertexAttributeType.Float, 4);
+    super(Shader.COLOR2, VertexAttributeType.Float, 4);
   }
 }

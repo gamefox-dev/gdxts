@@ -1,14 +1,14 @@
-import { Disposable, Restorable } from "./Utils";
-import { ManagedWebGLRenderingContext } from "./WebGL";
+import { Disposable, Restorable } from './Utils';
+import { ManagedWebGLRenderingContext } from './WebGL';
 
-export class ShaderProgram implements Disposable, Restorable {
-  public static MVP_MATRIX = "u_projTrans";
-  public static POSITION = "a_position";
-  public static COLOR = "a_color";
-  public static COLOR2 = "a_color2";
-  public static TEXCOORDS = "a_texCoords";
-  public static SAMPLER = "u_texture";
-  public static NORMAL = "a_normal";
+export class Shader implements Disposable, Restorable {
+  public static MVP_MATRIX = 'u_projTrans';
+  public static POSITION = 'a_position';
+  public static COLOR = 'a_color';
+  public static COLOR2 = 'a_color2';
+  public static TEXCOORDS = 'a_texCoords';
+  public static SAMPLER = 'u_texture';
+  public static NORMAL = 'a_normal';
 
   private context: ManagedWebGLRenderingContext;
   private vs: WebGLShader = null;
@@ -44,9 +44,7 @@ export class ShaderProgram implements Disposable, Restorable {
     this.vsSource = vertexShader;
     this.fsSource = fragmentShader;
     this.context =
-      context instanceof ManagedWebGLRenderingContext
-        ? context
-        : new ManagedWebGLRenderingContext(context);
+      context instanceof ManagedWebGLRenderingContext ? context : new ManagedWebGLRenderingContext(context);
     this.context.addRestorable(this);
     this.compile();
   }
@@ -84,8 +82,7 @@ export class ShaderProgram implements Disposable, Restorable {
     gl.linkProgram(program);
 
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-      let error =
-        "Couldn't compile shader program: " + gl.getProgramInfoLog(program);
+      let error = "Couldn't compile shader program: " + gl.getProgramInfoLog(program);
       gl.deleteProgram(program);
       if (!gl.isContextLost()) throw new Error(error);
     }
@@ -116,34 +113,12 @@ export class ShaderProgram implements Disposable, Restorable {
     this.context.gl.uniform2f(this.getUniformLocation(uniform), value, value2);
   }
 
-  public setUniform3f(
-    uniform: string,
-    value: number,
-    value2: number,
-    value3: number
-  ) {
-    this.context.gl.uniform3f(
-      this.getUniformLocation(uniform),
-      value,
-      value2,
-      value3
-    );
+  public setUniform3f(uniform: string, value: number, value2: number, value3: number) {
+    this.context.gl.uniform3f(this.getUniformLocation(uniform), value, value2, value3);
   }
 
-  public setUniform4f(
-    uniform: string,
-    value: number,
-    value2: number,
-    value3: number,
-    value4: number
-  ) {
-    this.context.gl.uniform4f(
-      this.getUniformLocation(uniform),
-      value,
-      value2,
-      value3,
-      value4
-    );
+  public setUniform4f(uniform: string, value: number, value2: number, value3: number, value4: number) {
+    this.context.gl.uniform4f(this.getUniformLocation(uniform), value, value2, value3, value4);
   }
 
   public setUniform2x2f(uniform: string, value: ArrayLike<number>) {
@@ -167,16 +142,14 @@ export class ShaderProgram implements Disposable, Restorable {
   public getUniformLocation(uniform: string): WebGLUniformLocation {
     let gl = this.context.gl;
     let location = gl.getUniformLocation(this.program, uniform);
-    if (!location && !gl.isContextLost())
-      throw new Error(`Couldn't find location for uniform ${uniform}`);
+    if (!location && !gl.isContextLost()) throw new Error(`Couldn't find location for uniform ${uniform}`);
     return location;
   }
 
   public getAttributeLocation(attribute: string): number {
     let gl = this.context.gl;
     let location = gl.getAttribLocation(this.program, attribute);
-    if (location === -1 && !gl.isContextLost())
-      throw new Error(`Couldn't find location for attribute ${attribute}`);
+    if (location === -1 && !gl.isContextLost()) throw new Error(`Couldn't find location for attribute ${attribute}`);
     return location;
   }
 
@@ -200,21 +173,19 @@ export class ShaderProgram implements Disposable, Restorable {
     }
   }
 
-  public static newColoredTextured(
-    context: ManagedWebGLRenderingContext | WebGLRenderingContext
-  ): ShaderProgram {
+  public static newColoredTextured(context: ManagedWebGLRenderingContext | WebGLRenderingContext): Shader {
     let vs = `
-         attribute vec4 ${ShaderProgram.POSITION};
-         attribute vec4 ${ShaderProgram.COLOR};
-         attribute vec2 ${ShaderProgram.TEXCOORDS};
-         uniform mat4 ${ShaderProgram.MVP_MATRIX};
+         attribute vec4 ${Shader.POSITION};
+         attribute vec4 ${Shader.COLOR};
+         attribute vec2 ${Shader.TEXCOORDS};
+         uniform mat4 ${Shader.MVP_MATRIX};
          varying vec4 v_color;
          varying vec2 v_texCoords;
  
          void main () {
-           v_color = ${ShaderProgram.COLOR};
-           v_texCoords = ${ShaderProgram.TEXCOORDS};
-           gl_Position = ${ShaderProgram.MVP_MATRIX} * ${ShaderProgram.POSITION};
+           v_color = ${Shader.COLOR};
+           v_texCoords = ${Shader.TEXCOORDS};
+           gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
          }
        `;
 
@@ -234,27 +205,25 @@ export class ShaderProgram implements Disposable, Restorable {
          }
        `;
 
-    return new ShaderProgram(context, vs, fs);
+    return new Shader(context, vs, fs);
   }
 
-  public static newTwoColoredTextured(
-    context: ManagedWebGLRenderingContext | WebGLRenderingContext
-  ): ShaderProgram {
+  public static newTwoColoredTextured(context: ManagedWebGLRenderingContext | WebGLRenderingContext): Shader {
     let vs = `
-         attribute vec4 ${ShaderProgram.POSITION};
-         attribute vec4 ${ShaderProgram.COLOR};
-         attribute vec4 ${ShaderProgram.COLOR2};
-         attribute vec2 ${ShaderProgram.TEXCOORDS};
-         uniform mat4 ${ShaderProgram.MVP_MATRIX};
+         attribute vec4 ${Shader.POSITION};
+         attribute vec4 ${Shader.COLOR};
+         attribute vec4 ${Shader.COLOR2};
+         attribute vec2 ${Shader.TEXCOORDS};
+         uniform mat4 ${Shader.MVP_MATRIX};
          varying vec4 v_light;
          varying vec4 v_dark;
          varying vec2 v_texCoords;
  
          void main () {
-           v_light = ${ShaderProgram.COLOR};
-           v_dark = ${ShaderProgram.COLOR2};
-           v_texCoords = ${ShaderProgram.TEXCOORDS};
-           gl_Position = ${ShaderProgram.MVP_MATRIX} * ${ShaderProgram.POSITION};
+           v_light = ${Shader.COLOR};
+           v_dark = ${Shader.COLOR2};
+           v_texCoords = ${Shader.TEXCOORDS};
+           gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
          }
        `;
 
@@ -277,21 +246,19 @@ export class ShaderProgram implements Disposable, Restorable {
          }
        `;
 
-    return new ShaderProgram(context, vs, fs);
+    return new Shader(context, vs, fs);
   }
 
-  public static newColored(
-    context: ManagedWebGLRenderingContext | WebGLRenderingContext
-  ): ShaderProgram {
+  public static newColored(context: ManagedWebGLRenderingContext | WebGLRenderingContext): Shader {
     let vs = `
-         attribute vec4 ${ShaderProgram.POSITION};
-         attribute vec4 ${ShaderProgram.COLOR};
-         uniform mat4 ${ShaderProgram.MVP_MATRIX};
+         attribute vec4 ${Shader.POSITION};
+         attribute vec4 ${Shader.COLOR};
+         uniform mat4 ${Shader.MVP_MATRIX};
          varying vec4 v_color;
  
          void main () {
-           v_color = ${ShaderProgram.COLOR};
-           gl_Position = ${ShaderProgram.MVP_MATRIX} * ${ShaderProgram.POSITION};
+           v_color = ${Shader.COLOR};
+           gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
          }
        `;
 
@@ -309,6 +276,6 @@ export class ShaderProgram implements Disposable, Restorable {
          }
        `;
 
-    return new ShaderProgram(context, vs, fs);
+    return new Shader(context, vs, fs);
   }
 }

@@ -1,16 +1,16 @@
-import { Texture, TextureWrap } from "./Texture";
-import { TextureRegion } from "./TextureRegion";
-import { Disposable } from "./Utils";
+import { Texture, TextureWrap } from './Texture';
+import { TextureRegion } from './TextureRegion';
+import { Disposable } from './Utils';
 
 function concatAndResolveUrl(url: string, concat: string): string {
-  let url1 = url.split("/");
-  let url2 = concat.split("/");
+  let url1 = url.split('/');
+  let url2 = concat.split('/');
   let url3: string[] = [];
 
   for (let i = 0, l = url1.length; i < l; i++) {
-    if (url1[i] === "..") {
+    if (url1[i] === '..') {
       url3.pop();
-    } else if (url1[i] === ".") {
+    } else if (url1[i] === '.') {
       continue;
     } else {
       url3.push(url1[i]);
@@ -18,15 +18,15 @@ function concatAndResolveUrl(url: string, concat: string): string {
   }
 
   for (let i = 0, l = url2.length; i < l; i++) {
-    if (url2[i] === "..") {
+    if (url2[i] === '..') {
       url3.pop();
-    } else if (url2[i] === ".") {
+    } else if (url2[i] === '.') {
       continue;
     } else {
       url3.push(url2[i]);
     }
   }
-  return url3.join("/");
+  return url3.join('/');
 }
 
 export class TextureAtlas implements Disposable {
@@ -59,17 +59,11 @@ export class TextureAtlas implements Disposable {
     return null;
   }
   findRegions(name: string): TextureRegion[] {
-    return this.regions
-      .filter((region) => region.name === name)
-      .sort((a, b) => a.index - b.index);
+    return this.regions.filter(region => region.name === name).sort((a, b) => a.index - b.index);
   }
 
-  static async load(
-    gl: WebGLRenderingContext,
-    packFileUrl: string,
-    textureOptions?: any
-  ): Promise<TextureAtlas> {
-    const packFileContent = await fetch(packFileUrl).then((res) => res.text());
+  static async load(gl: WebGLRenderingContext, packFileUrl: string, textureOptions?: any): Promise<TextureAtlas> {
+    const packFileContent = await fetch(packFileUrl).then(res => res.text());
 
     const pageData: any[] = [];
     const pages: Texture[] = [];
@@ -77,7 +71,7 @@ export class TextureAtlas implements Disposable {
 
     let pageImage;
 
-    const lines = packFileContent.split("\n");
+    const lines = packFileContent.split('\n');
 
     let i = 0;
     let tuple;
@@ -95,9 +89,9 @@ export class TextureAtlas implements Disposable {
         i++;
         line = lines[i];
         tuple = line
-          .split(":")[1]
-          .split(",")
-          .map((s) => s.trim());
+          .split(':')[1]
+          .split(',')
+          .map(s => s.trim());
 
         const width = parseInt(tuple[0], 10);
         const height = parseInt(tuple[1], 10);
@@ -105,43 +99,43 @@ export class TextureAtlas implements Disposable {
         i++;
         line = lines[i];
         tuple = line
-          .split(":")[1]
-          .split(",")
-          .map((s) => s.trim());
+          .split(':')[1]
+          .split(',')
+          .map(s => s.trim());
 
         const format = tuple[0];
 
         i++;
         line = lines[i];
         tuple = line
-          .split(":")[1]
-          .split(",")
-          .map((s) => s.trim());
+          .split(':')[1]
+          .split(',')
+          .map(s => s.trim());
 
         const [min, max] = tuple;
 
         i++;
         line = lines[i];
         tuple = line
-          .split(":")[1]
-          .split(",")
-          .map((s) => s.trim());
+          .split(':')[1]
+          .split(',')
+          .map(s => s.trim());
 
         const direction = tuple[0];
 
         let repeatX = TextureWrap.ClampToEdge;
         let repeatY = TextureWrap.ClampToEdge;
 
-        if (direction === "x") {
+        if (direction === 'x') {
           repeatX = TextureWrap.Repeat;
-        } else if (direction === "y") {
+        } else if (direction === 'y') {
           repeatY = TextureWrap.Repeat;
-        } else if (direction === "xy") {
+        } else if (direction === 'xy') {
           repeatX = TextureWrap.Repeat;
           repeatY = TextureWrap.Repeat;
         }
 
-        const mipMaps = min !== "Nearest" && min !== "Linear";
+        const mipMaps = min !== 'Nearest' && min !== 'Linear';
 
         pageImage = {
           file,
@@ -153,7 +147,7 @@ export class TextureAtlas implements Disposable {
           max,
           direction,
           repeatX,
-          repeatY,
+          repeatY
         };
         pageData.push(pageImage);
       } else {
@@ -162,18 +156,18 @@ export class TextureAtlas implements Disposable {
         i++;
         line = lines[i];
         tuple = line
-          .split(":")[1]
-          .split(",")
-          .map((s) => s.trim());
+          .split(':')[1]
+          .split(',')
+          .map(s => s.trim());
 
-        const rotate = tuple[0] === "true";
+        const rotate = tuple[0] === 'true';
 
         i++;
         line = lines[i];
         tuple = line
-          .split(":")[1]
-          .split(",")
-          .map((s) => s.trim());
+          .split(':')[1]
+          .split(',')
+          .map(s => s.trim());
 
         const left = parseInt(tuple[0], 10);
         const top = parseInt(tuple[1], 10);
@@ -181,9 +175,9 @@ export class TextureAtlas implements Disposable {
         i++;
         line = lines[i];
         tuple = line
-          .split(":")[1]
-          .split(",")
-          .map((s) => s.trim());
+          .split(':')[1]
+          .split(',')
+          .map(s => s.trim());
 
         const width = parseInt(tuple[0], 10);
         const height = parseInt(tuple[1], 10);
@@ -195,35 +189,35 @@ export class TextureAtlas implements Disposable {
           top,
           width,
           height,
-          page: pageImage,
+          page: pageImage
         };
 
         i++;
         line = lines[i];
         tuple = line
-          .split(":")[1]
-          .split(",")
-          .map((s) => s.trim());
+          .split(':')[1]
+          .split(',')
+          .map(s => s.trim());
 
         if (tuple.length === 4) {
-          region.splits = tuple.map((i) => parseInt(i, 10));
+          region.splits = tuple.map(i => parseInt(i, 10));
 
           i++;
           line = lines[i];
           tuple = line
-            .split(":")[1]
-            .split(",")
-            .map((s) => s.trim());
+            .split(':')[1]
+            .split(',')
+            .map(s => s.trim());
 
           if (tuple.length === 4) {
-            region.pads = tuple.map((i) => parseInt(i, 10));
+            region.pads = tuple.map(i => parseInt(i, 10));
 
             i++;
             line = lines[i];
             tuple = line
-              .split(":")[1]
-              .split(",")
-              .map((s) => s.trim());
+              .split(':')[1]
+              .split(',')
+              .map(s => s.trim());
           }
         }
 
@@ -233,9 +227,9 @@ export class TextureAtlas implements Disposable {
         i++;
         line = lines[i];
         tuple = line
-          .split(":")[1]
-          .split(",")
-          .map((s) => s.trim());
+          .split(':')[1]
+          .split(',')
+          .map(s => s.trim());
 
         region.offsetX = parseInt(tuple[0], 10);
         region.offsetY = parseInt(tuple[1], 10);
@@ -243,9 +237,9 @@ export class TextureAtlas implements Disposable {
         i++;
         line = lines[i];
         tuple = line
-          .split(":")[1]
-          .split(",")
-          .map((s) => s.trim());
+          .split(':')[1]
+          .split(',')
+          .map(s => s.trim());
 
         region.index = parseInt(tuple[0], 10);
 
@@ -270,17 +264,7 @@ export class TextureAtlas implements Disposable {
       const { texture, invTexWidth, invTexHeight } = regionData.page;
 
       regions.push(
-        new TextureRegion(
-          texture,
-          x,
-          y,
-          width,
-          height,
-          regionData,
-          invTexWidth,
-          invTexHeight,
-          regionData.rotate
-        )
+        new TextureRegion(texture, x, y, width, height, regionData, invTexWidth, invTexHeight, regionData.rotate)
       );
     }
 

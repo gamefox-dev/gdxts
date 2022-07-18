@@ -1,43 +1,29 @@
-import { Matrix4 } from "../Matrix4";
-import { Mesh } from "./Mesh";
-import { ShaderProgram } from "../ShaderProgram";
-import { Texture } from "../Texture";
-import { Color } from "../Utils";
-import { Vector2 } from "../Vector2";
-import { Vector3 } from "../Vector3";
-import { Attributes } from "./Attributes";
-import { Matrix3 } from "./Matrix3";
-import { PerspectiveCamera } from "./PerspectiveCamera";
-import { Renderable } from "./Renderable";
-import { RenderContext } from "./RenderContext";
-import { Shader } from "./Shader";
+import { Matrix4 } from '../Matrix4';
+import { Mesh } from './Mesh';
+import { Shader } from '../Shader';
+import { Texture } from '../Texture';
+import { Color } from '../Utils';
+import { Vector2 } from '../Vector2';
+import { Vector3 } from '../Vector3';
+import { Attributes } from './Attributes';
+import { Matrix3 } from './Matrix3';
+import { PerspectiveCamera } from './PerspectiveCamera';
+import { Renderable } from './Renderable';
+import { RenderContext } from './RenderContext';
+import { Shader3D } from './Shader3D';
 
 export interface Validator {
-  validate(
-    shader: BaseShader,
-    inputID: number,
-    renderable: Renderable
-  ): boolean;
+  validate(shader: BaseShader, inputID: number, renderable: Renderable): boolean;
 }
 
 export interface Setter {
   isGlobal(shader: BaseShader, inputID: number): boolean;
 
-  set(
-    shader: BaseShader,
-    inputID: number,
-    renderable: Renderable,
-    combinedAttributes: Attributes
-  ): void;
+  set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes): void;
 }
 
 export abstract class GlobalSetter implements Setter {
-  abstract set(
-    shader: BaseShader,
-    inputID: number,
-    renderable: Renderable,
-    combinedAttributes: Attributes
-  ): void;
+  abstract set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes): void;
 
   isGlobal(shader: BaseShader, inputID: number): boolean {
     return true;
@@ -45,12 +31,7 @@ export abstract class GlobalSetter implements Setter {
 }
 
 export abstract class LocalSetter implements Setter {
-  abstract set(
-    shader: BaseShader,
-    inputID: number,
-    renderable: Renderable,
-    combinedAttributes: Attributes
-  ): void;
+  abstract set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes): void;
   isGlobal(shader: BaseShader, inputID: number): boolean {
     return false;
   }
@@ -62,27 +43,15 @@ export class Uniform implements Validator {
   environmentMask: number;
   overallMask: number;
 
-  constructor(
-    alias: string,
-    materialMask: number = 0,
-    environmentMask: number = 0,
-    overallMask: number = 0
-  ) {
+  constructor(alias: string, materialMask: number = 0, environmentMask: number = 0, overallMask: number = 0) {
     this.alias = alias;
     this.materialMask = materialMask;
     this.environmentMask = environmentMask;
     this.overallMask = overallMask;
   }
 
-  validate(
-    shader: BaseShader,
-    inputID: number,
-    renderable: Renderable
-  ): boolean {
-    const matFlags =
-      renderable != null && renderable.material != null
-        ? renderable.material.getMask()
-        : 0;
+  validate(shader: BaseShader, inputID: number, renderable: Renderable): boolean {
+    const matFlags = renderable != null && renderable.material != null ? renderable.material.getMask() : 0;
     //const envFlags = (renderable != null && renderable.environment != null) ? renderable.environment.getMask() : 0;
     const envFlags = 0;
     return (
@@ -93,12 +62,12 @@ export class Uniform implements Validator {
   }
 }
 
-export class BaseShader implements Shader {
+export class BaseShader implements Shader3D {
   canRender(instance: Renderable): boolean {
     return true;
   }
   init(): void {}
-  compareTo(other: Shader): void {}
+  compareTo(other: Shader3D): void {}
 
   private uniforms: string[] = [];
   private validators: Validator[] = [];
@@ -107,16 +76,12 @@ export class BaseShader implements Shader {
   private globalUniforms: number[] = [];
   private localUniforms: number[] = [];
 
-  program: ShaderProgram;
+  program: Shader;
   context: RenderContext;
   camera: PerspectiveCamera;
   currentMesh: Mesh;
 
-  register(
-    alias: string,
-    validator: Validator = null,
-    setter: Setter = null
-  ): number {
+  register(alias: string, validator: Validator = null, setter: Setter = null): number {
     const existing = this.getUniformID(alias);
     if (existing >= 0) {
       this.validators.splice(existing, 0, validator);
@@ -139,8 +104,8 @@ export class BaseShader implements Shader {
     return this.uniforms[id];
   }
 
-  initWithVariables(program: ShaderProgram, renderable: Renderable) {
-    if (this.locations != null) throw new Error("Already initialized");
+  initWithVariables(program: Shader, renderable: Renderable) {
+    if (this.locations != null) throw new Error('Already initialized');
     this.program = program;
 
     const n = this.uniforms.length;
@@ -149,8 +114,7 @@ export class BaseShader implements Shader {
       const input = this.uniforms[i];
       const validator = this.validators[i];
       const setter = this.setters[i];
-      if (validator != null && !validator.validate(this, i, renderable))
-        this.locations[i] = -1;
+      if (validator != null && !validator.validate(this, i, renderable)) this.locations[i] = -1;
       else {
         this.locations[i] = program.getUniformLocation(input);
         if (this.locations[i] >= 0 && setter != null) {
@@ -171,8 +135,7 @@ export class BaseShader implements Shader {
     this.program.bind();
     this.currentMesh = null;
     for (let u, i = 0; i < this.globalUniforms.length; ++i)
-      if (this.setters[(u = this.globalUniforms[i])] != null)
-        this.setters[u].set(this, u, null, null);
+      if (this.setters[(u = this.globalUniforms[i])] != null) this.setters[u].set(this, u, null, null);
   }
 
   private combinedAttributes: Attributes = new Attributes();
@@ -180,18 +143,12 @@ export class BaseShader implements Shader {
     if (renderable.worldTransform.det3x3() === 0) return;
     this.combinedAttributes.clear();
     //if (renderable.environment != null) combinedAttributes.set(renderable.environment);
-    if (renderable.material != null)
-      this.combinedAttributes.setAttributes(
-        renderable.material.getAttributes()
-      );
+    if (renderable.material != null) this.combinedAttributes.setAttributes(renderable.material.getAttributes());
 
     this.renderWithCombinedAttributes(renderable, this.combinedAttributes);
   }
 
-  renderWithCombinedAttributes(
-    renderable: Renderable,
-    combinedAttributes: Attributes
-  ) {
+  renderWithCombinedAttributes(renderable: Renderable, combinedAttributes: Attributes) {
     for (let u, i = 0; i < this.localUniforms.length; ++i)
       if (this.setters[(u = this.localUniforms[i])] != null)
         this.setters[u].set(this, u, renderable, combinedAttributes);
@@ -221,17 +178,11 @@ export class BaseShader implements Shader {
   }
 
   public has(inputID: number): boolean {
-    return (
-      inputID >= 0 &&
-      inputID < this.locations.length &&
-      this.locations[inputID] >= 0
-    );
+    return inputID >= 0 && inputID < this.locations.length && this.locations[inputID] >= 0;
   }
 
   public loc(inputID: number): WebGLUniformLocation {
-    return inputID >= 0 && inputID < this.locations.length
-      ? this.locations[inputID]
-      : -1;
+    return inputID >= 0 && inputID < this.locations.length ? this.locations[inputID] : -1;
   }
 
   public setMatrix4(uniform: number, value: Matrix4): boolean {
@@ -248,12 +199,7 @@ export class BaseShader implements Shader {
 
   public setVector3(uniform: number, value: Vector3): boolean {
     if (this.uniforms[uniform] == null) return false;
-    this.program.setUniform3f(
-      this.uniforms[uniform],
-      value.x,
-      value.y,
-      value.z
-    );
+    this.program.setUniform3f(this.uniforms[uniform], value.x, value.y, value.z);
     return true;
   }
 
@@ -265,13 +211,7 @@ export class BaseShader implements Shader {
 
   public setColor(uniform: number, value: Color): boolean {
     if (this.uniforms[uniform] == null) return false;
-    this.program.setUniform4f(
-      this.uniforms[uniform],
-      value.r,
-      value.g,
-      value.b,
-      value.a
-    );
+    this.program.setUniform4f(this.uniforms[uniform], value.r, value.g, value.b, value.a);
     return true;
   }
 
@@ -293,13 +233,7 @@ export class BaseShader implements Shader {
     return true;
   }
 
-  public set4f(
-    uniform: number,
-    v1: number,
-    v2: number,
-    v3: number,
-    v4: number
-  ) {
+  public set4f(uniform: number, v1: number, v2: number, v3: number, v4: number) {
     if (this.uniforms[uniform] == null) return false;
     this.program.setUniform4f(this.uniforms[uniform], v1, v2, v3, v4);
     return true;
@@ -313,10 +247,7 @@ export class BaseShader implements Shader {
 
   public setTexture(uniform: number, texture: Texture): boolean {
     if (this.uniforms[uniform] == null) return false;
-    this.program.setUniformi(
-      this.uniforms[uniform],
-      this.context.textureBinder.bindTexture(texture)
-    );
+    this.program.setUniformi(this.uniforms[uniform], this.context.textureBinder.bindTexture(texture));
     return true;
   }
 }

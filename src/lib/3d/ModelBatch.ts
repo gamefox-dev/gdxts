@@ -1,19 +1,19 @@
-import { Disposable, FlushablePool } from "../Utils";
-import { DefaultRenderableSorter } from "./DefaultRenderableSorter";
-import { DefaultShaderProvider } from "./DefaultShaderProvider";
-import { DefaultTextureBinder } from "./DefaultTextureBinder";
-import { ModelInstance } from "./ModelInstance";
-import { PerspectiveCamera } from "./PerspectiveCamera";
-import { Renderable } from "./Renderable";
-import { RenderContext } from "./RenderContext";
-import { Shader } from "./Shader";
+import { Disposable, FlushablePool } from '../Utils';
+import { DefaultRenderableSorter } from './DefaultRenderableSorter';
+import { DefaultShaderProvider } from './DefaultShaderProvider';
+import { DefaultTextureBinder } from './DefaultTextureBinder';
+import { ModelInstance } from './ModelInstance';
+import { PerspectiveCamera } from './PerspectiveCamera';
+import { Renderable } from './Renderable';
+import { RenderContext } from './RenderContext';
+import { Shader3D } from './Shader3D';
 
 class RenderablePool extends FlushablePool<Renderable> {
   obtain(): Renderable {
     const renderable = super.obtain();
     //renderable.environment = null;
     renderable.material = null;
-    renderable.meshPart.set("", null, 0, 0, 0);
+    renderable.meshPart.set('', null, 0, 0, 0);
     renderable.shader = null;
     //renderable.userData = null;
     return renderable;
@@ -26,44 +26,31 @@ export class ModelBatch implements Disposable {
   }
 
   protected camera: PerspectiveCamera;
-  protected renderablesPool: RenderablePool = new RenderablePool(
-    (): Renderable => {
-      return new Renderable();
-    }
-  );
+  protected renderablesPool: RenderablePool = new RenderablePool((): Renderable => {
+    return new Renderable();
+  });
   protected renderables: Renderable[] = [];
   protected context: RenderContext;
   private ownContext: boolean;
   protected shaderProvider: DefaultShaderProvider;
   protected sorter: DefaultRenderableSorter;
 
-  public constructor(
-    gl: WebGLRenderingContext,
-    context: RenderContext = null,
-    sorter: DefaultRenderableSorter = null
-  ) {
+  public constructor(gl: WebGLRenderingContext, context: RenderContext = null, sorter: DefaultRenderableSorter = null) {
     this.sorter = sorter == null ? new DefaultRenderableSorter() : sorter;
     this.ownContext = context == null;
     this.context =
-      context == null
-        ? new RenderContext(
-            new DefaultTextureBinder(gl, DefaultTextureBinder.LRU, 1)
-          )
-        : context;
-    this.shaderProvider =
-      this.shaderProvider == null
-        ? new DefaultShaderProvider()
-        : this.shaderProvider;
+      context == null ? new RenderContext(new DefaultTextureBinder(gl, DefaultTextureBinder.LRU, 1)) : context;
+    this.shaderProvider = this.shaderProvider == null ? new DefaultShaderProvider() : this.shaderProvider;
   }
 
   begin(cam: PerspectiveCamera) {
-    if (this.camera != null) throw new Error("Call end() first.");
+    if (this.camera != null) throw new Error('Call end() first.');
     this.camera = cam;
     if (this.ownContext) this.context.begin();
   }
 
   setCamera(cam: PerspectiveCamera) {
-    if (this.camera == null) throw new Error("Call begin() first.");
+    if (this.camera == null) throw new Error('Call begin() first.');
     if (this.renderables.length > 0) this.flush();
     this.camera = cam;
   }
@@ -86,7 +73,7 @@ export class ModelBatch implements Disposable {
 
   flush() {
     this.sorter.sort(this.camera, this.renderables);
-    let currentShader: Shader = null;
+    let currentShader: Shader3D = null;
     for (let i = 0; i < this.renderables.length; i++) {
       const renderable: Renderable = this.renderables[i];
       if (currentShader !== renderable.shader) {

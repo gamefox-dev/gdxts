@@ -1,7 +1,7 @@
-import { Matrix4 } from "../Matrix4";
-import { Material } from "./Material";
-import { MeshPart } from "./model/MeshPart";
-import { Shader } from "./Shader";
+import { Matrix4 } from '../Matrix4';
+import { Material } from './Material';
+import { MeshPart } from './model/MeshPart';
+import { Shader3D } from './Shader3D';
 
 export class Renderable {
   worldTransform: Matrix4 = new Matrix4();
@@ -11,7 +11,7 @@ export class Renderable {
   //   environment: Environment;
   //   userData: Object;
   bones: Matrix4[];
-  shader: Shader;
+  shader: Shader3D;
 
   set(renderable: Renderable): Renderable {
     this.worldTransform.set(renderable.worldTransform.values);

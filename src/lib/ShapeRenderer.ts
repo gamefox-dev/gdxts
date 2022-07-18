@@ -1,13 +1,13 @@
-import { Mesh, Position2Attribute, ColorAttribute } from "./Mesh";
-import { ShaderProgram } from "./ShaderProgram";
-import { Disposable, Color, MathUtils } from "./Utils";
-import { Vector2 } from "./Vector2";
-import { ManagedWebGLRenderingContext } from "./WebGL";
+import { Mesh, Position2Attribute, ColorAttribute } from './Mesh';
+import { Shader } from './Shader';
+import { Disposable, Color, MathUtils } from './Utils';
+import { Vector2 } from './Vector2';
+import { ManagedWebGLRenderingContext } from './WebGL';
 
 export enum ShapeType {
   Point = 0x0000,
   Line = 0x0001,
-  Filled = 0x0004,
+  Filled = 0x0004
 }
 
 export class ShapeRenderer implements Disposable {
@@ -16,7 +16,7 @@ export class ShapeRenderer implements Disposable {
   private mesh: Mesh;
   private shapeType = ShapeType.Filled;
   private color = new Color(1, 1, 1, 1);
-  private shader: ShaderProgram;
+  private shader: Shader;
   private vertexIndex = 0;
   private tmp = new Vector2();
   private srcColorBlend: number;
@@ -24,30 +24,17 @@ export class ShapeRenderer implements Disposable {
   private dstBlend: number;
   projectionValues: Float32Array = new Float32Array(16);
 
-  constructor(
-    context: ManagedWebGLRenderingContext | WebGLRenderingContext,
-    maxVertices: number = 10920
-  ) {
-    if (maxVertices > 10920)
-      throw new Error(
-        "Can't have more than 10920 triangles per batch: " + maxVertices
-      );
+  constructor(context: ManagedWebGLRenderingContext | WebGLRenderingContext, maxVertices: number = 10920) {
+    if (maxVertices > 10920) throw new Error("Can't have more than 10920 triangles per batch: " + maxVertices);
     this.context =
-      context instanceof ManagedWebGLRenderingContext
-        ? context
-        : new ManagedWebGLRenderingContext(context);
-    this.mesh = new Mesh(
-      context,
-      [new Position2Attribute(), new ColorAttribute()],
-      maxVertices,
-      0
-    );
+      context instanceof ManagedWebGLRenderingContext ? context : new ManagedWebGLRenderingContext(context);
+    this.mesh = new Mesh(context, [new Position2Attribute(), new ColorAttribute()], maxVertices, 0);
     let gl = this.context.gl;
     this.srcColorBlend = gl.SRC_ALPHA;
     this.srcAlphaBlend = gl.ONE;
     this.dstBlend = gl.ONE_MINUS_SRC_ALPHA;
 
-    this.shader = ShaderProgram.newColored(gl);
+    this.shader = Shader.newColored(gl);
   }
 
   setProjection(projectionValues: Float32Array) {
@@ -55,22 +42,16 @@ export class ShapeRenderer implements Disposable {
   }
 
   begin() {
-    if (this.isDrawing)
-      throw new Error("ShapeRenderer.begin() has already been called");
+    if (this.isDrawing) throw new Error('ShapeRenderer.begin() has already been called');
     this.vertexIndex = 0;
     this.isDrawing = true;
 
     this.shader.bind();
-    this.shader.setUniform4x4f(ShaderProgram.MVP_MATRIX, this.projectionValues);
+    this.shader.setUniform4x4f(Shader.MVP_MATRIX, this.projectionValues);
 
     let gl = this.context.gl;
     gl.enable(gl.BLEND);
-    gl.blendFuncSeparate(
-      this.srcColorBlend,
-      this.dstBlend,
-      this.srcAlphaBlend,
-      this.dstBlend
-    );
+    gl.blendFuncSeparate(this.srcColorBlend, this.dstBlend, this.srcAlphaBlend, this.dstBlend);
   }
 
   setBlendMode(srcColorBlend: number, srcAlphaBlend: number, dstBlend: number) {
@@ -176,40 +157,11 @@ export class ShapeRenderer implements Disposable {
     }
   }
 
-  rect(
-    filled: boolean,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    color: Color = null
-  ) {
-    this.quad(
-      filled,
-      x,
-      y,
-      x + width,
-      y,
-      x + width,
-      y + height,
-      x,
-      y + height,
-      color,
-      color,
-      color,
-      color
-    );
+  rect(filled: boolean, x: number, y: number, width: number, height: number, color: Color = null) {
+    this.quad(filled, x, y, x + width, y, x + width, y + height, x, y + height, color, color, color, color);
   }
 
-  rectLine(
-    filled: boolean,
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-    width: number,
-    color: Color = null
-  ) {
+  rectLine(filled: boolean, x1: number, y1: number, x2: number, y2: number, width: number, color: Color = null) {
     this.check(filled ? ShapeType.Filled : ShapeType.Line, 8);
     if (color === null) color = this.color;
     let t = this.tmp.set(y2 - y1, x1 - x2);
@@ -244,13 +196,8 @@ export class ShapeRenderer implements Disposable {
     this.line(x - size, y + size, x + size, y - size);
   }
 
-  polygon(
-    polygonVertices: ArrayLike<number>,
-    offset: number,
-    count: number,
-    color: Color = null
-  ) {
-    if (count < 3) throw new Error("Polygon must contain at least 3 vertices");
+  polygon(polygonVertices: ArrayLike<number>, offset: number, count: number, color: Color = null) {
+    if (count < 3) throw new Error('Polygon must contain at least 3 vertices');
     this.check(ShapeType.Line, count * 2);
     if (color === null) color = this.color;
 
@@ -281,17 +228,9 @@ export class ShapeRenderer implements Disposable {
     }
   }
 
-  circle(
-    filled: boolean,
-    x: number,
-    y: number,
-    radius: number,
-    color: Color = null,
-    segments: number = 0
-  ) {
-    if (segments === 0)
-      segments = Math.max(1, (6 * MathUtils.cbrt(radius)) | 0);
-    if (segments <= 0) throw new Error("segments must be > 0.");
+  circle(filled: boolean, x: number, y: number, radius: number, color: Color = null, segments: number = 0) {
+    if (segments === 0) segments = Math.max(1, (6 * MathUtils.cbrt(radius)) | 0);
+    if (segments <= 0) throw new Error('segments must be > 0.');
     if (color === null) color = this.color;
     let angle = (2 * MathUtils.PI) / segments;
     let cos = Math.cos(angle);
@@ -400,8 +339,7 @@ export class ShapeRenderer implements Disposable {
   }
 
   end() {
-    if (!this.isDrawing)
-      throw new Error("ShapeRenderer.begin() has not been called");
+    if (!this.isDrawing) throw new Error('ShapeRenderer.begin() has not been called');
     this.flush();
     let gl = this.context.gl;
     gl.disable(gl.BLEND);
@@ -416,11 +354,9 @@ export class ShapeRenderer implements Disposable {
   }
 
   private check(shapeType: ShapeType, numVertices: number) {
-    if (!this.isDrawing)
-      throw new Error("ShapeRenderer.begin() has not been called");
+    if (!this.isDrawing) throw new Error('ShapeRenderer.begin() has not been called');
     if (this.shapeType === shapeType) {
-      if (this.mesh.maxVertices() - this.mesh.numVertices() < numVertices)
-        this.flush();
+      if (this.mesh.maxVertices() - this.mesh.numVertices() < numVertices) this.flush();
       else return;
     } else {
       this.flush();

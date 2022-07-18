@@ -226,3 +226,21 @@ runAnimation.getKeyFrame(stateTime, PlayMode.LOOP).draw(batch, x, y, width, heig
 ```
 
 Available `PlayMode`s are LOOP, REVERSED, NORMAL, LOOP_REVERSED, LOOP_PINGPONG
+
+### Bitmap font
+
+You can load a bitmapfont by calling
+
+```Javascript
+const font = await BitmapFont.load(gl, "./number.fnt", YDOWN, false);
+```
+
+The 3rd argument is `flipped`, useful for the case you want to choose the coordinate system. Usually, you must set `flipped` to `true` if you want to draw with y-down.
+
+To draw some string use the loaded font
+
+```Javascript
+font.draw(batch, string, x, y, targetWidth, Align.left);
+```
+
+TODO: More documentation on advanced usage of bitmapfont and glyph.

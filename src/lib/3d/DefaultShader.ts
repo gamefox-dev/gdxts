@@ -1,19 +1,19 @@
-import { Matrix4 } from "../Matrix4";
-import { ShaderProgram } from "../ShaderProgram";
-import { Vector3 } from "../Vector3";
-import { Attributes } from "./Attributes";
-import { BaseShader, GlobalSetter, LocalSetter, Uniform } from "./BaseShader";
-import { BlendingAttribute } from "./BlendingAttribute";
-import { ColorAttribute } from "./ColorAttribute";
-import { FloatAttribute } from "./FloatAttribute";
-import { GL20 } from "./GL20";
-import { IntAttribute } from "./IntAttribute";
-import { Matrix3 } from "./Matrix3";
-import { PerspectiveCamera } from "./PerspectiveCamera";
-import { Renderable } from "./Renderable";
-import { RenderContext } from "./RenderContext";
-import { TextureAttribute } from "./TextureAttribute";
-import { Usage } from "./VertexAttribute";
+import { Matrix4 } from '../Matrix4';
+import { Shader } from '../Shader';
+import { Vector3 } from '../Vector3';
+import { Attributes } from './Attributes';
+import { BaseShader, GlobalSetter, LocalSetter, Uniform } from './BaseShader';
+import { BlendingAttribute } from './BlendingAttribute';
+import { ColorAttribute } from './ColorAttribute';
+import { FloatAttribute } from './FloatAttribute';
+import { GL20 } from './GL20';
+import { IntAttribute } from './IntAttribute';
+import { Matrix3 } from './Matrix3';
+import { PerspectiveCamera } from './PerspectiveCamera';
+import { Renderable } from './Renderable';
+import { RenderContext } from './RenderContext';
+import { TextureAttribute } from './TextureAttribute';
+import { Usage } from './VertexAttribute';
 
 export class Config {
   vertexShader: string = null;
@@ -26,150 +26,72 @@ export class Config {
   defaultCullFace = -1;
   defaultDepthFunc = -1;
 
-  constructor(vertexShader: string = "", fragmentShader: string = "") {
+  constructor(vertexShader: string = '', fragmentShader: string = '') {
     this.vertexShader = vertexShader;
     this.fragmentShader = fragmentShader;
   }
 }
 
 export class Inputs {
-  public static projTrans: Uniform = new Uniform("u_projTrans");
-  public static viewTrans: Uniform = new Uniform("u_viewTrans");
-  public static projViewTrans: Uniform = new Uniform("u_projViewTrans");
-  public static cameraPosition: Uniform = new Uniform("u_cameraPosition");
-  public static cameraDirection: Uniform = new Uniform("u_cameraDirection");
-  public static cameraUp: Uniform = new Uniform("u_cameraUp");
-  public static cameraNearFar: Uniform = new Uniform("u_cameraNearFar");
+  public static projTrans: Uniform = new Uniform('u_projTrans');
+  public static viewTrans: Uniform = new Uniform('u_viewTrans');
+  public static projViewTrans: Uniform = new Uniform('u_projViewTrans');
+  public static cameraPosition: Uniform = new Uniform('u_cameraPosition');
+  public static cameraDirection: Uniform = new Uniform('u_cameraDirection');
+  public static cameraUp: Uniform = new Uniform('u_cameraUp');
+  public static cameraNearFar: Uniform = new Uniform('u_cameraNearFar');
 
-  public static worldTrans: Uniform = new Uniform("u_worldTrans");
-  public static viewWorldTrans: Uniform = new Uniform("u_viewWorldTrans");
-  public static projViewWorldTrans: Uniform = new Uniform(
-    "u_projViewWorldTrans"
-  );
-  public static normalMatrix: Uniform = new Uniform("u_normalMatrix");
-  public static bones: Uniform = new Uniform("u_bones");
+  public static worldTrans: Uniform = new Uniform('u_worldTrans');
+  public static viewWorldTrans: Uniform = new Uniform('u_viewWorldTrans');
+  public static projViewWorldTrans: Uniform = new Uniform('u_projViewWorldTrans');
+  public static normalMatrix: Uniform = new Uniform('u_normalMatrix');
+  public static bones: Uniform = new Uniform('u_bones');
 
-  public static shininess: Uniform = new Uniform(
-    "u_shininess",
-    FloatAttribute.Shininess
-  );
-  public static opacity: Uniform = new Uniform(
-    "u_opacity",
-    BlendingAttribute.Type
-  );
-  public static diffuseColor: Uniform = new Uniform(
-    "u_diffuseColor",
-    ColorAttribute.Diffuse
-  );
-  public static diffuseTexture: Uniform = new Uniform(
-    "u_diffuseTexture",
-    TextureAttribute.Diffuse
-  );
-  public static diffuseUVTransform: Uniform = new Uniform(
-    "u_diffuseUVTransform",
-    TextureAttribute.Diffuse
-  );
-  public static specularColor: Uniform = new Uniform(
-    "u_specularColor",
-    ColorAttribute.Specular
-  );
-  public static specularTexture: Uniform = new Uniform(
-    "u_specularTexture",
-    TextureAttribute.Specular
-  );
-  public static specularUVTransform: Uniform = new Uniform(
-    "u_specularUVTransform",
-    TextureAttribute.Specular
-  );
-  public static emissiveColor: Uniform = new Uniform(
-    "u_emissiveColor",
-    ColorAttribute.Emissive
-  );
-  public static emissiveTexture: Uniform = new Uniform(
-    "u_emissiveTexture",
-    TextureAttribute.Emissive
-  );
-  public static emissiveUVTransform: Uniform = new Uniform(
-    "u_emissiveUVTransform",
-    TextureAttribute.Emissive
-  );
-  public static reflectionColor: Uniform = new Uniform(
-    "u_reflectionColor",
-    ColorAttribute.Reflection
-  );
-  public static reflectionTexture: Uniform = new Uniform(
-    "u_reflectionTexture",
-    TextureAttribute.Reflection
-  );
-  public static reflectionUVTransform: Uniform = new Uniform(
-    "u_reflectionUVTransform",
-    TextureAttribute.Reflection
-  );
-  public static normalTexture: Uniform = new Uniform(
-    "u_normalTexture",
-    TextureAttribute.Normal
-  );
-  public static normalUVTransform: Uniform = new Uniform(
-    "u_normalUVTransform",
-    TextureAttribute.Normal
-  );
-  public static ambientTexture: Uniform = new Uniform(
-    "u_ambientTexture",
-    TextureAttribute.Ambient
-  );
-  public static ambientUVTransform: Uniform = new Uniform(
-    "u_ambientUVTransform",
-    TextureAttribute.Ambient
-  );
-  public static alphaTest: Uniform = new Uniform("u_alphaTest");
+  public static shininess: Uniform = new Uniform('u_shininess', FloatAttribute.Shininess);
+  public static opacity: Uniform = new Uniform('u_opacity', BlendingAttribute.Type);
+  public static diffuseColor: Uniform = new Uniform('u_diffuseColor', ColorAttribute.Diffuse);
+  public static diffuseTexture: Uniform = new Uniform('u_diffuseTexture', TextureAttribute.Diffuse);
+  public static diffuseUVTransform: Uniform = new Uniform('u_diffuseUVTransform', TextureAttribute.Diffuse);
+  public static specularColor: Uniform = new Uniform('u_specularColor', ColorAttribute.Specular);
+  public static specularTexture: Uniform = new Uniform('u_specularTexture', TextureAttribute.Specular);
+  public static specularUVTransform: Uniform = new Uniform('u_specularUVTransform', TextureAttribute.Specular);
+  public static emissiveColor: Uniform = new Uniform('u_emissiveColor', ColorAttribute.Emissive);
+  public static emissiveTexture: Uniform = new Uniform('u_emissiveTexture', TextureAttribute.Emissive);
+  public static emissiveUVTransform: Uniform = new Uniform('u_emissiveUVTransform', TextureAttribute.Emissive);
+  public static reflectionColor: Uniform = new Uniform('u_reflectionColor', ColorAttribute.Reflection);
+  public static reflectionTexture: Uniform = new Uniform('u_reflectionTexture', TextureAttribute.Reflection);
+  public static reflectionUVTransform: Uniform = new Uniform('u_reflectionUVTransform', TextureAttribute.Reflection);
+  public static normalTexture: Uniform = new Uniform('u_normalTexture', TextureAttribute.Normal);
+  public static normalUVTransform: Uniform = new Uniform('u_normalUVTransform', TextureAttribute.Normal);
+  public static ambientTexture: Uniform = new Uniform('u_ambientTexture', TextureAttribute.Ambient);
+  public static ambientUVTransform: Uniform = new Uniform('u_ambientUVTransform', TextureAttribute.Ambient);
+  public static alphaTest: Uniform = new Uniform('u_alphaTest');
 
-  public static ambientCube: Uniform = new Uniform("u_ambientCubemap");
-  public static dirLights: Uniform = new Uniform("u_dirLights");
-  public static pointLights: Uniform = new Uniform("u_pointLights");
-  public static spotLights: Uniform = new Uniform("u_spotLights");
-  public static environmentCubemap: Uniform = new Uniform(
-    "u_environmentCubemap"
-  );
+  public static ambientCube: Uniform = new Uniform('u_ambientCubemap');
+  public static dirLights: Uniform = new Uniform('u_dirLights');
+  public static pointLights: Uniform = new Uniform('u_pointLights');
+  public static spotLights: Uniform = new Uniform('u_spotLights');
+  public static environmentCubemap: Uniform = new Uniform('u_environmentCubemap');
 }
 
 export class Setters {
   public static projTrans = new (class extends GlobalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       shader.setMatrix4(inputID, shader.camera.projection);
     }
   })();
   public static viewTrans = new (class extends GlobalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       shader.setMatrix4(inputID, shader.camera.view);
     }
   })();
   public static projViewTrans = new (class extends GlobalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       shader.setMatrix4(inputID, shader.camera.combined);
     }
   })();
   public static cameraPosition = new (class extends GlobalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       shader.set4f(
         inputID,
         shader.camera.position.x,
@@ -180,320 +102,149 @@ export class Setters {
     }
   })();
   public static cameraDirection = new (class extends GlobalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       shader.setVector3(inputID, shader.camera.direction);
     }
   })();
   public static cameraUp = new (class extends GlobalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       shader.setVector3(inputID, shader.camera.up);
     }
   })();
   public static cameraNearFar = new (class extends GlobalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       shader.set2f(inputID, shader.camera.near, shader.camera.far);
     }
   })();
   public static worldTrans = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       shader.setMatrix4(inputID, renderable.worldTransform);
     }
   })();
   public static viewWorldTrans = new (class extends LocalSetter {
     public temp = new Matrix4();
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      shader.setMatrix4(
-        inputID,
-        this.temp
-          .set(shader.camera.view.values)
-          .multiply(renderable.worldTransform)
-      );
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      shader.setMatrix4(inputID, this.temp.set(shader.camera.view.values).multiply(renderable.worldTransform));
     }
   })();
   public static projViewWorldTrans = new (class extends LocalSetter {
     public temp = new Matrix4();
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      shader.setMatrix4(
-        inputID,
-        this.temp
-          .set(shader.camera.combined.values)
-          .multiply(renderable.worldTransform)
-      );
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      shader.setMatrix4(inputID, this.temp.set(shader.camera.combined.values).multiply(renderable.worldTransform));
     }
   })();
   public static normalMatrix = new (class extends LocalSetter {
     public tmpM = new Matrix3();
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      shader.setMatrix3(
-        inputID,
-        this.tmpM.setByMatrix4(renderable.worldTransform).inv().transpose()
-      );
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      shader.setMatrix3(inputID, this.tmpM.setByMatrix4(renderable.worldTransform).inv().transpose());
     }
   })();
   public static shininess = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      shader.setF(
-        inputID,
-        (combinedAttributes.get(FloatAttribute.Shininess) as FloatAttribute)
-          .value
-      );
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      shader.setF(inputID, (combinedAttributes.get(FloatAttribute.Shininess) as FloatAttribute).value);
     }
   })();
   public static diffuseColor = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      shader.setColor(
-        inputID,
-        (combinedAttributes.get(ColorAttribute.Diffuse) as ColorAttribute).color
-      );
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      shader.setColor(inputID, (combinedAttributes.get(ColorAttribute.Diffuse) as ColorAttribute).color);
     }
   })();
   public static diffuseTexture = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       const unit = shader.context.textureBinder.bindTexture(
-        (combinedAttributes.get(TextureAttribute.Diffuse) as TextureAttribute)
-          .texture
+        (combinedAttributes.get(TextureAttribute.Diffuse) as TextureAttribute).texture
       );
       shader.setI(inputID, unit);
     }
   })();
   public static diffuseUVTransform = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      const ta = combinedAttributes.get(
-        TextureAttribute.Diffuse
-      ) as TextureAttribute;
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      const ta = combinedAttributes.get(TextureAttribute.Diffuse) as TextureAttribute;
       shader.set4f(inputID, ta.offsetU, ta.offsetV, ta.scaleU, ta.scaleV);
     }
   })();
   public static specularColor = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      shader.setColor(
-        inputID,
-        (combinedAttributes.get(ColorAttribute.Specular) as ColorAttribute)
-          .color
-      );
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      shader.setColor(inputID, (combinedAttributes.get(ColorAttribute.Specular) as ColorAttribute).color);
     }
   })();
   public static specularTexture = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       const unit = shader.context.textureBinder.bindTexture(
-        (combinedAttributes.get(TextureAttribute.Specular) as TextureAttribute)
-          .texture
+        (combinedAttributes.get(TextureAttribute.Specular) as TextureAttribute).texture
       );
       shader.setI(inputID, unit);
     }
   })();
   public static specularUVTransform = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      const ta = combinedAttributes.get(
-        TextureAttribute.Specular
-      ) as TextureAttribute;
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      const ta = combinedAttributes.get(TextureAttribute.Specular) as TextureAttribute;
       shader.set4f(inputID, ta.offsetU, ta.offsetV, ta.scaleU, ta.scaleV);
     }
   })();
   public static emissiveColor = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      shader.setColor(
-        inputID,
-        (combinedAttributes.get(ColorAttribute.Emissive) as ColorAttribute)
-          .color
-      );
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      shader.setColor(inputID, (combinedAttributes.get(ColorAttribute.Emissive) as ColorAttribute).color);
     }
   })();
   public static emissiveTexture = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       const unit = shader.context.textureBinder.bindTexture(
-        (combinedAttributes.get(TextureAttribute.Emissive) as TextureAttribute)
-          .texture
+        (combinedAttributes.get(TextureAttribute.Emissive) as TextureAttribute).texture
       );
       shader.setI(inputID, unit);
     }
   })();
   public static emissiveUVTransform = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      const ta = combinedAttributes.get(
-        TextureAttribute.Emissive
-      ) as TextureAttribute;
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      const ta = combinedAttributes.get(TextureAttribute.Emissive) as TextureAttribute;
       shader.set4f(inputID, ta.offsetU, ta.offsetV, ta.scaleU, ta.scaleV);
     }
   })();
   public static reflectionColor = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      shader.setColor(
-        inputID,
-        (combinedAttributes.get(ColorAttribute.Reflection) as ColorAttribute)
-          .color
-      );
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      shader.setColor(inputID, (combinedAttributes.get(ColorAttribute.Reflection) as ColorAttribute).color);
     }
   })();
   public static reflectionTexture = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       const unit = shader.context.textureBinder.bindTexture(
-        (combinedAttributes.get(
-          TextureAttribute.Reflection
-        ) as TextureAttribute).texture
+        (combinedAttributes.get(TextureAttribute.Reflection) as TextureAttribute).texture
       );
       shader.setI(inputID, unit);
     }
   })();
   public static reflectionUVTransform = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      const ta = combinedAttributes.get(
-        TextureAttribute.Reflection
-      ) as TextureAttribute;
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      const ta = combinedAttributes.get(TextureAttribute.Reflection) as TextureAttribute;
       shader.set4f(inputID, ta.offsetU, ta.offsetV, ta.scaleU, ta.scaleV);
     }
   })();
   public static normalTexture = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       const unit = shader.context.textureBinder.bindTexture(
-        (combinedAttributes.get(TextureAttribute.Normal) as TextureAttribute)
-          .texture
+        (combinedAttributes.get(TextureAttribute.Normal) as TextureAttribute).texture
       );
       shader.setI(inputID, unit);
     }
   })();
   public static normalUVTransform = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      const ta = combinedAttributes.get(
-        TextureAttribute.Normal
-      ) as TextureAttribute;
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      const ta = combinedAttributes.get(TextureAttribute.Normal) as TextureAttribute;
       shader.set4f(inputID, ta.offsetU, ta.offsetV, ta.scaleU, ta.scaleV);
     }
   })();
   public static ambientTexture = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       const unit = shader.context.textureBinder.bindTexture(
-        (combinedAttributes.get(TextureAttribute.Ambient) as TextureAttribute)
-          .texture
+        (combinedAttributes.get(TextureAttribute.Ambient) as TextureAttribute).texture
       );
       shader.setI(inputID, unit);
     }
   })();
   public static ambientUVTransform = new (class extends LocalSetter {
-    set(
-      shader: BaseShader,
-      inputID: number,
-      renderable: Renderable,
-      combinedAttributes: Attributes
-    ) {
-      const ta = combinedAttributes.get(
-        TextureAttribute.Ambient
-      ) as TextureAttribute;
+    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+      const ta = combinedAttributes.get(TextureAttribute.Ambient) as TextureAttribute;
       shader.set4f(inputID, ta.offsetU, ta.offsetV, ta.scaleU, ta.scaleV);
     }
   })();
@@ -1109,30 +860,24 @@ export class DefaultShader extends BaseShader {
 
   protected u_ambientCubemap;
   protected u_environmentCubemap;
-  protected u_dirLights0color = this.register("u_dirLights[0].color");
-  protected u_dirLights0direction = this.register("u_dirLights[0].direction");
-  protected u_dirLights1color = this.register("u_dirLights[1].color");
-  protected u_pointLights0color = this.register("u_pointLights[0].color");
-  protected u_pointLights0position = this.register("u_pointLights[0].position");
-  protected u_pointLights0intensity = this.register(
-    "u_pointLights[0].intensity"
-  );
-  protected u_pointLights1color = this.register("u_pointLights[1].color");
-  protected u_spotLights0color = this.register("u_spotLights[0].color");
-  protected u_spotLights0position = this.register("u_spotLights[0].position");
-  protected u_spotLights0intensity = this.register("u_spotLights[0].intensity");
-  protected u_spotLights0direction = this.register("u_spotLights[0].direction");
-  protected u_spotLights0cutoffAngle = this.register(
-    "u_spotLights[0].cutoffAngle"
-  );
-  protected u_spotLights0exponent = this.register("u_spotLights[0].exponent");
-  protected u_spotLights1color = this.register("u_spotLights[1].color");
-  protected u_fogColor = this.register("u_fogColor");
-  protected u_shadowMapProjViewTrans = this.register(
-    "u_shadowMapProjViewTrans"
-  );
-  protected u_shadowTexture = this.register("u_shadowTexture");
-  protected u_shadowPCFOffset = this.register("u_shadowPCFOffset");
+  protected u_dirLights0color = this.register('u_dirLights[0].color');
+  protected u_dirLights0direction = this.register('u_dirLights[0].direction');
+  protected u_dirLights1color = this.register('u_dirLights[1].color');
+  protected u_pointLights0color = this.register('u_pointLights[0].color');
+  protected u_pointLights0position = this.register('u_pointLights[0].position');
+  protected u_pointLights0intensity = this.register('u_pointLights[0].intensity');
+  protected u_pointLights1color = this.register('u_pointLights[1].color');
+  protected u_spotLights0color = this.register('u_spotLights[0].color');
+  protected u_spotLights0position = this.register('u_spotLights[0].position');
+  protected u_spotLights0intensity = this.register('u_spotLights[0].intensity');
+  protected u_spotLights0direction = this.register('u_spotLights[0].direction');
+  protected u_spotLights0cutoffAngle = this.register('u_spotLights[0].cutoffAngle');
+  protected u_spotLights0exponent = this.register('u_spotLights[0].exponent');
+  protected u_spotLights1color = this.register('u_spotLights[1].color');
+  protected u_fogColor = this.register('u_fogColor');
+  protected u_shadowMapProjViewTrans = this.register('u_shadowMapProjViewTrans');
+  protected u_shadowTexture = this.register('u_shadowTexture');
+  protected u_shadowPCFOffset = this.register('u_shadowPCFOffset');
 
   protected dirLightsLoc: number;
   protected dirLightsColorOffset: number;
@@ -1171,32 +916,22 @@ export class DefaultShader extends BaseShader {
   constructor(
     renderable: Renderable,
     config: Config = null,
-    prefix: string = "",
-    vertexShader: string = "",
-    fragmentShader: string = ""
+    prefix: string = '',
+    vertexShader: string = '',
+    fragmentShader: string = ''
   ) {
     super();
-    if (vertexShader.length === 0)
-      vertexShader = DefaultShader.defaultVertexShader;
-    if (fragmentShader.length === 0)
-      fragmentShader = DefaultShader.defaultVertexShader;
+    if (vertexShader.length === 0) vertexShader = DefaultShader.defaultVertexShader;
+    if (fragmentShader.length === 0) fragmentShader = DefaultShader.defaultVertexShader;
     if (config === null) {
       config = new Config();
     } else {
       prefix = DefaultShader.createPrefix(renderable, config);
     }
-    this.DefaultShader(
-      renderable,
-      config,
-      new ShaderProgram(null, prefix + vertexShader, prefix + fragmentShader)
-    );
+    this.DefaultShader(renderable, config, new Shader(null, prefix + vertexShader, prefix + fragmentShader));
   }
 
-  public DefaultShader(
-    renderable: Renderable,
-    config: Config,
-    shaderProgram: ShaderProgram
-  ) {
+  public DefaultShader(renderable: Renderable, config: Config, shaderProgram: Shader) {
     const attributes = DefaultShader.combineAttributes(renderable);
     this.config = config;
     this.program = shaderProgram;
@@ -1212,8 +947,7 @@ export class DefaultShader extends BaseShader {
     this.shadowMap = false;
 
     this.renderable = renderable;
-    this.attributesMask =
-      attributes.getMask() | DefaultShader.optionalAttributes;
+    this.attributesMask = attributes.getMask() | DefaultShader.optionalAttributes;
     // this.vertexMask = renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked();
 
     // this.directionalLights = new DirectionalLight[lighting && config.numDirectionalLights > 0 ? config.numDirectionalLights
@@ -1235,93 +969,41 @@ export class DefaultShader extends BaseShader {
     // }
 
     // Global uniforms
-    this.u_projTrans = this.register(
-      Inputs.projTrans.alias,
-      Inputs.projTrans,
-      Setters.projTrans
-    );
-    this.u_viewTrans = this.register(
-      Inputs.viewTrans.alias,
-      Inputs.viewTrans,
-      Setters.viewTrans
-    );
-    this.u_projViewTrans = this.register(
-      Inputs.projViewTrans.alias,
-      Inputs.projViewTrans,
-      Setters.projViewTrans
-    );
-    this.u_cameraPosition = this.register(
-      Inputs.cameraPosition.alias,
-      Inputs.cameraPosition,
-      Setters.cameraPosition
-    );
+    this.u_projTrans = this.register(Inputs.projTrans.alias, Inputs.projTrans, Setters.projTrans);
+    this.u_viewTrans = this.register(Inputs.viewTrans.alias, Inputs.viewTrans, Setters.viewTrans);
+    this.u_projViewTrans = this.register(Inputs.projViewTrans.alias, Inputs.projViewTrans, Setters.projViewTrans);
+    this.u_cameraPosition = this.register(Inputs.cameraPosition.alias, Inputs.cameraPosition, Setters.cameraPosition);
     this.u_cameraDirection = this.register(
       Inputs.cameraDirection.alias,
       Inputs.cameraDirection,
       Setters.cameraDirection
     );
-    this.u_cameraUp = this.register(
-      Inputs.cameraUp.alias,
-      Inputs.cameraUp,
-      Setters.cameraUp
-    );
-    this.u_cameraNearFar = this.register(
-      Inputs.cameraNearFar.alias,
-      Inputs.cameraNearFar,
-      Setters.cameraNearFar
-    );
-    const timeUniform = new Uniform("u_time");
+    this.u_cameraUp = this.register(Inputs.cameraUp.alias, Inputs.cameraUp, Setters.cameraUp);
+    this.u_cameraNearFar = this.register(Inputs.cameraNearFar.alias, Inputs.cameraNearFar, Setters.cameraNearFar);
+    const timeUniform = new Uniform('u_time');
     this.u_time = this.register(timeUniform.alias, timeUniform);
     // Object uniforms
-    this.u_worldTrans = this.register(
-      Inputs.worldTrans.alias,
-      Inputs.worldTrans,
-      Setters.worldTrans
-    );
-    this.u_viewWorldTrans = this.register(
-      Inputs.viewWorldTrans.alias,
-      Inputs.viewWorldTrans,
-      Setters.viewWorldTrans
-    );
+    this.u_worldTrans = this.register(Inputs.worldTrans.alias, Inputs.worldTrans, Setters.worldTrans);
+    this.u_viewWorldTrans = this.register(Inputs.viewWorldTrans.alias, Inputs.viewWorldTrans, Setters.viewWorldTrans);
     this.u_projViewWorldTrans = this.register(
       Inputs.projViewWorldTrans.alias,
       Inputs.projViewWorldTrans,
       Setters.projViewWorldTrans
     );
-    this.u_normalMatrix = this.register(
-      Inputs.normalMatrix.alias,
-      Inputs.normalMatrix,
-      Setters.normalMatrix
-    );
+    this.u_normalMatrix = this.register(Inputs.normalMatrix.alias, Inputs.normalMatrix, Setters.normalMatrix);
     // u_bones = (renderable.bones != null && config.numBones > 0) ? register(Inputs.bones, new Setters.Bones(config.numBones))
     //     : -1;
 
-    this.u_shininess = this.register(
-      Inputs.shininess.alias,
-      Inputs.shininess,
-      Setters.shininess
-    );
+    this.u_shininess = this.register(Inputs.shininess.alias, Inputs.shininess, Setters.shininess);
     this.u_opacity = this.register(Inputs.opacity.alias, Inputs.opacity);
-    this.u_diffuseColor = this.register(
-      Inputs.diffuseColor.alias,
-      Inputs.diffuseColor,
-      Setters.diffuseColor
-    );
-    this.u_diffuseTexture = this.register(
-      Inputs.diffuseTexture.alias,
-      Inputs.diffuseTexture,
-      Setters.diffuseTexture
-    );
+    this.u_diffuseColor = this.register(Inputs.diffuseColor.alias, Inputs.diffuseColor, Setters.diffuseColor);
+    this.u_diffuseTexture = this.register(Inputs.diffuseTexture.alias, Inputs.diffuseTexture, Setters.diffuseTexture);
     this.u_diffuseUVTransform = this.register(
       Inputs.diffuseUVTransform.alias,
       Inputs.diffuseUVTransform,
       Setters.diffuseUVTransform
     );
-    this.u_specularColor = this.register(
-      Inputs.specularColor.alias,
-      Inputs.specularColor,
-      Setters.specularColor
-    );
+    this.u_specularColor = this.register(Inputs.specularColor.alias, Inputs.specularColor, Setters.specularColor);
     this.u_specularTexture = this.register(
       Inputs.specularTexture.alias,
       Inputs.specularTexture,
@@ -1332,11 +1014,7 @@ export class DefaultShader extends BaseShader {
       Inputs.specularUVTransform,
       Setters.specularUVTransform
     );
-    this.u_emissiveColor = this.register(
-      Inputs.emissiveColor.alias,
-      Inputs.emissiveColor,
-      Setters.emissiveColor
-    );
+    this.u_emissiveColor = this.register(Inputs.emissiveColor.alias, Inputs.emissiveColor, Setters.emissiveColor);
     this.u_emissiveTexture = this.register(
       Inputs.emissiveTexture.alias,
       Inputs.emissiveTexture,
@@ -1362,21 +1040,13 @@ export class DefaultShader extends BaseShader {
       Inputs.reflectionUVTransform,
       Setters.reflectionUVTransform
     );
-    this.u_normalTexture = this.register(
-      Inputs.normalTexture.alias,
-      Inputs.normalTexture,
-      Setters.normalTexture
-    );
+    this.u_normalTexture = this.register(Inputs.normalTexture.alias, Inputs.normalTexture, Setters.normalTexture);
     this.u_normalUVTransform = this.register(
       Inputs.normalUVTransform.alias,
       Inputs.normalUVTransform,
       Setters.normalUVTransform
     );
-    this.u_ambientTexture = this.register(
-      Inputs.ambientTexture.alias,
-      Inputs.ambientTexture,
-      Setters.ambientTexture
-    );
+    this.u_ambientTexture = this.register(Inputs.ambientTexture.alias, Inputs.ambientTexture, Setters.ambientTexture);
     this.u_ambientUVTransform = this.register(
       Inputs.ambientUVTransform.alias,
       Inputs.ambientUVTransform,
@@ -1433,8 +1103,7 @@ export class DefaultShader extends BaseShader {
   private static combineAttributes(renderable: Renderable): Attributes {
     this.tmpAttributes.clear();
     // if (renderable.environment != null) tmpAttributes.set(renderable.environment);
-    if (renderable.material != null)
-      this.tmpAttributes.setAttributes(renderable.material.getAttributes());
+    if (renderable.material != null) this.tmpAttributes.setAttributes(renderable.material.getAttributes());
     return this.tmpAttributes;
   }
 
@@ -1447,17 +1116,14 @@ export class DefaultShader extends BaseShader {
 
   public static createPrefix(renderable: Renderable, config: Config): string {
     const attributes = this.combineAttributes(renderable);
-    let prefix = "";
+    let prefix = '';
     const attributesMask = attributes.getMask();
     const vertexMask = renderable.meshPart.mesh.getVertexAttributes().getMask();
-    if (this.and(vertexMask, Usage.Position))
-      prefix += "#define positionFlag\n";
-    if (this.or(vertexMask, Usage.ColorUnpacked | Usage.ColorPacked))
-      prefix += "#define colorFlag\n";
-    if (this.and(vertexMask, Usage.BiNormal))
-      prefix += "#define binormalFlag\n";
-    if (this.and(vertexMask, Usage.Tangent)) prefix += "#define tangentFlag\n";
-    if (this.and(vertexMask, Usage.Normal)) prefix += "#define normalFlag\n";
+    if (this.and(vertexMask, Usage.Position)) prefix += '#define positionFlag\n';
+    if (this.or(vertexMask, Usage.ColorUnpacked | Usage.ColorPacked)) prefix += '#define colorFlag\n';
+    if (this.and(vertexMask, Usage.BiNormal)) prefix += '#define binormalFlag\n';
+    if (this.and(vertexMask, Usage.Tangent)) prefix += '#define tangentFlag\n';
+    if (this.and(vertexMask, Usage.Normal)) prefix += '#define normalFlag\n';
     // if (
     //   this.and(vertexMask, Usage.Normal) ||
     //   this.and(vertexMask, Usage.Tangent | Usage.BiNormal)
@@ -1478,96 +1144,56 @@ export class DefaultShader extends BaseShader {
     const n = renderable.meshPart.mesh.getVertexAttributes().size();
     for (let i = 0; i < n; i++) {
       const attr = renderable.meshPart.mesh.getVertexAttributes().get(i);
-      if (attr.usage === Usage.BoneWeight)
-        prefix += "#define boneWeight" + attr.unit + "Flag\n";
-      else if (attr.usage === Usage.TextureCoordinates)
-        prefix += "#define texCoord" + attr.unit + "Flag\n";
+      if (attr.usage === Usage.BoneWeight) prefix += '#define boneWeight' + attr.unit + 'Flag\n';
+      else if (attr.usage === Usage.TextureCoordinates) prefix += '#define texCoord' + attr.unit + 'Flag\n';
     }
     if ((attributesMask & BlendingAttribute.Type) === BlendingAttribute.Type)
-      prefix += "#define " + BlendingAttribute.Alias + "Flag\n";
-    if (
-      (attributesMask & TextureAttribute.Diffuse) ===
-      TextureAttribute.Diffuse
-    ) {
-      prefix += "#define " + TextureAttribute.DiffuseAlias + "Flag\n";
-      prefix +=
-        "#define " + TextureAttribute.DiffuseAlias + "Coord texCoord0\n"; // FIXME implement UV mapping
+      prefix += '#define ' + BlendingAttribute.Alias + 'Flag\n';
+    if ((attributesMask & TextureAttribute.Diffuse) === TextureAttribute.Diffuse) {
+      prefix += '#define ' + TextureAttribute.DiffuseAlias + 'Flag\n';
+      prefix += '#define ' + TextureAttribute.DiffuseAlias + 'Coord texCoord0\n'; // FIXME implement UV mapping
     }
-    if (
-      (attributesMask & TextureAttribute.Specular) ===
-      TextureAttribute.Specular
-    ) {
-      prefix += "#define " + TextureAttribute.SpecularAlias + "Flag\n";
-      prefix +=
-        "#define " + TextureAttribute.SpecularAlias + "Coord texCoord0\n"; // FIXME implement UV mapping
+    if ((attributesMask & TextureAttribute.Specular) === TextureAttribute.Specular) {
+      prefix += '#define ' + TextureAttribute.SpecularAlias + 'Flag\n';
+      prefix += '#define ' + TextureAttribute.SpecularAlias + 'Coord texCoord0\n'; // FIXME implement UV mapping
     }
-    if (
-      (attributesMask & TextureAttribute.Normal) ===
-      TextureAttribute.Normal
-    ) {
-      prefix += "#define " + TextureAttribute.NormalAlias + "Flag\n";
-      prefix += "#define " + TextureAttribute.NormalAlias + "Coord texCoord0\n"; // FIXME implement UV mapping
+    if ((attributesMask & TextureAttribute.Normal) === TextureAttribute.Normal) {
+      prefix += '#define ' + TextureAttribute.NormalAlias + 'Flag\n';
+      prefix += '#define ' + TextureAttribute.NormalAlias + 'Coord texCoord0\n'; // FIXME implement UV mapping
     }
-    if (
-      (attributesMask & TextureAttribute.Emissive) ===
-      TextureAttribute.Emissive
-    ) {
-      prefix += "#define " + TextureAttribute.EmissiveAlias + "Flag\n";
-      prefix +=
-        "#define " + TextureAttribute.EmissiveAlias + "Coord texCoord0\n"; // FIXME implement UV mapping
+    if ((attributesMask & TextureAttribute.Emissive) === TextureAttribute.Emissive) {
+      prefix += '#define ' + TextureAttribute.EmissiveAlias + 'Flag\n';
+      prefix += '#define ' + TextureAttribute.EmissiveAlias + 'Coord texCoord0\n'; // FIXME implement UV mapping
     }
-    if (
-      (attributesMask & TextureAttribute.Reflection) ===
-      TextureAttribute.Reflection
-    ) {
-      prefix += "#define " + TextureAttribute.ReflectionAlias + "Flag\n";
-      prefix +=
-        "#define " + TextureAttribute.ReflectionAlias + "Coord texCoord0\n"; // FIXME implement UV mapping
+    if ((attributesMask & TextureAttribute.Reflection) === TextureAttribute.Reflection) {
+      prefix += '#define ' + TextureAttribute.ReflectionAlias + 'Flag\n';
+      prefix += '#define ' + TextureAttribute.ReflectionAlias + 'Coord texCoord0\n'; // FIXME implement UV mapping
     }
-    if (
-      (attributesMask & TextureAttribute.Ambient) ===
-      TextureAttribute.Ambient
-    ) {
-      prefix += "#define " + TextureAttribute.AmbientAlias + "Flag\n";
-      prefix +=
-        "#define " + TextureAttribute.AmbientAlias + "Coord texCoord0\n"; // FIXME implement UV mapping
+    if ((attributesMask & TextureAttribute.Ambient) === TextureAttribute.Ambient) {
+      prefix += '#define ' + TextureAttribute.AmbientAlias + 'Flag\n';
+      prefix += '#define ' + TextureAttribute.AmbientAlias + 'Coord texCoord0\n'; // FIXME implement UV mapping
     }
     if ((attributesMask & ColorAttribute.Diffuse) === ColorAttribute.Diffuse)
-      prefix += "#define " + ColorAttribute.DiffuseAlias + "Flag\n";
+      prefix += '#define ' + ColorAttribute.DiffuseAlias + 'Flag\n';
     if ((attributesMask & ColorAttribute.Specular) === ColorAttribute.Specular)
-      prefix += "#define " + ColorAttribute.SpecularAlias + "Flag\n";
+      prefix += '#define ' + ColorAttribute.SpecularAlias + 'Flag\n';
     if ((attributesMask & ColorAttribute.Emissive) === ColorAttribute.Emissive)
-      prefix += "#define " + ColorAttribute.EmissiveAlias + "Flag\n";
-    if (
-      (attributesMask & ColorAttribute.Reflection) ===
-      ColorAttribute.Reflection
-    )
-      prefix += "#define " + ColorAttribute.ReflectionAlias + "Flag\n";
-    if (
-      (attributesMask & FloatAttribute.Shininess) ===
-      FloatAttribute.Shininess
-    )
-      prefix += "#define " + FloatAttribute.ShininessAlias + "Flag\n";
-    if (
-      (attributesMask & FloatAttribute.AlphaTest) ===
-      FloatAttribute.AlphaTest
-    )
-      prefix += "#define " + FloatAttribute.AlphaTestAlias + "Flag\n";
-    if (renderable.bones != null && config.numBones > 0)
-      prefix += "#define numBones " + config.numBones + "\n";
+      prefix += '#define ' + ColorAttribute.EmissiveAlias + 'Flag\n';
+    if ((attributesMask & ColorAttribute.Reflection) === ColorAttribute.Reflection)
+      prefix += '#define ' + ColorAttribute.ReflectionAlias + 'Flag\n';
+    if ((attributesMask & FloatAttribute.Shininess) === FloatAttribute.Shininess)
+      prefix += '#define ' + FloatAttribute.ShininessAlias + 'Flag\n';
+    if ((attributesMask & FloatAttribute.AlphaTest) === FloatAttribute.AlphaTest)
+      prefix += '#define ' + FloatAttribute.AlphaTestAlias + 'Flag\n';
+    if (renderable.bones != null && config.numBones > 0) prefix += '#define numBones ' + config.numBones + '\n';
     return prefix;
   }
 
   public canRender(renderable: Renderable): boolean {
-    if (
-      renderable.bones != null &&
-      renderable.bones.length > this.config.numBones
-    )
-      return false;
+    if (renderable.bones != null && renderable.bones.length > this.config.numBones) return false;
     const renderableMask = DefaultShader.combineAttributeMasks(renderable);
     return (
-      this.attributesMask ===
-      (renderableMask | DefaultShader.optionalAttributes)
+      this.attributesMask === (renderableMask | DefaultShader.optionalAttributes)
       //     &&
       //   this.vertexMask ==
       //     renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked()
@@ -1593,16 +1219,9 @@ export class DefaultShader extends BaseShader {
     // if (has(u_time)) set(u_time, time += Gdx.graphics.getDeltaTime());
   }
 
-  public renderWithCombinedAttributes(
-    renderable: Renderable,
-    combinedAttributes: Attributes
-  ) {
+  public renderWithCombinedAttributes(renderable: Renderable, combinedAttributes: Attributes) {
     if (!combinedAttributes.has(BlendingAttribute.Type))
-      this.context.setBlending(
-        false,
-        GL20.GL_SRC_ALPHA,
-        GL20.GL_ONE_MINUS_SRC_ALPHA
-      );
+      this.context.setBlending(false, GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
     this.bindMaterial(combinedAttributes);
     if (this.lighting) this.bindLights(renderable, combinedAttributes);
     super.renderWithCombinedAttributes(renderable, combinedAttributes);
@@ -1613,14 +1232,9 @@ export class DefaultShader extends BaseShader {
   }
 
   protected bindMaterial(attributes: Attributes) {
-    let cullFace =
-      this.config.defaultCullFace === -1
-        ? DefaultShader.defaultCullFace
-        : this.config.defaultCullFace;
+    let cullFace = this.config.defaultCullFace === -1 ? DefaultShader.defaultCullFace : this.config.defaultCullFace;
     const depthFunc =
-      this.config.defaultDepthFunc === -1
-        ? DefaultShader.defaultDepthFunc
-        : this.config.defaultDepthFunc;
+      this.config.defaultDepthFunc === -1 ? DefaultShader.defaultDepthFunc : this.config.defaultDepthFunc;
     const depthRangeNear = 0;
     const depthRangeFar = 1;
     const depthMask = true;
@@ -1634,8 +1248,7 @@ export class DefaultShader extends BaseShader {
           (attr as BlendingAttribute).destFunction
         );
         this.setF(this.u_opacity, (attr as BlendingAttribute).opacity);
-      } else if ((t & IntAttribute.CullFace) === IntAttribute.CullFace)
-        cullFace = (attr as IntAttribute).value;
+      } else if ((t & IntAttribute.CullFace) === IntAttribute.CullFace) cullFace = (attr as IntAttribute).value;
       else if ((t & FloatAttribute.AlphaTest) === FloatAttribute.AlphaTest)
         this.setF(this.u_alphaTest, (attr as FloatAttribute).value);
       // else if ((t & DepthTestAttribute.Type) === DepthTestAttribute.Type) {
@@ -1645,8 +1258,7 @@ export class DefaultShader extends BaseShader {
       //     depthRangeFar = dta.depthRangeFar;
       //     depthMask = dta.depthMask;
       // }
-      else if (!this.config.ignoreUnimplemented)
-        throw new Error("Unknown material attribute: " + attr.toString());
+      else if (!this.config.ignoreUnimplemented) throw new Error('Unknown material attribute: ' + attr.toString());
     }
 
     this.context.setCullFace(cullFace);
@@ -1737,9 +1349,7 @@ export class DefaultShader extends BaseShader {
   }
 
   public getDefaultCullFace() {
-    return this.config.defaultCullFace === -1
-      ? DefaultShader.defaultCullFace
-      : this.config.defaultCullFace;
+    return this.config.defaultCullFace === -1 ? DefaultShader.defaultCullFace : this.config.defaultCullFace;
   }
 
   public setDefaultCullFace(cullFace: number) {
@@ -1747,9 +1357,7 @@ export class DefaultShader extends BaseShader {
   }
 
   public getDefaultDepthFunc() {
-    return this.config.defaultDepthFunc === -1
-      ? DefaultShader.defaultDepthFunc
-      : this.config.defaultDepthFunc;
+    return this.config.defaultDepthFunc === -1 ? DefaultShader.defaultDepthFunc : this.config.defaultDepthFunc;
   }
 
   public setDefaultDepthFunc(depthFunc: number) {

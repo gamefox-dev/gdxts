@@ -1,3 +1,40 @@
+export class Align {
+  public static center: number = 1 << 0;
+  public static top: number = 1 << 1;
+  public static bottom: number = 1 << 2;
+  public static left: number = 1 << 3;
+  public static right: number = 1 << 4;
+
+  public static topLeft: number = this.top | this.left;
+  public static topRight: number = this.top | this.right;
+  public static bottomLeft: number = this.bottom | this.left;
+  public static bottomRight: number = this.bottom | this.right;
+
+  public static isLeft(align: number): boolean {
+    return (align & this.left) !== 0;
+  }
+
+  public static isRight(align: number): boolean {
+    return (align & this.right) !== 0;
+  }
+
+  public static isTop(align: number): boolean {
+    return (align & this.top) !== 0;
+  }
+
+  public static isBottom(align: number): boolean {
+    return (align & this.bottom) !== 0;
+  }
+
+  public static isCenterVertical(align: number): boolean {
+    return (align & this.top) === 0 && (align & this.bottom) === 0;
+  }
+
+  public static isCenterHorizontal(align: number): boolean {
+    return (align & this.left) === 0 && (align & this.right) === 0;
+  }
+}
+
 export interface StringMap<T> {
   [key: string]: T;
 }
@@ -74,12 +111,7 @@ export class Color {
   public static BLUE = new Color(0, 0, 1, 1);
   public static MAGENTA = new Color(1, 0, 1, 1);
 
-  constructor(
-    public r: number = 0,
-    public g: number = 0,
-    public b: number = 0,
-    public a: number = 0
-  ) {}
+  constructor(public r: number = 0, public g: number = 0, public b: number = 0, public a: number = 0) {}
 
   set(r: number, g: number, b: number, a: number) {
     this.r = r;
@@ -98,11 +130,11 @@ export class Color {
   }
 
   setFromString(hex: string) {
-    hex = hex.charAt(0) === "#" ? hex.substr(1) : hex;
-    this.r = parseInt(hex.substr(0, 2), 16) / 255;
-    this.g = parseInt(hex.substr(2, 2), 16) / 255;
-    this.b = parseInt(hex.substr(4, 2), 16) / 255;
-    this.a = hex.length !== 8 ? 1 : parseInt(hex.substr(6, 2), 16) / 255;
+    hex = hex.charAt(0) === '#' ? hex.substring(1) : hex;
+    this.r = parseInt(hex.substring(0, 2), 16) / 255;
+    this.g = parseInt(hex.substring(2, 4), 16) / 255;
+    this.b = parseInt(hex.substring(4, 6), 16) / 255;
+    this.a = hex.length !== 8 ? 1 : parseInt(hex.substring(6, 8), 16) / 255;
     return this;
   }
 
@@ -143,6 +175,10 @@ export class Color {
     this.b *= b;
     this.a *= a;
     return this.clamp();
+  }
+
+  toIntBits() {
+    return ((255 * this.a) << 24) | ((255 * this.b) << 16) | ((255 * this.g) << 8) | (255 * this.r);
   }
 
   static rgba8888ToColor(color: Color, value: number) {
@@ -240,9 +276,7 @@ export class Pow extends Interpolation {
 
   applyInternal(a: number): number {
     if (a <= 0.5) return Math.pow(a * 2, this.power) / 2;
-    return (
-      Math.pow((a - 1) * 2, this.power) / (this.power % 2 === 0 ? -2 : 2) + 1
-    );
+    return Math.pow((a - 1) * 2, this.power) / (this.power % 2 === 0 ? -2 : 2) + 1;
   }
 }
 
@@ -257,7 +291,7 @@ export class PowOut extends Pow {
 }
 
 export class Utils {
-  static SUPPORTS_TYPED_ARRAYS = typeof Float32Array !== "undefined";
+  static SUPPORTS_TYPED_ARRAYS = typeof Float32Array !== 'undefined';
 
   static arrayCopy<T>(
     source: ArrayLike<T>,
@@ -266,29 +300,16 @@ export class Utils {
     destStart: number,
     numElements: number
   ) {
-    for (
-      let i = sourceStart, j = destStart;
-      i < sourceStart + numElements;
-      i++, j++
-    ) {
+    for (let i = sourceStart, j = destStart; i < sourceStart + numElements; i++, j++) {
       dest[j] = source[i];
     }
   }
 
-  static arrayFill<T>(
-    array: ArrayLike<T>,
-    fromIndex: number,
-    toIndex: number,
-    value: T
-  ) {
+  static arrayFill<T>(array: ArrayLike<T>, fromIndex: number, toIndex: number, value: T) {
     for (let i = fromIndex; i < toIndex; i++) array[i] = value;
   }
 
-  static setArraySize<T>(
-    array: Array<T>,
-    size: number,
-    value: any = 0
-  ): Array<T> {
+  static setArraySize<T>(array: Array<T>, size: number, value: any = 0): Array<T> {
     let oldSize = array.length;
     if (oldSize === size) return array;
     array.length = size;
@@ -298,11 +319,7 @@ export class Utils {
     return array;
   }
 
-  static ensureArrayCapacity<T>(
-    array: Array<T>,
-    size: number,
-    value: any = 0
-  ): Array<T> {
+  static ensureArrayCapacity<T>(array: Array<T>, size: number, value: any = 0): Array<T> {
     if (array.length >= size) return array;
     return Utils.setArraySize(array, size, value);
   }
@@ -340,8 +357,7 @@ export class Utils {
   }
 
   static contains<T>(array: Array<T>, element: T, identity = true) {
-    for (var i = 0; i < array.length; i++)
-      if (array[i] === element) return true;
+    for (var i = 0; i < array.length; i++) if (array[i] === element) return true;
     return false;
   }
 
@@ -363,20 +379,31 @@ export class Utils {
   }
 }
 
+export interface Poolable {
+  reset(): void;
+}
+
 export class Pool<T> {
   private items = new Array<T>();
   private instantiator: () => T;
 
-  constructor(instantiator: () => T) {
-    this.instantiator = instantiator;
+  constructor(instantiator?: () => T) {
+    if (instantiator) {
+      this.instantiator = instantiator;
+    } else {
+      this.instantiator = () => ({} as T);
+    }
   }
 
   obtain() {
-    return this.items.length > 0 ? this.items.pop() : this.instantiator();
+    const item = this.items.length > 0 ? this.items.pop() : this.instantiator();
+    return item;
   }
 
   free(item: T) {
-    if ((item as any).reset) (item as any).reset();
+    if ((item as any)?.reset) {
+      (item as any).reset();
+    }
     this.items.push(item);
   }
 
@@ -423,6 +450,40 @@ export class FlushablePool<T> extends Pool<T> {
       }
     }
     super.freeAll(objects);
+  }
+}
+
+export class Pools {
+  static pools: Record<string, Pool<any>> = {};
+
+  static free<T>(name: string, object: T) {
+    if (this.pools[name]) {
+      this.pools[name].free(object);
+    }
+  }
+
+  static freeAll<T>(name: string, objects: Array<T>) {
+    if (this.pools[name]) {
+      this.pools[name].freeAll(objects);
+    }
+  }
+
+  static get<T>(name: string, instantiator: () => T): Pool<T> {
+    if (this.pools[name]) {
+      return this.pools[name];
+    }
+
+    this.pools[name] = new Pool<T>(instantiator);
+
+    return this.pools[name];
+  }
+
+  static set<T>(name: string, pool: Pool<T>) {
+    this.pools[name] = pool;
+  }
+
+  static obtain<T>(name: string, instantiator?: () => T) {
+    return this.get(name, instantiator).obtain();
   }
 }
 
@@ -545,14 +606,11 @@ export const createGameLoop = (update: (delta: number) => void): GameLoop => {
       }
       running = false;
     },
-    getFps: () => fps,
+    getFps: () => fps
   };
 };
 
-export const resizeCanvas = (
-  canvas: HTMLCanvasElement,
-  deviceRatio: number
-): [number, number] => {
+export const resizeCanvas = (canvas: HTMLCanvasElement, deviceRatio: number): [number, number] => {
   const devicePixelRatio = deviceRatio || window.devicePixelRatio || 1;
 
   const displayWidth = canvas.clientWidth * devicePixelRatio;
@@ -565,14 +623,7 @@ export const resizeCanvas = (
   return [displayWidth, displayHeight];
 };
 
-export const pointInRect = (
-  pX: number,
-  pY: number,
-  x: number,
-  y: number,
-  width: number,
-  height: number
-): boolean => {
+export const pointInRect = (pX: number, pY: number, x: number, y: number, width: number, height: number): boolean => {
   return pX > x && pX < x + width && pY > y && pY < y + height;
 };
 
@@ -593,27 +644,24 @@ export interface Stage {
 export const createStage = (options?: StageOptions) => {
   const defaultOptions = {
     hidden: false,
-    info: true,
+    info: true
   };
   options = { ...defaultOptions, ...options };
-  const wrapper = document.createElement("div");
-  wrapper.setAttribute(
-    "style",
-    `position:fixed;top:0;left:0;right:0;bottom:0;`
-  );
+  const wrapper = document.createElement('div');
+  wrapper.setAttribute('style', `position:fixed;top:0;left:0;right:0;bottom:0;`);
   if (options.wrapperClassName) {
     wrapper.className = options.wrapperClassName;
   }
   if (options.hidden) {
-    wrapper.style.display = "none";
+    wrapper.style.display = 'none';
   }
-  const canvas = document.createElement("canvas");
-  canvas.setAttribute("style", `width:100%;height:100%;`);
-  const info = document.createElement("div");
-  info.setAttribute("style", `position:absolute;top:1em;left:1em;color:white`);
+  const canvas = document.createElement('canvas');
+  canvas.setAttribute('style', `width:100%;height:100%;`);
+  const info = document.createElement('div');
+  info.setAttribute('style', `position:absolute;top:1em;left:1em;color:white`);
 
   if (!options.info) {
-    info.style.display = "none";
+    info.style.display = 'none';
   }
 
   wrapper.appendChild(canvas);
@@ -623,8 +671,27 @@ export const createStage = (options?: StageOptions) => {
   return {
     getCanvas: () => canvas,
     getInfo: () => info,
-    show: () => (wrapper.style.display = "block"),
-    hide: () => (wrapper.style.display = "none"),
-    cleanup: () => document.body.removeChild(wrapper),
+    show: () => (wrapper.style.display = 'block'),
+    hide: () => (wrapper.style.display = 'none'),
+    cleanup: () => document.body.removeChild(wrapper)
   };
+};
+
+export interface Rectangle {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export const copyArray = (
+  src: ArrayLike<number>,
+  target: ArrayLike<number>,
+  targetOffset = 0,
+  srcOffset = 0,
+  count = target.length
+) => {
+  for (let i = 0; i < count; i++) {
+    target[targetOffset + i] = src[srcOffset + i];
+  }
 };

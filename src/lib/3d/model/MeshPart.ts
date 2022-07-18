@@ -1,11 +1,11 @@
-import { Mesh } from "../Mesh";
-import { ShaderProgram } from "../../ShaderProgram";
-import { Disposable } from "../../Utils";
-import { Vector3 } from "../../Vector3";
-import { BoundingBox } from "../BoundingBox";
+import { Mesh } from '../Mesh';
+import { Shader } from '../../Shader';
+import { Disposable } from '../../Utils';
+import { Vector3 } from '../../Vector3';
+import { BoundingBox } from '../BoundingBox';
 
 export class MeshPart implements Disposable {
-  id = "";
+  id = '';
   primitiveType = 0;
   offset = 0;
   size = 0;
@@ -30,22 +30,12 @@ export class MeshPart implements Disposable {
     this.size = other.size;
     this.primitiveType = other.primitiveType;
     this.center.set(other.center.x, other.center.y, other.center.z);
-    this.halfExtents.set(
-      other.halfExtents.x,
-      other.halfExtents.y,
-      other.halfExtents.z
-    );
+    this.halfExtents.set(other.halfExtents.x, other.halfExtents.y, other.halfExtents.z);
     this.radius = other.radius;
     return this;
   }
 
-  set(
-    id: string,
-    mesh: Mesh,
-    offset: number,
-    size: number,
-    type: number
-  ): MeshPart {
+  set(id: string, mesh: Mesh, offset: number, size: number, type: number): MeshPart {
     this.id = id;
     this.mesh = mesh;
     this.offset = offset;
@@ -75,7 +65,7 @@ export class MeshPart implements Disposable {
     );
   }
 
-  render(shader: ShaderProgram) {
+  render(shader: Shader) {
     this.mesh.render(shader, this.primitiveType, this.offset, this.size);
   }
 }

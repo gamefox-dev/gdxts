@@ -1,5 +1,5 @@
-import { ShaderProgram } from "../ShaderProgram";
-import { GL20 } from "./GL20";
+import { Shader } from '../Shader';
+import { GL20 } from './GL20';
 
 export class Usage {
   public static Position = 1;
@@ -41,66 +41,27 @@ export class VertexAttribute {
   }
 
   copy(): VertexAttribute {
-    return new VertexAttribute(
-      this.usage,
-      this.numComponents,
-      this.type,
-      this.normalized,
-      this.alias,
-      this.unit
-    );
+    return new VertexAttribute(this.usage, this.numComponents, this.type, this.normalized, this.alias, this.unit);
   }
 
   public static Position(): VertexAttribute {
-    return new VertexAttribute(
-      Usage.Position,
-      3,
-      GL20.GL_FLOAT,
-      false,
-      ShaderProgram.POSITION,
-      0
-    );
+    return new VertexAttribute(Usage.Position, 3, GL20.GL_FLOAT, false, Shader.POSITION, 0);
   }
 
   public static TexCoords(unit: number): VertexAttribute {
-    return new VertexAttribute(
-      Usage.TextureCoordinates,
-      2,
-      GL20.GL_FLOAT,
-      false,
-      ShaderProgram.TEXCOORDS + unit,
-      unit
-    );
+    return new VertexAttribute(Usage.TextureCoordinates, 2, GL20.GL_FLOAT, false, Shader.TEXCOORDS + unit, unit);
   }
 
   public static Normal(): VertexAttribute {
-    return new VertexAttribute(
-      Usage.Normal,
-      3,
-      GL20.GL_FLOAT,
-      false,
-      ShaderProgram.NORMAL
-    );
+    return new VertexAttribute(Usage.Normal, 3, GL20.GL_FLOAT, false, Shader.NORMAL);
   }
 
   public static ColorPacked(): VertexAttribute {
-    return new VertexAttribute(
-      Usage.ColorPacked,
-      4,
-      GL20.GL_UNSIGNED_BYTE,
-      true,
-      ShaderProgram.COLOR
-    );
+    return new VertexAttribute(Usage.ColorPacked, 4, GL20.GL_UNSIGNED_BYTE, true, Shader.COLOR);
   }
 
   public static ColorUnpacked(): VertexAttribute {
-    return new VertexAttribute(
-      Usage.ColorUnpacked,
-      4,
-      GL20.GL_FLOAT,
-      false,
-      ShaderProgram.COLOR
-    );
+    return new VertexAttribute(Usage.ColorUnpacked, 4, GL20.GL_FLOAT, false, Shader.COLOR);
   }
 
   getKey(): number {
