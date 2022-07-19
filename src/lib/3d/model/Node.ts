@@ -1,8 +1,8 @@
-import { Matrix4 } from "../../Matrix4";
-import { Vector3 } from "../../Vector3";
-import { BoundingBox } from "../BoundingBox";
-import { NodePart } from "./NodePart";
-import { Quaternion } from "../Quaternion";
+import { Matrix4 } from '../../Matrix4';
+import { Vector3 } from '../../Vector3';
+import { BoundingBox } from '../BoundingBox';
+import { NodePart } from './NodePart';
+import { Quaternion } from '../Quaternion';
 
 export class Node {
   public id: string;
@@ -14,26 +14,19 @@ export class Node {
   public localTransform = new Matrix4();
   public globalTransform = new Matrix4();
 
-  public parts = new Array<NodePart>(2);
+  public parts = new Array<NodePart>(0);
 
   protected parent: Node;
-  private children = new Array<Node>(2);
+  private children = new Array<Node>(0);
 
   public calculateLocalTransform(): Matrix4 {
-    if (!this.isAnimated)
-      this.localTransform.setFromTranslationRotation(
-        this.translation,
-        this.rotation,
-        this.scale
-      );
+    if (!this.isAnimated) this.localTransform.setFromTranslationRotation(this.translation, this.rotation, this.scale);
     return this.localTransform;
   }
 
   public calculateWorldTransform(): Matrix4 {
     if (this.inheritTransform && this.parent != null)
-      this.globalTransform
-        .set(this.parent.globalTransform.values)
-        .multiply(this.localTransform);
+      this.globalTransform.set(this.parent.globalTransform.values).multiply(this.localTransform);
     else this.globalTransform.set(this.localTransform.values);
     return this.globalTransform;
   }
@@ -70,42 +63,23 @@ export class Node {
     }
   }
 
-  public calculateBoundingBox(
-    out: BoundingBox,
-    transform: boolean = true
-  ): BoundingBox {
+  public calculateBoundingBox(out: BoundingBox, transform: boolean = true): BoundingBox {
     out.inf();
     return this.extendBoundingBox(out, transform);
   }
 
-  public extendBoundingBox(
-    out: BoundingBox,
-    transform: boolean = true
-  ): BoundingBox {
+  public extendBoundingBox(out: BoundingBox, transform: boolean = true): BoundingBox {
     const partCount = this.parts.length;
     for (let i = 0; i < partCount; i++) {
       const part = this.parts[i];
       if (part.enabled) {
         const meshPart = part.meshPart;
-        if (transform)
-          meshPart.mesh.extendBoundingBox(
-            out,
-            meshPart.offset,
-            meshPart.size,
-            this.globalTransform
-          );
-        else
-          meshPart.mesh.extendBoundingBox(
-            out,
-            meshPart.offset,
-            meshPart.size,
-            null
-          );
+        if (transform) meshPart.mesh.extendBoundingBox(out, meshPart.offset, meshPart.size, this.globalTransform);
+        else meshPart.mesh.extendBoundingBox(out, meshPart.offset, meshPart.size, null);
       }
     }
     const childCount = this.children.length;
-    for (let i = 0; i < childCount; i++)
-      this.children[i].extendBoundingBox(out);
+    for (let i = 0; i < childCount; i++) this.children[i].extendBoundingBox(out);
     return out;
   }
 
@@ -142,11 +116,10 @@ export class Node {
 
   public insertChild(index: number, child: Node): number {
     for (let p: Node = this; p != null; p = p.getParent()) {
-      if (p === child) throw new Error("Cannot add a parent as a child");
+      if (p === child) throw new Error('Cannot add a parent as a child');
     }
     const p = child.getParent();
-    if (p != null && !p.removeChild(child))
-      throw new Error("Could not remove child from its current parent");
+    if (p != null && !p.removeChild(child)) throw new Error('Could not remove child from its current parent');
     if (index < 0 || index >= this.children.length) {
       index = this.children.length;
       this.children.push(child);
@@ -193,17 +166,8 @@ export class Node {
     this.id = other.id;
     this.isAnimated = other.isAnimated;
     this.inheritTransform = other.inheritTransform;
-    this.translation.set(
-      other.translation.x,
-      other.translation.y,
-      other.translation.z
-    );
-    this.rotation.set(
-      other.rotation.x,
-      other.rotation.y,
-      other.rotation.z,
-      other.rotation.w
-    );
+    this.translation.set(other.translation.x, other.translation.y, other.translation.z);
+    this.rotation.set(other.rotation.x, other.rotation.y, other.rotation.z, other.rotation.w);
     this.scale.set(other.scale.x, other.scale.y, other.scale.z);
     this.localTransform.set(other.localTransform.values);
     this.globalTransform.set(other.globalTransform.values);
@@ -218,27 +182,17 @@ export class Node {
     return this;
   }
 
-  public static getNode(
-    nodes: Node[],
-    id: string,
-    recursive: boolean,
-    ignoreCase: boolean
-  ): Node {
+  public static getNode(nodes: Node[], id: string, recursive: boolean, ignoreCase: boolean): Node {
     const n = nodes.length;
     let node: Node;
     if (ignoreCase) {
-      for (let i = 0; i < n; i++)
-        if ((node = nodes[i]).id.toUpperCase() === id.toUpperCase())
-          return node;
+      for (let i = 0; i < n; i++) if ((node = nodes[i]).id.toUpperCase() === id.toUpperCase()) return node;
     } else {
       for (let i = 0; i < n; i++) if ((node = nodes[i]).id === id) return node;
     }
     if (recursive) {
       for (let i = 0; i < n; i++)
-        if (
-          (node = this.getNode(nodes[i].children, id, true, ignoreCase)) != null
-        )
-          return node;
+        if ((node = this.getNode(nodes[i].children, id, true, ignoreCase)) != null) return node;
     }
     return null;
   }

@@ -1,9 +1,10 @@
-import { FlushablePool } from "../../Utils";
-import { Vector3 } from "../../Vector3";
-import { BoundingBox } from "../BoundingBox";
-import { GL20 } from "../GL20";
-import { Usage } from "../VertexAttribute";
-import { MeshBuilder, VertexInfo } from "./MeshBuilder";
+import { FlushablePool } from '../../Utils';
+import { Vector3 } from '../../Vector3';
+import { BoundingBox } from '../BoundingBox';
+import { VertexInfo } from '../data/VertexInfo';
+import { GL20 } from '../GL20';
+import { Usage } from '../VertexAttribute';
+import { MeshBuilder } from './MeshBuilder';
 
 export class BoxShapeBuilder {
   protected static tmpV0 = new Vector3();
@@ -25,10 +26,9 @@ export class BoxShapeBuilder {
   protected static vertTmp7 = new VertexInfo();
   protected static vertTmp8 = new VertexInfo();
 
-  private static vectorPool: FlushablePool<Vector3> =
-    new FlushablePool<Vector3>((): Vector3 => {
-      return new Vector3();
-    });
+  private static vectorPool: FlushablePool<Vector3> = new FlushablePool<Vector3>((): Vector3 => {
+    return new Vector3();
+  });
 
   protected static obtainV3(): Vector3 {
     return BoxShapeBuilder.vectorPool.obtain();
@@ -38,12 +38,7 @@ export class BoxShapeBuilder {
     BoxShapeBuilder.vectorPool.flush();
   }
 
-  public static buildWithWidthHeight(
-    builder: MeshBuilder,
-    width: number,
-    height: number,
-    depth: number
-  ) {
+  public static buildWithWidthHeight(builder: MeshBuilder, width: number, height: number, depth: number) {
     this.buildWithRect(builder, 0, 0, 0, width, height, depth);
   }
 
@@ -103,10 +98,7 @@ export class BoxShapeBuilder {
   ) {
     if (
       (builder.getAttributes().getMask() &
-        (Usage.Normal |
-          Usage.BiNormal |
-          Usage.Tangent |
-          Usage.TextureCoordinates)) ==
+        (Usage.Normal | Usage.BiNormal | Usage.Tangent | Usage.TextureCoordinates)) ==
       0
     ) {
       this.buildWithVertexInfo(
@@ -126,72 +118,24 @@ export class BoxShapeBuilder {
       let nor = this.tmpV1
         .set(corner000.x, corner000.y, corner000.z)
         .lerp(corner110, 0.5)
-        .sub(
-          this.tmpV2
-            .set(corner001.x, corner001.y, corner001.z)
-            .lerp(corner111, 0.5)
-        )
+        .sub(this.tmpV2.set(corner001.x, corner001.y, corner001.z).lerp(corner111, 0.5))
         .normalize();
-      builder.rectWithVectorCorner(
-        corner000,
-        corner010,
-        corner110,
-        corner100,
-        nor
-      );
-      builder.rectWithVectorCorner(
-        corner011,
-        corner001,
-        corner101,
-        corner111,
-        nor.scale(-1)
-      );
+      builder.rectWithVectorCorner(corner000, corner010, corner110, corner100, nor);
+      builder.rectWithVectorCorner(corner011, corner001, corner101, corner111, nor.scale(-1));
       nor = this.tmpV1
         .set(corner000.x, corner000.y, corner000.z)
         .lerp(corner101, 0.5)
-        .sub(
-          this.tmpV2
-            .set(corner010.x, corner010.y, corner010.z)
-            .lerp(corner111, 0.5)
-        )
+        .sub(this.tmpV2.set(corner010.x, corner010.y, corner010.z).lerp(corner111, 0.5))
         .normalize();
-      builder.rectWithVectorCorner(
-        corner001,
-        corner000,
-        corner100,
-        corner101,
-        nor
-      );
-      builder.rectWithVectorCorner(
-        corner010,
-        corner011,
-        corner111,
-        corner110,
-        nor.scale(-1)
-      );
+      builder.rectWithVectorCorner(corner001, corner000, corner100, corner101, nor);
+      builder.rectWithVectorCorner(corner010, corner011, corner111, corner110, nor.scale(-1));
       nor = this.tmpV1
         .set(corner000.x, corner000.y, corner000.z)
         .lerp(corner011, 0.5)
-        .sub(
-          this.tmpV2
-            .set(corner100.x, corner100.y, corner100.z)
-            .lerp(corner111, 0.5)
-        )
+        .sub(this.tmpV2.set(corner100.x, corner100.y, corner100.z).lerp(corner111, 0.5))
         .normalize();
-      builder.rectWithVectorCorner(
-        corner001,
-        corner011,
-        corner010,
-        corner000,
-        nor
-      );
-      builder.rectWithVectorCorner(
-        corner100,
-        corner110,
-        corner111,
-        corner101,
-        nor.scale(-1)
-      );
+      builder.rectWithVectorCorner(corner001, corner011, corner010, corner000, nor);
+      builder.rectWithVectorCorner(corner100, corner110, corner111, corner101, nor.scale(-1));
     }
   }
 

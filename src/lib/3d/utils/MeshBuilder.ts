@@ -6,6 +6,7 @@ import { Color, MathUtils, Utils } from '../../Utils';
 import { Vector2 } from '../../Vector2';
 import { Vector3 } from '../../Vector3';
 import { BoundingBox } from '../BoundingBox';
+import { VertexInfo } from '../data/VertexInfo';
 import { GL20 } from '../GL20';
 import { Matrix3 } from '../Matrix3';
 import { Mesh } from '../Mesh';
@@ -14,88 +15,12 @@ import { Usage, VertexAttribute } from '../VertexAttribute';
 import { VertexAttributes } from '../VertexAttributes';
 import { BoxShapeBuilder } from './BoxShapeBuilder';
 
-export class VertexInfo {
-  public position = new Vector3();
-  public hasPosition: boolean;
-  public normal = new Vector3(0, 1, 0);
-  public hasNormal: boolean;
-  public color = new Color(1, 1, 1, 1);
-  public hasColor: boolean;
-  public uv = new Vector2();
-  public hasUV: boolean;
-
-  public reset() {
-    this.position.set(0, 0, 0);
-    this.normal.set(0, 1, 0);
-    this.color.set(1, 1, 1, 1);
-    this.uv.set(0, 0);
-  }
-
-  public set(pos: Vector3, nor: Vector3, col: Color, uv: Vector2): VertexInfo {
-    this.reset();
-    this.hasPosition = pos != null;
-    if (this.hasPosition) this.position.set(pos.x, pos.y, pos.z);
-    this.hasNormal = nor != null;
-    if (this.hasNormal) this.normal.set(nor.x, nor.y, nor.z);
-    this.hasColor = col != null;
-    if (this.hasColor) this.color.set(col.r, col.g, col.b, col.a);
-    this.hasUV = uv != null;
-    if (this.hasUV) this.uv.set(uv.x, uv.y);
-    return this;
-  }
-
-  public setWithVertextInfo(other: VertexInfo): VertexInfo {
-    if (other == null) return this.set(null, null, null, null);
-    this.hasPosition = other.hasPosition;
-    this.position.set(other.position.x, other.position.y, other.position.z);
-    this.hasNormal = other.hasNormal;
-    this.normal.set(other.normal.x, other.normal.y, other.normal.z);
-    this.hasColor = other.hasColor;
-    this.color.set(other.color.r, other.color.g, other.color.b, other.color.a);
-    this.hasUV = other.hasUV;
-    this.uv.set(other.uv.x, other.uv.y);
-    return this;
-  }
-
-  public setPos(x: number, y: number, z: number): VertexInfo {
-    this.position.set(x, y, z);
-    this.hasPosition = true;
-    return this;
-  }
-
-  public setNor(x: number, y: number, z: number): VertexInfo {
-    this.normal.set(x, y, z);
-    this.hasNormal = true;
-    return this;
-  }
-
-  public setCol(r: number, g: number, b: number, a: number): VertexInfo {
-    this.color.set(r, g, b, a);
-    this.hasColor = true;
-    return this;
-  }
-
-  public setUV(u: number, v: number): VertexInfo {
-    this.uv.set(u, v);
-    this.hasUV = true;
-    return this;
-  }
-
-  public lerp(target: VertexInfo, alpha: number): VertexInfo {
-    if (this.hasPosition && target.hasPosition) this.position.lerp(target.position, alpha);
-    if (this.hasNormal && target.hasNormal) this.normal.lerp(target.normal, alpha);
-    if (this.hasColor && target.hasColor) this.color.lerp(target.color, alpha);
-    if (this.hasUV && target.hasUV) this.uv.lerp(target.uv, alpha);
-    return this;
-  }
-}
-
 export class MeshBuilder {
   public static MAX_VERTICES = 1 << 16;
   public static MAX_INDEX = MeshBuilder.MAX_VERTICES - 1;
 
-  private static tmpIndices: number[] = [];
-  private static tmpVertices: number[] = [];
+  // private static tmpIndices: number[] = [];
+  // private static tmpVertices: number[] = [];
 
   private vertTmp1 = new VertexInfo();
   private vertTmp2 = new VertexInfo();
@@ -141,15 +66,15 @@ export class MeshBuilder {
   public static createAttributes(usage: number): VertexAttributes {
     const attrs = new Array<VertexAttribute>();
 
-    if ((usage & Usage.Position) == Usage.Position)
+    if ((usage & Usage.Position) === Usage.Position)
       attrs.push(new VertexAttribute(Usage.Position, 3, GL20.GL_FLOAT, false, Shader.POSITION));
-    if ((usage & Usage.ColorUnpacked) == Usage.ColorUnpacked)
+    if ((usage & Usage.ColorUnpacked) === Usage.ColorUnpacked)
       attrs.push(new VertexAttribute(Usage.ColorUnpacked, 4, GL20.GL_FLOAT, false, Shader.COLOR));
-    if ((usage & Usage.ColorPacked) == Usage.ColorPacked)
+    if ((usage & Usage.ColorPacked) === Usage.ColorPacked)
       attrs.push(new VertexAttribute(Usage.ColorPacked, 4, GL20.GL_UNSIGNED_INT, true, Shader.COLOR));
-    if ((usage & Usage.Normal) == Usage.Normal)
+    if ((usage & Usage.Normal) === Usage.Normal)
       attrs.push(new VertexAttribute(Usage.Normal, 3, GL20.GL_FLOAT, false, Shader.NORMAL));
-    if ((usage & Usage.TextureCoordinates) == Usage.TextureCoordinates)
+    if ((usage & Usage.TextureCoordinates) === Usage.TextureCoordinates)
       attrs.push(new VertexAttribute(Usage.TextureCoordinates, 2, GL20.GL_FLOAT, false, Shader.TEXCOORDS + '0'));
     const attributes = new Array<VertexAttribute>(attrs.length);
     for (let i = 0; i < attributes.length; i++) attributes[i] = attrs[i];
@@ -163,26 +88,26 @@ export class MeshBuilder {
     this.vindex = 0;
     this.lastIndex = -1;
     this.istart = 0;
-    this.part = null;
+    this.meshPart = null;
     this.stride = attributes.vertexSize / 4;
-    if (this._vertex == null || this.vertex.length < this.stride) this._vertex = new Array<number>(this.stride);
+    if (this._vertex === null || this.vertex.length < this.stride) this._vertex = new Array<number>(this.stride);
     let a = attributes.findByUsage(Usage.Position);
-    if (a == null) throw new Error('Cannot build mesh without position attribute');
+    if (a === null) throw new Error('Cannot build mesh without position attribute');
     this.posOffset = a.offset / 4;
     this.posSize = a.numComponents;
     a = attributes.findByUsage(Usage.Normal);
-    this.norOffset = a == null ? -1 : a.offset / 4;
+    this.norOffset = a === null ? -1 : a.offset / 4;
     a = attributes.findByUsage(Usage.BiNormal);
-    this.biNorOffset = a == null ? -1 : a.offset / 4;
+    this.biNorOffset = a === null ? -1 : a.offset / 4;
     a = attributes.findByUsage(Usage.Tangent);
-    this.tangentOffset = a == null ? -1 : a.offset / 4;
+    this.tangentOffset = a === null ? -1 : a.offset / 4;
     a = attributes.findByUsage(Usage.ColorUnpacked);
-    this.colOffset = a == null ? -1 : a.offset / 4;
-    this.colSize = a == null ? 0 : a.numComponents;
+    this.colOffset = a === null ? -1 : a.offset / 4;
+    this.colSize = a === null ? 0 : a.numComponents;
     a = attributes.findByUsage(Usage.ColorPacked);
-    this.cpOffset = a == null ? -1 : a.offset / 4;
+    this.cpOffset = a === null ? -1 : a.offset / 4;
     a = attributes.findByUsage(Usage.TextureCoordinates);
-    this.uvOffset = a == null ? -1 : a.offset / 4;
+    this.uvOffset = a === null ? -1 : a.offset / 4;
     this.setColor(null);
     this.setVertexTransform(null);
     this.setUVRangeByRegion(null);
@@ -191,7 +116,9 @@ export class MeshBuilder {
   }
 
   public setColor(color: Color) {
-    const newColor = (this.hasColor = color != null) ? Color.WHITE : color;
+    this.hasColor = color != null;
+
+    const newColor = !this.hasColor ? Color.WHITE : color;
     this.color.set(newColor.r, newColor.g, newColor.b, newColor.a);
   }
 
@@ -218,7 +145,7 @@ export class MeshBuilder {
   }
 
   public part(id: string, primitiveType: number, meshPart: MeshPart = null): MeshPart {
-    if (this.attributes == null) throw new Error('Call begin() first');
+    if (this.attributes === null) throw new Error('Call begin() first');
 
     if (meshPart === null) meshPart = new MeshPart();
     this.endpart();
@@ -248,14 +175,14 @@ export class MeshBuilder {
     }
     this.endpart();
 
-    if (this.attributes == null) throw new Error('Call begin() first');
+    if (this.attributes === null) throw new Error('Call begin() first');
     if (!this.attributes.equals(mesh.getVertexAttributes())) throw new Error("Mesh attributes don't match");
     if (mesh.getMaxVertices() * this.stride < this.vertices.length)
       throw new Error(
         "Mesh can't hold enough vertices: " + mesh.getMaxVertices() + ' * ' + this.stride + ' < ' + this.vertices.length
       );
-    if (mesh.getMaxIndices() < this.vertices.length)
-      throw new Error("Mesh can't hold enough indices: " + mesh.getMaxIndices() + ' < ' + this.vertices.length);
+    if (mesh.getMaxIndices() < this.indices.length)
+      throw new Error("Mesh can't hold enough indices: " + mesh.getMaxIndices() + ' < ' + this.indices.length);
 
     mesh.setVertices(this.vertices, 0, this.vertices.length);
     mesh.setIndices(this.indices, 0, this.vertices.length);
@@ -277,7 +204,7 @@ export class MeshBuilder {
     this.vindex = 0;
     this.lastIndex = -1;
     this.istart = 0;
-    this.part = null;
+    this.meshPart = null;
   }
 
   public getFloatsPerVertex(): number {
@@ -298,7 +225,7 @@ export class MeshBuilder {
   }
 
   public setUVRangeByRegion(region: TextureRegion) {
-    if (region == null) {
+    if (region === null) {
       this.hasUVTransform = false;
       this.uOffset = this.vOffset = 0;
       this.uScale = this.vScale = 1;
@@ -328,15 +255,15 @@ export class MeshBuilder {
   }
 
   public ensureTriangleIndices(numTriangles: number) {
-    if (this.primitiveType == GL20.GL_LINES) this.ensureIndices(6 * numTriangles);
-    else if (this.primitiveType == GL20.GL_TRIANGLES || this.primitiveType == GL20.GL_POINTS)
+    if (this.primitiveType === GL20.GL_LINES) this.ensureIndices(6 * numTriangles);
+    else if (this.primitiveType === GL20.GL_TRIANGLES || this.primitiveType === GL20.GL_POINTS)
       this.ensureIndices(3 * numTriangles);
     else throw new Error('Incorrect primtive type');
   }
 
   public ensureRectangleIndices(numRectangles: number) {
-    if (this.primitiveType == GL20.GL_POINTS) this.ensureIndices(4 * numRectangles);
-    else if (this.primitiveType == GL20.GL_LINES) this.ensureIndices(8 * numRectangles);
+    if (this.primitiveType === GL20.GL_POINTS) this.ensureIndices(4 * numRectangles);
+    else if (this.primitiveType === GL20.GL_LINES) this.ensureIndices(8 * numRectangles);
     // GL_TRIANGLES
     else this.ensureIndices(6 * numRectangles);
   }
@@ -459,7 +386,7 @@ export class MeshBuilder {
   //     indexOffset: number,
   //     numIndices: number
   //   ) {
-  //     if (MeshBuilder.indicesMap == null)
+  //     if (MeshBuilder.indicesMap === null)
   //       MeshBuilder.indicesMap = new IntIntMap(numIndices);
   //     else {
   //       MeshBuilder.indicesMap.clear();
@@ -489,20 +416,20 @@ export class MeshBuilder {
     if (this.posSize > 2) this._vertex[this.posOffset + 2] = pos.z;
 
     if (this.norOffset >= 0) {
-      if (nor == null) nor = this.tmpNormal.set(pos.x, pos.y, pos.z).normalize();
+      if (nor === null) nor = this.tmpNormal.set(pos.x, pos.y, pos.z).normalize();
       this._vertex[this.norOffset] = nor.x;
       this._vertex[this.norOffset + 1] = nor.y;
       this._vertex[this.norOffset + 2] = nor.z;
     }
 
     if (this.colOffset >= 0) {
-      if (col == null) col = Color.WHITE;
+      if (col === null) col = Color.WHITE;
       this._vertex[this.colOffset] = col.r;
       this._vertex[this.colOffset + 1] = col.g;
       this._vertex[this.colOffset + 2] = col.b;
       if (this.colSize > 3) this._vertex[this.colOffset + 3] = col.a;
     } else if (this.cpOffset > 0) {
-      if (col == null) col = Color.WHITE;
+      if (col === null) col = Color.WHITE;
       this._vertex[this.cpOffset] = NumberUtil.colorToFloat(col.r, col.g, col.b, col.a); // FIXME cache packed color?
     }
 
@@ -581,11 +508,11 @@ export class MeshBuilder {
   }
 
   public rect(corner00: number, corner10: number, corner11: number, corner01: number) {
-    if (this.primitiveType == GL20.GL_TRIANGLES) {
+    if (this.primitiveType === GL20.GL_TRIANGLES) {
       this.index6Values(corner00, corner10, corner11, corner11, corner01, corner00);
-    } else if (this.primitiveType == GL20.GL_LINES) {
+    } else if (this.primitiveType === GL20.GL_LINES) {
       this.index8Values(corner00, corner10, corner10, corner11, corner11, corner01, corner01, corner00);
-    } else if (this.primitiveType == GL20.GL_POINTS) {
+    } else if (this.primitiveType === GL20.GL_POINTS) {
       this.index4Values(corner00, corner10, corner11, corner01);
     } else throw new Error('Incorrect primitive type');
   }

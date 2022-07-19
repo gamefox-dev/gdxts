@@ -21,7 +21,6 @@ const init = async () => {
 
   const modelBatch = new ModelBatch(gl);
   const modelBuilder = new ModelBuilder(gl);
-
   const material = new Material();
   material.setAttribute(ColorAttribute.createDiffuse(Color.GREEN));
 
@@ -33,7 +32,11 @@ const init = async () => {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     modelBatch.begin(cam);
-    modelBatch.renderWithModelInstance(instance);
+    try {
+      modelBatch.renderWithModelInstance(instance);
+    } catch (e) {
+      console.log(e);
+    }
     modelBatch.end();
 
     Game.shared.update(delta);

@@ -25,7 +25,7 @@ export class ModelBatch implements Disposable {
     this.shaderProvider.dispose();
   }
 
-  protected camera: PerspectiveCamera;
+  protected camera: PerspectiveCamera = null;
   protected renderablesPool: RenderablePool = new RenderablePool((): Renderable => {
     return new Renderable();
   });
@@ -40,7 +40,7 @@ export class ModelBatch implements Disposable {
     this.ownContext = context == null;
     this.context =
       context == null ? new RenderContext(new DefaultTextureBinder(gl, DefaultTextureBinder.LRU, 1)) : context;
-    this.shaderProvider = this.shaderProvider == null ? new DefaultShaderProvider() : this.shaderProvider;
+    this.shaderProvider = this.shaderProvider == null ? new DefaultShaderProvider(gl) : this.shaderProvider;
   }
 
   begin(cam: PerspectiveCamera) {
@@ -75,9 +75,11 @@ export class ModelBatch implements Disposable {
     this.sorter.sort(this.camera, this.renderables);
     let currentShader: Shader3D = null;
     for (let i = 0; i < this.renderables.length; i++) {
-      const renderable: Renderable = this.renderables[i];
+      const renderable = this.renderables[i];
       if (currentShader !== renderable.shader) {
-        if (currentShader !== null) currentShader.end();
+        if (currentShader !== null) {
+          currentShader.end();
+        }
         currentShader = renderable.shader;
         currentShader.begin(this.camera, this.context);
       }

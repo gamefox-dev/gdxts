@@ -1,11 +1,11 @@
-import { Matrix4 } from "../Matrix4";
-import { Pool } from "../Utils";
-import { BoundingBox } from "./BoundingBox";
-import { Material } from "./Material";
-import { Model } from "./model/Model";
-import { Node } from "./model/Node";
-import { NodePart } from "./model/NodePart";
-import { Renderable } from "./Renderable";
+import { Matrix4 } from '../Matrix4';
+import { Pool } from '../Utils';
+import { BoundingBox } from './BoundingBox';
+import { Material } from './Material';
+import { Model } from './model/Model';
+import { Node } from './model/Node';
+import { NodePart } from './model/NodePart';
+import { Renderable } from './Renderable';
 
 export class ModelInstance {
   public static defaultShareKeyframes = true;
@@ -18,11 +18,7 @@ export class ModelInstance {
     this.ModelInstance(model, null, null);
   }
 
-  public ModelInstance(
-    model: Model,
-    transform: Matrix4,
-    rootNodeIds: string[]
-  ) {
+  public ModelInstance(model: Model, transform: Matrix4, rootNodeIds: string[]) {
     this.model = model;
     this.transform = transform == null ? new Matrix4() : transform;
     if (rootNodeIds == null) this.copyNodes(model.nodes);
@@ -34,7 +30,7 @@ export class ModelInstance {
   private copyNodes(nodes: Node[], nodeIds: string[] = null) {
     for (let i = 0, n = nodes.length; i < n; ++i) {
       const node = nodes[i];
-      if (nodeIds != null) {
+      if (nodeIds === null) {
         this.nodes.push(node.copy());
       } else {
         for (const nodeId of nodeIds) {
@@ -58,9 +54,8 @@ export class ModelInstance {
         }
       }
       if (!this.materials.includes(part.material)) {
-        const midx = this.materials.findIndex((m) => m.id === part.material.id);
-        if (midx < 0)
-          this.materials.push((part.material = part.material.copy()));
+        const midx = this.materials.findIndex(m => m.id === part.material.id);
+        if (midx < 0) this.materials.push((part.material = part.material.copy()));
         else part.material = this.materials[midx];
       }
     }
@@ -69,11 +64,7 @@ export class ModelInstance {
     }
   }
 
-  public getNode(
-    id: string,
-    recursive: boolean = true,
-    ignoreCase: boolean = false
-  ): Node {
+  public getNode(id: string, recursive: boolean = true, ignoreCase: boolean = false): Node {
     return Node.getNode(this.nodes, id, recursive, ignoreCase);
   }
 
@@ -83,18 +74,11 @@ export class ModelInstance {
     }
   }
 
-  public getRenderable(
-    out: Renderable,
-    node: Node,
-    nodePart: NodePart
-  ): Renderable {
+  public getRenderable(out: Renderable, node: Node, nodePart: NodePart): Renderable {
     nodePart.setRenderable(out);
     if (nodePart.bones == null && this.transform != null)
-      out.worldTransform
-        .set(this.transform.values)
-        .multiply(node.globalTransform);
-    else if (this.transform != null)
-      out.worldTransform.set(this.transform.values);
+      out.worldTransform.set(this.transform.values).multiply(node.globalTransform);
+    else if (this.transform != null) out.worldTransform.set(this.transform.values);
     else out.worldTransform.idt();
     //out.userData = userData;
     return out;
@@ -106,15 +90,10 @@ export class ModelInstance {
     }
   }
 
-  protected getRenderablesWithNode(
-    node: Node,
-    renderables: Renderable[],
-    pool: Pool<Renderable>
-  ) {
+  protected getRenderablesWithNode(node: Node, renderables: Renderable[], pool: Pool<Renderable>) {
     if (node.parts.length > 0) {
       for (const nodePart of node.parts) {
-        if (nodePart.enabled)
-          renderables.push(this.getRenderable(pool.obtain(), node, nodePart));
+        if (nodePart.enabled) renderables.push(this.getRenderable(pool.obtain(), node, nodePart));
       }
     }
 
@@ -149,13 +128,9 @@ export class ModelInstance {
     let material: Material;
     if (ignoreCase) {
       for (let i = 0; i < n; i++)
-        if (
-          (material = this.materials[i]).id.toUpperCase() === id.toUpperCase()
-        )
-          return material;
+        if ((material = this.materials[i]).id.toUpperCase() === id.toUpperCase()) return material;
     } else {
-      for (let i = 0; i < n; i++)
-        if ((material = this.materials[i]).id === id) return material;
+      for (let i = 0; i < n; i++) if ((material = this.materials[i]).id === id) return material;
     }
     return null;
   }

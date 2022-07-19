@@ -1,13 +1,13 @@
-import { VertexAttribute } from "./VertexAttribute";
+import { VertexAttribute } from './VertexAttribute';
 
 export class VertexAttributes {
   public attributes: VertexAttribute[];
   public vertexSize: number;
   private mask = -1;
   constructor(attributes: VertexAttribute[]) {
-    if (attributes.length === 0) throw new Error("attributes must be >= 1");
+    if (attributes.length === 0) throw new Error('attributes must be >= 1');
 
-    const list: VertexAttribute[] = new VertexAttribute[attributes.length]();
+    const list: VertexAttribute[] = [];
     for (let i = 0; i < attributes.length; i++) list[i] = attributes[i];
 
     this.attributes = list;
@@ -46,20 +46,20 @@ export class VertexAttributes {
   }
 
   toString(): string {
-    let returnValue = "[";
+    let returnValue = '[';
     for (let i = 0; i < this.attributes.length; i++) {
-      returnValue += "(";
+      returnValue += '(';
       returnValue += this.attributes[i].alias;
-      returnValue += ", ";
+      returnValue += ', ';
       returnValue += this.attributes[i].usage;
-      returnValue += ", ";
+      returnValue += ', ';
       returnValue += this.attributes[i].numComponents;
-      returnValue += ", ";
+      returnValue += ', ';
       returnValue += this.attributes[i].offset;
-      returnValue += ")";
-      returnValue += "\n";
+      returnValue += ')';
+      returnValue += '\n';
     }
-    returnValue += "]";
+    returnValue += ']';
     return returnValue;
   }
 
