@@ -252,175 +252,172 @@ export class Setters {
 
 export class DefaultShader extends BaseShader {
   public static defaultVertexShader = `
-  #define positionFlag
-  #define normalFlag
-  #define diffuseColorFlag
   #if defined(diffuseTextureFlag) || defined(specularTextureFlag) || defined(emissiveTextureFlag)
   #define textureFlag
   #endif
-  
+
   #if defined(specularTextureFlag) || defined(specularColorFlag)
   #define specularFlag
   #endif
-  
+
   #if defined(specularFlag) || defined(fogFlag)
   #define cameraPositionFlag
   #endif
-  
+
   attribute vec3 a_position;
   uniform mat4 u_projViewTrans;
-  
+
   #if defined(colorFlag)
   varying vec4 v_color;
   attribute vec4 a_color;
   #endif // colorFlag
-  
+
   #ifdef normalFlag
   attribute vec3 a_normal;
   uniform mat3 u_normalMatrix;
   varying vec3 v_normal;
   #endif // normalFlag
-  
+
   #ifdef textureFlag
   attribute vec2 a_texCoord0;
   #endif // textureFlag
-  
+
   #ifdef diffuseTextureFlag
   uniform vec4 u_diffuseUVTransform;
   varying vec2 v_diffuseUV;
   #endif
-  
+
   #ifdef emissiveTextureFlag
   uniform vec4 u_emissiveUVTransform;
   varying vec2 v_emissiveUV;
   #endif
-  
+
   #ifdef specularTextureFlag
   uniform vec4 u_specularUVTransform;
   varying vec2 v_specularUV;
   #endif
-  
+
   #ifdef boneWeight0Flag
   #define boneWeightsFlag
   attribute vec2 a_boneWeight0;
   #endif //boneWeight0Flag
-  
+
   #ifdef boneWeight1Flag
   #ifndef boneWeightsFlag
   #define boneWeightsFlag
   #endif
   attribute vec2 a_boneWeight1;
   #endif //boneWeight1Flag
-  
+
   #ifdef boneWeight2Flag
   #ifndef boneWeightsFlag
   #define boneWeightsFlag
   #endif
   attribute vec2 a_boneWeight2;
   #endif //boneWeight2Flag
-  
+
   #ifdef boneWeight3Flag
   #ifndef boneWeightsFlag
   #define boneWeightsFlag
   #endif
   attribute vec2 a_boneWeight3;
   #endif //boneWeight3Flag
-  
+
   #ifdef boneWeight4Flag
   #ifndef boneWeightsFlag
   #define boneWeightsFlag
   #endif
   attribute vec2 a_boneWeight4;
   #endif //boneWeight4Flag
-  
+
   #ifdef boneWeight5Flag
   #ifndef boneWeightsFlag
   #define boneWeightsFlag
   #endif
   attribute vec2 a_boneWeight5;
   #endif //boneWeight5Flag
-  
+
   #ifdef boneWeight6Flag
   #ifndef boneWeightsFlag
   #define boneWeightsFlag
   #endif
   attribute vec2 a_boneWeight6;
   #endif //boneWeight6Flag
-  
+
   #ifdef boneWeight7Flag
   #ifndef boneWeightsFlag
   #define boneWeightsFlag
   #endif
   attribute vec2 a_boneWeight7;
   #endif //boneWeight7Flag
-  
+
   #if defined(numBones) && defined(boneWeightsFlag)
   #if (numBones > 0) 
   #define skinningFlag
   #endif
   #endif
-  
+
   uniform mat4 u_worldTrans;
-  
+
   #if defined(numBones)
   #if numBones > 0
   uniform mat4 u_bones[numBones];
   #endif //numBones
   #endif
-  
+
   #ifdef shininessFlag
   uniform float u_shininess;
   #else
   const float u_shininess = 20.0;
   #endif // shininessFlag
-  
+
   #ifdef blendedFlag
   uniform float u_opacity;
   varying float v_opacity;
-  
+
   #ifdef alphaTestFlag
   uniform float u_alphaTest;
   varying float v_alphaTest;
   #endif //alphaTestFlag
   #endif // blendedFlag
-  
+
   #ifdef lightingFlag
   varying vec3 v_lightDiffuse;
-  
+
   #ifdef ambientLightFlag
   uniform vec3 u_ambientLight;
   #endif // ambientLightFlag
-  
+
   #ifdef ambientCubemapFlag
   uniform vec3 u_ambientCubemap[6];
   #endif // ambientCubemapFlag 
-  
+
   #ifdef sphericalHarmonicsFlag
   uniform vec3 u_sphericalHarmonics[9];
   #endif //sphericalHarmonicsFlag
-  
+
   #ifdef specularFlag
   varying vec3 v_lightSpecular;
   #endif // specularFlag
-  
+
   #ifdef cameraPositionFlag
   uniform vec4 u_cameraPosition;
   #endif // cameraPositionFlag
-  
+
   #ifdef fogFlag
   varying float v_fog;
   #endif // fogFlag
-  
-  
-  // #if numDirectionalLights > 0
-  // struct DirectionalLight
-  // {
-  //   vec3 color;
-  //   vec3 direction;
-  // };
-  // uniform DirectionalLight u_dirLights[numDirectionalLights];
-  // #endif // numDirectionalLights
-  
+
+
+  #if numDirectionalLights > 0
+  struct DirectionalLight
+  {
+    vec3 color;
+    vec3 direction;
+  };
+  uniform DirectionalLight u_dirLights[numDirectionalLights];
+  #endif // numDirectionalLights
+
   #if numPointLights > 0
   struct PointLight
   {
@@ -429,23 +426,23 @@ export class DefaultShader extends BaseShader {
   };
   uniform PointLight u_pointLights[numPointLights];
   #endif // numPointLights
-  
+
   #if	defined(ambientLightFlag) || defined(ambientCubemapFlag) || defined(sphericalHarmonicsFlag)
   #define ambientFlag
   #endif //ambientFlag
-  
+
   #ifdef shadowMapFlag
   uniform mat4 u_shadowMapProjViewTrans;
   varying vec3 v_shadowMapUv;
   #define separateAmbientFlag
   #endif //shadowMapFlag
-  
+
   #if defined(ambientFlag) && defined(separateAmbientFlag)
   varying vec3 v_ambientLight;
   #endif //separateAmbientFlag
-  
+
   #endif // lightingFlag
-  
+
   void main() {
     #ifdef diffuseTextureFlag
       v_diffuseUV = u_diffuseUVTransform.xy + a_texCoord0 * u_diffuseUVTransform.zw;
@@ -454,7 +451,7 @@ export class DefaultShader extends BaseShader {
     #ifdef emissiveTextureFlag
       v_emissiveUV = u_emissiveUVTransform.xy + a_texCoord0 * u_emissiveUVTransform.zw;
     #endif //emissiveTextureFlag
-  
+
     #ifdef specularTextureFlag
       v_specularUV = u_specularUVTransform.xy + a_texCoord0 * u_specularUVTransform.zw;
     #endif //specularTextureFlag
@@ -497,7 +494,7 @@ export class DefaultShader extends BaseShader {
         skinning += (a_boneWeight7.y) * u_bones[int(a_boneWeight7.x)];
       #endif //boneWeight7Flag
     #endif //skinningFlag
-  
+
     #ifdef skinningFlag
       vec4 pos = u_worldTrans * skinning * vec4(a_position, 1.0);
     #else
@@ -520,13 +517,13 @@ export class DefaultShader extends BaseShader {
       #endif
       v_normal = normal;
     #endif // normalFlag
-  
+
       #ifdef fogFlag
           vec3 flen = u_cameraPosition.xyz - pos.xyz;
           float fog = dot(flen, flen) * u_cameraPosition.w;
           v_fog = min(fog, 1.0);
       #endif
-  
+
     #ifdef lightingFlag
       #if	defined(ambientLightFlag)
             vec3 ambientLight = u_ambientLight;
@@ -541,7 +538,7 @@ export class DefaultShader extends BaseShader {
             squaredNormal.y * mix(u_ambientCubemap[2], u_ambientCubemap[3], isPositive.y) +
             squaredNormal.z * mix(u_ambientCubemap[4], u_ambientCubemap[5], isPositive.z);
       #endif // ambientCubemapFlag
-  
+
       #ifdef sphericalHarmonicsFlag
         ambientLight += u_sphericalHarmonics[0];
         ambientLight += u_sphericalHarmonics[1] * normal.x;
@@ -553,7 +550,7 @@ export class DefaultShader extends BaseShader {
         ambientLight += u_sphericalHarmonics[7] * (3.0 * normal.z * normal.z - 1.0);
         ambientLight += u_sphericalHarmonics[8] * (normal.x * normal.x - normal.y * normal.y);			
       #endif // sphericalHarmonicsFlag
-  
+
       #ifdef ambientFlag
         #ifdef separateAmbientFlag
           v_ambientLight = ambientLight;
@@ -564,26 +561,26 @@ export class DefaultShader extends BaseShader {
       #else
             v_lightDiffuse = vec3(0.0);
       #endif //ambientFlag
-  
+
         
       #ifdef specularFlag
         v_lightSpecular = vec3(0.0);
         vec3 viewVec = normalize(u_cameraPosition.xyz - pos.xyz);
       #endif // specularFlag
         
-      // #if (numDirectionalLights > 0) && defined(normalFlag)
-      //   for (int i = 0; i < numDirectionalLights; i++) {
-      //     vec3 lightDir = -u_dirLights[i].direction;
-      //     float NdotL = clamp(dot(normal, lightDir), 0.0, 1.0);
-      //     vec3 value = u_dirLights[i].color * NdotL;
-      //     v_lightDiffuse += value;
-      //     #ifdef specularFlag
-      //       float halfDotView = max(0.0, dot(normal, normalize(lightDir + viewVec)));
-      //       v_lightSpecular += value * pow(halfDotView, u_shininess);
-      //     #endif // specularFlag
-      //   }
-      // #endif // numDirectionalLights
-  
+      #if (numDirectionalLights > 0) && defined(normalFlag)
+        for (int i = 0; i < numDirectionalLights; i++) {
+          vec3 lightDir = -u_dirLights[i].direction;
+          float NdotL = clamp(dot(normal, lightDir), 0.0, 1.0);
+          vec3 value = u_dirLights[i].color * NdotL;
+          v_lightDiffuse += value;
+          #ifdef specularFlag
+            float halfDotView = max(0.0, dot(normal, normalize(lightDir + viewVec)));
+            v_lightSpecular += value * pow(halfDotView, u_shininess);
+          #endif // specularFlag
+        }
+      #endif // numDirectionalLights
+
       #if (numPointLights > 0) && defined(normalFlag)
         for (int i = 0; i < numPointLights; i++) {
           vec3 lightDir = u_pointLights[i].position - pos.xyz;
@@ -599,13 +596,10 @@ export class DefaultShader extends BaseShader {
         }
       #endif // numPointLights
     #endif // lightingFlag
-  }  
+  }
   `;
 
   public static defaultFragmentShader = `
-  #define positionFlag
-  #define normalFlag
-  #define diffuseColorFlag
   #ifdef GL_ES
   #define LOWP lowp
   #define MED mediump
@@ -616,93 +610,93 @@ export class DefaultShader extends BaseShader {
   #define LOWP
   #define HIGH
   #endif
-  
+
   #if defined(specularTextureFlag) || defined(specularColorFlag)
   #define specularFlag
   #endif
-  
+
   #ifdef normalFlag
   varying vec3 v_normal;
   #endif //normalFlag
-  
+
   #if defined(colorFlag)
   varying vec4 v_color;
   #endif
-  
+
   #ifdef blendedFlag
   varying float v_opacity;
   #ifdef alphaTestFlag
   varying float v_alphaTest;
   #endif //alphaTestFlag
   #endif //blendedFlag
-  
+
   #if defined(diffuseTextureFlag) || defined(specularTextureFlag) || defined(emissiveTextureFlag)
   #define textureFlag
   #endif
-  
+
   #ifdef diffuseTextureFlag
   varying MED vec2 v_diffuseUV;
   #endif
-  
+
   #ifdef specularTextureFlag
   varying MED vec2 v_specularUV;
   #endif
-  
+
   #ifdef emissiveTextureFlag
   varying MED vec2 v_emissiveUV;
   #endif
-  
+
   #ifdef diffuseColorFlag
   uniform vec4 u_diffuseColor;
   #endif
-  
+
   #ifdef diffuseTextureFlag
   uniform sampler2D u_diffuseTexture;
   #endif
-  
+
   #ifdef specularColorFlag
   uniform vec4 u_specularColor;
   #endif
-  
+
   #ifdef specularTextureFlag
   uniform sampler2D u_specularTexture;
   #endif
-  
+
   #ifdef normalTextureFlag
   uniform sampler2D u_normalTexture;
   #endif
-  
+
   #ifdef emissiveColorFlag
   uniform vec4 u_emissiveColor;
   #endif
-  
+
   #ifdef emissiveTextureFlag
   uniform sampler2D u_emissiveTexture;
   #endif
-  
+
   #ifdef lightingFlag
   varying vec3 v_lightDiffuse;
-  
+
   #if	defined(ambientLightFlag) || defined(ambientCubemapFlag) || defined(sphericalHarmonicsFlag)
   #define ambientFlag
   #endif //ambientFlag
-  
+
   #ifdef specularFlag
   varying vec3 v_lightSpecular;
   #endif //specularFlag
-  
+
   #ifdef shadowMapFlag
   uniform sampler2D u_shadowTexture;
   uniform float u_shadowPCFOffset;
   varying vec3 v_shadowMapUv;
   #define separateAmbientFlag
-  
+
   float getShadowness(vec2 offset)
   {
       const vec4 bitShifts = vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0);
       return step(v_shadowMapUv.z, dot(texture2D(u_shadowTexture, v_shadowMapUv.xy + offset), bitShifts));//+(1.0/255.0));
   }
-  
+
   float getShadow()
   {
     return (//getShadowness(vec2(0,0)) +
@@ -712,23 +706,23 @@ export class DefaultShader extends BaseShader {
         getShadowness(vec2(-u_shadowPCFOffset, -u_shadowPCFOffset))) * 0.25;
   }
   #endif //shadowMapFlag
-  
+
   #if defined(ambientFlag) && defined(separateAmbientFlag)
   varying vec3 v_ambientLight;
   #endif //separateAmbientFlag
-  
+
   #endif //lightingFlag
-  
+
   #ifdef fogFlag
   uniform vec4 u_fogColor;
   varying float v_fog;
   #endif // fogFlag
-  
+
   void main() {
     #if defined(normalFlag)
       vec3 normal = v_normal;
     #endif // normalFlag
-  
+
     #if defined(diffuseTextureFlag) && defined(diffuseColorFlag) && defined(colorFlag)
       vec4 diffuse = texture2D(u_diffuseTexture, v_diffuseUV) * u_diffuseColor * v_color;
     #elif defined(diffuseTextureFlag) && defined(diffuseColorFlag)
@@ -746,7 +740,7 @@ export class DefaultShader extends BaseShader {
     #else
       vec4 diffuse = vec4(1.0);
     #endif
-  
+
     #if defined(emissiveTextureFlag) && defined(emissiveColorFlag)
       vec4 emissive = texture2D(u_emissiveTexture, v_emissiveUV) * u_emissiveColor;
     #elif defined(emissiveTextureFlag)
@@ -756,7 +750,7 @@ export class DefaultShader extends BaseShader {
     #else
       vec4 emissive = vec4(0.0);
     #endif
-  
+
     #if (!defined(lightingFlag))
       gl_FragColor.rgb = diffuse.rgb + emissive.rgb;
     #elif (!defined(specularFlag))
@@ -784,7 +778,7 @@ export class DefaultShader extends BaseShader {
       #else
         vec3 specular = v_lightSpecular;
       #endif
-  
+
       #if defined(ambientFlag) && defined(separateAmbientFlag)
         #ifdef shadowMapFlag
         gl_FragColor.rgb = (diffuse.rgb * (getShadow() * v_lightDiffuse + v_ambientLight)) + specular + emissive.rgb;
@@ -800,11 +794,11 @@ export class DefaultShader extends BaseShader {
         #endif //shadowMapFlag
       #endif
     #endif //lightingFlag
-  
+
     #ifdef fogFlag
       gl_FragColor.rgb = mix(gl_FragColor.rgb, u_fogColor.rgb, v_fog);
     #endif // end fogFlag
-  
+
     #ifdef blendedFlag
       gl_FragColor.a = diffuse.a * v_opacity;
       #ifdef alphaTestFlag
@@ -814,7 +808,7 @@ export class DefaultShader extends BaseShader {
     #else
       gl_FragColor.a = 1.0;
     #endif
-  }  
+  }
   `;
 
   protected static implementedFlags: number =
@@ -865,24 +859,24 @@ export class DefaultShader extends BaseShader {
 
   protected u_ambientCubemap;
   protected u_environmentCubemap;
-  // protected u_dirLights0color = this.register('u_dirLights[0].color');
-  // protected u_dirLights0direction = this.register('u_dirLights[0].direction');
-  // protected u_dirLights1color = this.register('u_dirLights[1].color');
-  // protected u_pointLights0color = this.register('u_pointLights[0].color');
-  // protected u_pointLights0position = this.register('u_pointLights[0].position');
-  // protected u_pointLights0intensity = this.register('u_pointLights[0].intensity');
-  // protected u_pointLights1color = this.register('u_pointLights[1].color');
-  // protected u_spotLights0color = this.register('u_spotLights[0].color');
-  // protected u_spotLights0position = this.register('u_spotLights[0].position');
-  // protected u_spotLights0intensity = this.register('u_spotLights[0].intensity');
-  // protected u_spotLights0direction = this.register('u_spotLights[0].direction');
-  // protected u_spotLights0cutoffAngle = this.register('u_spotLights[0].cutoffAngle');
-  // protected u_spotLights0exponent = this.register('u_spotLights[0].exponent');
-  // protected u_spotLights1color = this.register('u_spotLights[1].color');
-  // protected u_fogColor = this.register('u_fogColor');
-  // protected u_shadowMapProjViewTrans = this.register('u_shadowMapProjViewTrans');
-  // protected u_shadowTexture = this.register('u_shadowTexture');
-  // protected u_shadowPCFOffset = this.register('u_shadowPCFOffset');
+  protected u_dirLights0color = this.register('u_dirLights[0].color');
+  protected u_dirLights0direction = this.register('u_dirLights[0].direction');
+  protected u_dirLights1color = this.register('u_dirLights[1].color');
+  protected u_pointLights0color = this.register('u_pointLights[0].color');
+  protected u_pointLights0position = this.register('u_pointLights[0].position');
+  protected u_pointLights0intensity = this.register('u_pointLights[0].intensity');
+  protected u_pointLights1color = this.register('u_pointLights[1].color');
+  protected u_spotLights0color = this.register('u_spotLights[0].color');
+  protected u_spotLights0position = this.register('u_spotLights[0].position');
+  protected u_spotLights0intensity = this.register('u_spotLights[0].intensity');
+  protected u_spotLights0direction = this.register('u_spotLights[0].direction');
+  protected u_spotLights0cutoffAngle = this.register('u_spotLights[0].cutoffAngle');
+  protected u_spotLights0exponent = this.register('u_spotLights[0].exponent');
+  protected u_spotLights1color = this.register('u_spotLights[1].color');
+  protected u_fogColor = this.register('u_fogColor');
+  protected u_shadowMapProjViewTrans = this.register('u_shadowMapProjViewTrans');
+  protected u_shadowTexture = this.register('u_shadowTexture');
+  protected u_shadowPCFOffset = this.register('u_shadowPCFOffset');
 
   protected dirLightsLoc: number;
   protected dirLightsColorOffset: number;
@@ -976,90 +970,46 @@ export class DefaultShader extends BaseShader {
     // }
 
     // Global uniforms
-    this.u_projTrans = this.register(Inputs.projTrans.alias, Inputs.projTrans, Setters.projTrans);
-    this.u_viewTrans = this.register(Inputs.viewTrans.alias, Inputs.viewTrans, Setters.viewTrans);
-    this.u_projViewTrans = this.register(Inputs.projViewTrans.alias, Inputs.projViewTrans, Setters.projViewTrans);
-    this.u_cameraPosition = this.register(Inputs.cameraPosition.alias, Inputs.cameraPosition, Setters.cameraPosition);
-    this.u_cameraDirection = this.register(
-      Inputs.cameraDirection.alias,
-      Inputs.cameraDirection,
-      Setters.cameraDirection
-    );
-    this.u_cameraUp = this.register(Inputs.cameraUp.alias, Inputs.cameraUp, Setters.cameraUp);
-    this.u_cameraNearFar = this.register(Inputs.cameraNearFar.alias, Inputs.cameraNearFar, Setters.cameraNearFar);
+    this.u_projTrans = this.register(Inputs.projTrans.alias, null, Setters.projTrans);
+    this.u_viewTrans = this.register(Inputs.viewTrans.alias, null, Setters.viewTrans);
+    this.u_projViewTrans = this.register(Inputs.projViewTrans.alias, null, Setters.projViewTrans);
+    this.u_cameraPosition = this.register(Inputs.cameraPosition.alias, null, Setters.cameraPosition);
+    this.u_cameraDirection = this.register(Inputs.cameraDirection.alias, null, Setters.cameraDirection);
+    this.u_cameraUp = this.register(Inputs.cameraUp.alias, null, Setters.cameraUp);
+    this.u_cameraNearFar = this.register(Inputs.cameraNearFar.alias, null, Setters.cameraNearFar);
     const timeUniform = new Uniform('u_time');
     this.u_time = this.register(timeUniform.alias, timeUniform);
     // Object uniforms
-    this.u_worldTrans = this.register(Inputs.worldTrans.alias, Inputs.worldTrans, Setters.worldTrans);
-    this.u_viewWorldTrans = this.register(Inputs.viewWorldTrans.alias, Inputs.viewWorldTrans, Setters.viewWorldTrans);
-    this.u_projViewWorldTrans = this.register(
-      Inputs.projViewWorldTrans.alias,
-      Inputs.projViewWorldTrans,
-      Setters.projViewWorldTrans
-    );
-    this.u_normalMatrix = this.register(Inputs.normalMatrix.alias, Inputs.normalMatrix, Setters.normalMatrix);
+    this.u_worldTrans = this.register(Inputs.worldTrans.alias, null, Setters.worldTrans);
+    this.u_viewWorldTrans = this.register(Inputs.viewWorldTrans.alias, null, Setters.viewWorldTrans);
+    this.u_projViewWorldTrans = this.register(Inputs.projViewWorldTrans.alias, null, Setters.projViewWorldTrans);
+    this.u_normalMatrix = this.register(Inputs.normalMatrix.alias, null, Setters.normalMatrix);
     // u_bones = (renderable.bones != null && config.numBones > 0) ? register(Inputs.bones, new Setters.Bones(config.numBones))
     //     : -1;
 
-    this.u_shininess = this.register(Inputs.shininess.alias, Inputs.shininess, Setters.shininess);
-    this.u_opacity = this.register(Inputs.opacity.alias, Inputs.opacity);
-    this.u_diffuseColor = this.register(Inputs.diffuseColor.alias, Inputs.diffuseColor, Setters.diffuseColor);
-    this.u_diffuseTexture = this.register(Inputs.diffuseTexture.alias, Inputs.diffuseTexture, Setters.diffuseTexture);
-    this.u_diffuseUVTransform = this.register(
-      Inputs.diffuseUVTransform.alias,
-      Inputs.diffuseUVTransform,
-      Setters.diffuseUVTransform
-    );
-    this.u_specularColor = this.register(Inputs.specularColor.alias, Inputs.specularColor, Setters.specularColor);
-    this.u_specularTexture = this.register(
-      Inputs.specularTexture.alias,
-      Inputs.specularTexture,
-      Setters.specularTexture
-    );
-    this.u_specularUVTransform = this.register(
-      Inputs.specularUVTransform.alias,
-      Inputs.specularUVTransform,
-      Setters.specularUVTransform
-    );
-    this.u_emissiveColor = this.register(Inputs.emissiveColor.alias, Inputs.emissiveColor, Setters.emissiveColor);
-    this.u_emissiveTexture = this.register(
-      Inputs.emissiveTexture.alias,
-      Inputs.emissiveTexture,
-      Setters.emissiveTexture
-    );
-    this.u_emissiveUVTransform = this.register(
-      Inputs.emissiveUVTransform.alias,
-      Inputs.emissiveUVTransform,
-      Setters.emissiveUVTransform
-    );
-    this.u_reflectionColor = this.register(
-      Inputs.reflectionColor.alias,
-      Inputs.reflectionColor,
-      Setters.reflectionColor
-    );
-    this.u_reflectionTexture = this.register(
-      Inputs.reflectionTexture.alias,
-      Inputs.reflectionTexture,
-      Setters.reflectionTexture
-    );
+    this.u_shininess = this.register(Inputs.shininess.alias, null, Setters.shininess);
+    this.u_opacity = this.register(Inputs.opacity.alias);
+    this.u_diffuseColor = this.register(Inputs.diffuseColor.alias, null, Setters.diffuseColor);
+    this.u_diffuseTexture = this.register(Inputs.diffuseTexture.alias, null, Setters.diffuseTexture);
+    this.u_diffuseUVTransform = this.register(Inputs.diffuseUVTransform.alias, null, Setters.diffuseUVTransform);
+    this.u_specularColor = this.register(Inputs.specularColor.alias, null, Setters.specularColor);
+    this.u_specularTexture = this.register(Inputs.specularTexture.alias, null, Setters.specularTexture);
+    this.u_specularUVTransform = this.register(Inputs.specularUVTransform.alias, null, Setters.specularUVTransform);
+    this.u_emissiveColor = this.register(Inputs.emissiveColor.alias, null, Setters.emissiveColor);
+    this.u_emissiveTexture = this.register(Inputs.emissiveTexture.alias, null, Setters.emissiveTexture);
+    this.u_emissiveUVTransform = this.register(Inputs.emissiveUVTransform.alias, null, Setters.emissiveUVTransform);
+    this.u_reflectionColor = this.register(Inputs.reflectionColor.alias, null, Setters.reflectionColor);
+    this.u_reflectionTexture = this.register(Inputs.reflectionTexture.alias, null, Setters.reflectionTexture);
     this.u_reflectionUVTransform = this.register(
       Inputs.reflectionUVTransform.alias,
-      Inputs.reflectionUVTransform,
+      null,
       Setters.reflectionUVTransform
     );
-    this.u_normalTexture = this.register(Inputs.normalTexture.alias, Inputs.normalTexture, Setters.normalTexture);
-    this.u_normalUVTransform = this.register(
-      Inputs.normalUVTransform.alias,
-      Inputs.normalUVTransform,
-      Setters.normalUVTransform
-    );
-    this.u_ambientTexture = this.register(Inputs.ambientTexture.alias, Inputs.ambientTexture, Setters.ambientTexture);
-    this.u_ambientUVTransform = this.register(
-      Inputs.ambientUVTransform.alias,
-      Inputs.ambientUVTransform,
-      Setters.ambientUVTransform
-    );
-    this.u_alphaTest = this.register(Inputs.alphaTest.alias, Inputs.alphaTest);
+    this.u_normalTexture = this.register(Inputs.normalTexture.alias, null, Setters.normalTexture);
+    this.u_normalUVTransform = this.register(Inputs.normalUVTransform.alias, null, Setters.normalUVTransform);
+    this.u_ambientTexture = this.register(Inputs.ambientTexture.alias, null, Setters.ambientTexture);
+    this.u_ambientUVTransform = this.register(Inputs.ambientUVTransform.alias, null, Setters.ambientUVTransform);
+    this.u_alphaTest = this.register(Inputs.alphaTest.alias);
 
     // u_ambientCubemap = lighting
     //     ? register(Inputs.ambientCube, new Setters.ACubemap(config.numDirectionalLights, config.numPointLights))
@@ -1073,28 +1023,32 @@ export class DefaultShader extends BaseShader {
     this.initWithVariables(program, this.renderable);
     this.renderable = null;
 
-    // dirLightsLoc = loc(u_dirLights0color);
-    // dirLightsColorOffset = loc(u_dirLights0color) - dirLightsLoc;
-    // dirLightsDirectionOffset = loc(u_dirLights0direction) - dirLightsLoc;
-    // dirLightsSize = loc(u_dirLights1color) - dirLightsLoc;
-    // if (dirLightsSize < 0) dirLightsSize = 0;
+    this.dirLightsLoc = this.loc(this.u_dirLights0color) as number;
+    this.dirLightsColorOffset = (this.loc(this.u_dirLights0color) as number) - this.dirLightsLoc;
+    this.dirLightsDirectionOffset = (this.loc(this.u_dirLights0direction) as number) - this.dirLightsLoc;
+    this.dirLightsSize = (this.loc(this.u_dirLights1color) as number) - this.dirLightsLoc;
+    if (this.dirLightsSize < 0) this.dirLightsSize = 0;
 
-    // pointLightsLoc = loc(u_pointLights0color);
-    // pointLightsColorOffset = loc(u_pointLights0color) - pointLightsLoc;
-    // pointLightsPositionOffset = loc(u_pointLights0position) - pointLightsLoc;
-    // pointLightsIntensityOffset = has(u_pointLights0intensity) ? loc(u_pointLights0intensity) - pointLightsLoc : -1;
-    // pointLightsSize = loc(u_pointLights1color) - pointLightsLoc;
-    // if (pointLightsSize < 0) pointLightsSize = 0;
+    this.pointLightsLoc = this.loc(this.u_pointLights0color) as number;
+    this.pointLightsColorOffset = (this.loc(this.u_pointLights0color) as number) - this.pointLightsLoc;
+    this.pointLightsPositionOffset = (this.loc(this.u_pointLights0position) as number) - this.pointLightsLoc;
+    this.pointLightsIntensityOffset = this.has(this.u_pointLights0intensity)
+      ? (this.loc(this.u_pointLights0intensity) as number) - this.pointLightsLoc
+      : -1;
+    this.pointLightsSize = (this.loc(this.u_pointLights1color) as number) - this.pointLightsLoc;
+    if (this.pointLightsSize < 0) this.pointLightsSize = 0;
 
-    // spotLightsLoc = loc(u_spotLights0color);
-    // spotLightsColorOffset = loc(u_spotLights0color) - spotLightsLoc;
-    // spotLightsPositionOffset = loc(u_spotLights0position) - spotLightsLoc;
-    // spotLightsDirectionOffset = loc(u_spotLights0direction) - spotLightsLoc;
-    // spotLightsIntensityOffset = has(u_spotLights0intensity) ? loc(u_spotLights0intensity) - spotLightsLoc : -1;
-    // spotLightsCutoffAngleOffset = loc(u_spotLights0cutoffAngle) - spotLightsLoc;
-    // spotLightsExponentOffset = loc(u_spotLights0exponent) - spotLightsLoc;
-    // spotLightsSize = loc(u_spotLights1color) - spotLightsLoc;
-    // if (spotLightsSize < 0) spotLightsSize = 0;
+    this.spotLightsLoc = this.loc(this.u_spotLights0color) as number;
+    this.spotLightsColorOffset = (this.loc(this.u_spotLights0color) as number) - this.spotLightsLoc;
+    this.spotLightsPositionOffset = (this.loc(this.u_spotLights0position) as number) - this.spotLightsLoc;
+    this.spotLightsDirectionOffset = (this.loc(this.u_spotLights0direction) as number) - this.spotLightsLoc;
+    this.spotLightsIntensityOffset = this.has(this.u_spotLights0intensity)
+      ? (this.loc(this.u_spotLights0intensity) as number) - this.spotLightsLoc
+      : -1;
+    this.spotLightsCutoffAngleOffset = (this.loc(this.u_spotLights0cutoffAngle) as number) - this.spotLightsLoc;
+    this.spotLightsExponentOffset = (this.loc(this.u_spotLights0exponent) as number) - this.spotLightsLoc;
+    this.spotLightsSize = (this.loc(this.u_spotLights1color) as number) - this.spotLightsLoc;
+    if (this.spotLightsSize < 0) this.spotLightsSize = 0;
   }
 
   private static and(mask: number, flag: number): boolean {

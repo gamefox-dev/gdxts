@@ -139,10 +139,10 @@ export class Shader implements Disposable, Restorable {
     gl.uniformMatrix4fv(this.getUniformLocation(uniform), false, this.tmp4x4);
   }
 
-  public getUniformLocation(uniform: string): WebGLUniformLocation {
+  public getUniformLocation(uniform: string, pedantic: boolean = true): WebGLUniformLocation {
     let gl = this.context.gl;
     let location = gl.getUniformLocation(this.program, uniform);
-    if (!location && !gl.isContextLost()) throw new Error(`Couldn't find location for uniform ${uniform}`);
+    if (pedantic && !location && !gl.isContextLost()) throw new Error(`Couldn't find location for uniform ${uniform}`);
     return location;
   }
 

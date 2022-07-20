@@ -73,8 +73,8 @@ export class BaseShader implements Shader3D {
   private validators: Validator[] = [];
   private setters: Setter[] = [];
   private locations: WebGLUniformLocation[];
-  private globalUniforms: number[] = [];
-  private localUniforms: number[] = [];
+  private globalUniforms: WebGLUniformLocation[] = [];
+  private localUniforms: WebGLUniformLocation[] = [];
 
   program: Shader;
   context: RenderContext;
@@ -114,17 +114,20 @@ export class BaseShader implements Shader3D {
       const input = this.uniforms[i];
       const validator = this.validators[i];
       const setter = this.setters[i];
-      if (validator != null && !validator.validate(this, i, renderable)) this.locations[i] = -1;
-      else {
-        this.locations[i] = program.getUniformLocation(input);
-        if (this.locations[i] >= 0 && setter != null) {
-          if (setter.isGlobal(this, i)) this.globalUniforms.push(i);
-          else this.localUniforms.push(i);
+      if (validator != null && !validator.validate(this, i, renderable)) {
+        this.locations[i] = null;
+      } else {
+        this.locations[i] = program.getUniformLocation(input, false);
+        if (this.locations[i] != null && setter != null) {
+          if (setter.isGlobal(this, i)) {
+            this.globalUniforms.push(i);
+          } else {
+            this.localUniforms.push(i);
+          }
         }
       }
-      if (this.locations[i] < 0) {
+      if (this.locations[i] === null) {
         this.validators.splice(i, 0, null);
-        this.setters.splice(i, 0, null);
       }
     }
   }
@@ -134,8 +137,12 @@ export class BaseShader implements Shader3D {
     this.context = context;
     this.program.bind();
     this.currentMesh = null;
-    for (let u, i = 0; i < this.globalUniforms.length; ++i)
-      if (this.setters[(u = this.globalUniforms[i])] != null) this.setters[u].set(this, u, null, null);
+    for (let i = 0; i < this.globalUniforms.length; ++i) {
+      const u = this.globalUniforms[i] as number;
+      if (this.setters[u] != null) {
+        this.setters[u].set(this, u, null, null);
+      }
+    }
   }
 
   private combinedAttributes: Attributes = new Attributes();
@@ -150,8 +157,9 @@ export class BaseShader implements Shader3D {
 
   renderWithCombinedAttributes(renderable: Renderable, combinedAttributes: Attributes) {
     for (let u, i = 0; i < this.localUniforms.length; ++i)
-      if (this.setters[(u = this.localUniforms[i])] != null)
+      if (this.setters[(u = this.localUniforms[i] as number)] != null) {
         this.setters[u].set(this, u, renderable, combinedAttributes);
+      }
     if (this.currentMesh !== renderable.meshPart.mesh) {
       if (this.currentMesh != null) this.currentMesh.unbind(this.program);
       this.currentMesh = renderable.meshPart.mesh;
@@ -178,15 +186,16 @@ export class BaseShader implements Shader3D {
   }
 
   public has(inputID: number): boolean {
-    return inputID >= 0 && inputID < this.locations.length && this.locations[inputID] >= 0;
+    return inputID >= 0 && inputID < this.locations.length && this.locations[inputID] != null;
   }
 
   public loc(inputID: number): WebGLUniformLocation {
-    return inputID >= 0 && inputID < this.locations.length ? this.locations[inputID] : -1;
+    return inputID >= 0 && inputID < this.locations.length ? this.locations[inputID] : null;
   }
 
   public setMatrix4(uniform: number, value: Matrix4): boolean {
     if (this.uniforms[uniform] == null) return false;
+    const name = this.uniforms[uniform];
     this.program.setUniform4x4f(this.uniforms[uniform], value.values);
     return true;
   }

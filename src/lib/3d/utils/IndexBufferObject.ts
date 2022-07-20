@@ -1,4 +1,4 @@
-import { GL20 } from "../GL20";
+import { GL20 } from '../GL20';
 
 export class IndexBufferObject {
   byteBuffer: Uint16Array;
@@ -15,11 +15,7 @@ export class IndexBufferObject {
   private gl: WebGLRenderingContext;
   arrayBuffer: ArrayBuffer;
 
-  constructor(
-    gl: WebGLRenderingContext,
-    maxIndices: number,
-    isStatic: boolean = true
-  ) {
+  constructor(gl: WebGLRenderingContext, maxIndices: number, isStatic: boolean = true) {
     this.gl = gl;
     this.empty = maxIndices === 0;
     if (this.empty) {
@@ -56,41 +52,24 @@ export class IndexBufferObject {
     return this.byteBuffer.length;
   }
 
-  public setIndices(
-    indices: number[],
-    offset: number = 0,
-    count: number = indices.length
-  ) {
+  public setIndices(indices: number[], offset: number = 0, count: number = indices.length) {
     this.isDirty = true;
     this.byteBuffer.set(indices.slice(offset, offset + count), 0);
     this.indicesLength = count;
 
     if (this.isBound) {
-      this.gl.bufferData(
-        GL20.GL_ELEMENT_ARRAY_BUFFER,
-        this.byteBuffer,
-        this.usage
-      );
+      this.gl.bufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, this.byteBuffer, this.usage);
       this.isDirty = false;
     }
   }
 
-  public updateIndices(
-    targetOffset: number,
-    indices: number[],
-    offset: number,
-    count: number
-  ) {
+  public updateIndices(targetOffset: number, indices: number[], offset: number, count: number) {
     this.isDirty = true;
     this.byteBuffer.set(indices.slice(offset, offset + count), targetOffset);
     this.indicesLength = targetOffset + count;
 
     if (this.isBound) {
-      this.gl.bufferData(
-        GL20.GL_ELEMENT_ARRAY_BUFFER,
-        this.byteBuffer.subarray(0, this.indicesLength),
-        this.usage
-      );
+      this.gl.bufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, this.byteBuffer.subarray(0, this.indicesLength), this.usage);
       this.isDirty = false;
     }
   }
@@ -101,22 +80,18 @@ export class IndexBufferObject {
   }
 
   public bind() {
-    if (this.bufferHandle === 0) throw new Error("No buffer allocated!");
+    if (this.bufferHandle === 0) throw new Error('No buffer allocated!');
 
     this.gl.bindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, this.bufferHandle);
     if (this.isDirty) {
-      this.gl.bufferData(
-        GL20.GL_ELEMENT_ARRAY_BUFFER,
-        this.byteBuffer,
-        this.usage
-      );
+      this.gl.bufferData(GL20.GL_ELEMENT_ARRAY_BUFFER, this.byteBuffer, this.usage);
       this.isDirty = false;
     }
     this.isBound = true;
   }
 
   public unbind() {
-    this.gl.bindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, 0);
+    this.gl.bindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, null);
     this.isBound = false;
   }
 
@@ -125,7 +100,7 @@ export class IndexBufferObject {
     this.isDirty = true;
   }
   public dispose() {
-    this.gl.bindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, 0);
+    this.gl.bindBuffer(GL20.GL_ELEMENT_ARRAY_BUFFER, null);
     this.gl.deleteBuffer(this.bufferHandle);
     this.bufferHandle = new WebGLBuffer();
   }

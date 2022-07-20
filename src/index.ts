@@ -14,8 +14,8 @@ const init = async () => {
   const viewport = createViewport(canvas, 500, 1000, {
     crop: false
   });
-  const gl = viewport.getContext();
 
+  const gl = viewport.getContext();
   const cam = new PerspectiveCamera(67, 500, 1000);
   cam.update();
 
@@ -32,14 +32,10 @@ const init = async () => {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     modelBatch.begin(cam);
-    try {
-      modelBatch.renderWithModelInstance(instance);
-    } catch (e) {
-      console.log(e);
-    }
+    modelBatch.renderWithModelInstance(instance);
     modelBatch.end();
 
-    Game.shared.update(delta);
+    // Game.shared.update(delta);
   });
 };
 

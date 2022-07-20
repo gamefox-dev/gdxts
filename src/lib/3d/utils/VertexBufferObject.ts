@@ -84,7 +84,7 @@ export class VertexBufferObject {
     const numAttributes = this.attributes.size();
     if (locations == null) {
       for (let i = 0; i < numAttributes; i++) {
-        const attribute = this.attributes[i];
+        const attribute = this.attributes.get(i);
         const location = shader.getAttributeLocation(attribute.alias);
         if (location < 0) continue;
         this.gl.enableVertexAttribArray(location);
@@ -130,7 +130,7 @@ export class VertexBufferObject {
         if (location >= 0) this.gl.disableVertexAttribArray(location);
       }
     }
-    this.gl.bindBuffer(GL20.GL_ARRAY_BUFFER, 0);
+    this.gl.bindBuffer(GL20.GL_ARRAY_BUFFER, null);
     this.isBound = false;
   }
 
@@ -140,7 +140,7 @@ export class VertexBufferObject {
   }
 
   public dispose() {
-    this.gl.bindBuffer(GL20.GL_ARRAY_BUFFER, 0);
+    this.gl.bindBuffer(GL20.GL_ARRAY_BUFFER, null);
     this.gl.deleteBuffer(this.bufferHandle);
   }
 }
