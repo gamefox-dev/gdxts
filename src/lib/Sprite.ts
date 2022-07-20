@@ -68,7 +68,7 @@ export class Sprite {
 
   vertices = new Float32Array(48);
 
-  public constructor(private region: TextureRegion) {
+  public constructor(public region: TextureRegion) {
     this.setSize(region.width, region.height);
     this.setOrigin(region.width / 2, region.height / 2);
   }
