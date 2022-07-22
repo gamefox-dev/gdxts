@@ -6,6 +6,8 @@ import { ColorAttribute } from './lib/3d/attributes/ColorAttribute';
 import { Usage } from './lib/3d/attributes/VertexAttribute';
 import { ModelInstance } from './lib/3d/ModelInstance';
 import { ModelBatch } from './lib/3d/ModelBatch';
+import { Environment } from './lib/3d/environment/Environment';
+import { DirectionalLight } from './lib/3d/environment/DirectionalLight';
 
 const init = async () => {
   const stage = createStage();
@@ -28,6 +30,10 @@ const init = async () => {
   const material = new Material();
   material.setAttribute(ColorAttribute.createDiffuse(Color.GREEN));
 
+  const environment = new Environment();
+  environment.set(new ColorAttribute(ColorAttribute.AmbientLight, new Color(0.4, 0.4, 0.4, 1)));
+  environment.addDirectionalLight(new DirectionalLight().set(0.8, 0.8, 0.8, -1, -0.8, -0.2));
+
   const model = modelBuilder.createBox(5, 5, 5, material, Usage.Position | Usage.Normal);
   const instance = new ModelInstance(model);
 
@@ -36,7 +42,7 @@ const init = async () => {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     modelBatch.begin(cam);
-    modelBatch.renderWithModelInstance(instance);
+    modelBatch.render(instance, environment);
     modelBatch.end();
 
     // Game.shared.update(delta);

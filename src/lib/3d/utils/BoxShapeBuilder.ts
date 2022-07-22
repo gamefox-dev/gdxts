@@ -1,6 +1,5 @@
 import { FlushablePool } from '../../Utils';
 import { Vector3 } from '../../Vector3';
-import { BoundingBox } from '../BoundingBox';
 import { VertexInfo } from '../data/VertexInfo';
 import { GL20 } from '../GL20';
 import { Usage } from '../attributes/VertexAttribute';
@@ -98,7 +97,7 @@ export class BoxShapeBuilder {
   ) {
     if (
       (builder.getAttributes().getMask() &
-        (Usage.Normal | Usage.BiNormal | Usage.Tangent | Usage.TextureCoordinates)) ==
+        (Usage.Normal | Usage.BiNormal | Usage.Tangent | Usage.TextureCoordinates)) ===
       0
     ) {
       this.buildWithVertexInfo(

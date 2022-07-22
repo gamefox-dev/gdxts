@@ -160,7 +160,7 @@ export class BaseShader implements Shader3D {
   render(renderable: Renderable) {
     if (renderable.worldTransform.det3x3() === 0) return;
     this.combinedAttributes.clear();
-    //if (renderable.environment != null) combinedAttributes.set(renderable.environment);
+    if (renderable.environment != null) this.combinedAttributes.setAttributes(renderable.environment.getAttributes());
     if (renderable.material != null) this.combinedAttributes.setAttributes(renderable.material.getAttributes());
 
     this.renderWithCombinedAttributes(renderable, this.combinedAttributes);

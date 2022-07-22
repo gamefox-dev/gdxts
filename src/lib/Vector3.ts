@@ -142,4 +142,9 @@ export class Vector3 {
     this.z += alpha * (target.z - this.z);
     return this;
   }
+
+  equals(other: Vector3): boolean {
+    if (this === other) return true;
+    return this.x === other.x && this.y === other.y && this.z === other.z;
+  }
 }

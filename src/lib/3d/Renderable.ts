@@ -1,4 +1,5 @@
 import { Matrix4 } from '../Matrix4';
+import { Environment } from './environment/Environment';
 import { Material } from './Material';
 import { MeshPart } from './model/MeshPart';
 import { Shader3D } from './shaders/Shader3D';
@@ -8,7 +9,7 @@ export class Renderable {
   meshPart: MeshPart = new MeshPart();
 
   material: Material;
-  //   environment: Environment;
+  environment: Environment;
   //   userData: Object;
   bones: Matrix4[];
   shader: Shader3D;
@@ -18,7 +19,7 @@ export class Renderable {
     this.material = renderable.material;
     this.meshPart.setByMeshPart(renderable.meshPart);
     this.bones = renderable.bones;
-    //this.environment = renderable.environment;
+    this.environment = renderable.environment;
     this.shader = renderable.shader;
     //this.userData = renderable.userData;
     return this;

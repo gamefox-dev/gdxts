@@ -14,6 +14,9 @@ import { Renderable } from '../Renderable';
 import { RenderContext } from '../RenderContext';
 import { TextureAttribute } from '../attributes/TextureAttribute';
 import { Usage } from '../attributes/VertexAttribute';
+import { DirectionalLight } from '../environment/DirectionalLight';
+import { DirectionalLightsAttribute } from '../attributes/DirectionalLightsAttribute';
+import { AmbientCubemap } from '../environment/AmbientCubemap';
 
 export class Config {
   vertexShader: string = null;
@@ -29,6 +32,47 @@ export class Config {
   constructor(vertexShader: string = '', fragmentShader: string = '') {
     this.vertexShader = vertexShader;
     this.fragmentShader = fragmentShader;
+  }
+}
+
+export class ACubemap extends LocalSetter {
+  private static ones: number[] = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+  private cacheAmbientCubemap = new AmbientCubemap();
+  private static tmpV1 = new Vector3();
+  public dirLightsOffset: number;
+  public pointLightsOffset: number;
+
+  constructor(dirLightsOffset: number, pointLightsOffset: number) {
+    super();
+    this.dirLightsOffset = dirLightsOffset;
+    this.pointLightsOffset = pointLightsOffset;
+  }
+
+  public set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+    if (renderable.environment == null) shader.program.setUniform3fv(shader.getUniformAlias(inputID), ACubemap.ones);
+    else {
+      renderable.worldTransform.getTranslation(ACubemap.tmpV1);
+      if (combinedAttributes.has(ColorAttribute.AmbientLight)) {
+        const color = (combinedAttributes.get(ColorAttribute.AmbientLight) as ColorAttribute).color;
+        this.cacheAmbientCubemap.setColor(color.r, color.g, color.b);
+      }
+
+      if (combinedAttributes.has(DirectionalLightsAttribute.Type)) {
+        const att = combinedAttributes.get(DirectionalLightsAttribute.Type) as DirectionalLightsAttribute;
+        const lights = att.lights;
+        for (let i = this.dirLightsOffset; i < lights.length; i++)
+          this.cacheAmbientCubemap.addWithColorAndDirection(lights[i].color, lights[i].direction);
+      }
+
+      // if (combinedAttributes.has(PointLightsAttribute.Type)) {
+      //   Array<PointLight> lights = ((PointLightsAttribute)combinedAttributes.get(PointLightsAttribute.Type)).lights;
+      //   for (int i = pointLightsOffset; i < lights.size; i++)
+      //     cacheAmbientCubemap.add(lights.get(i).color, lights.get(i).position, tmpV1, lights.get(i).intensity);
+      // }
+
+      this.cacheAmbientCubemap.clamp();
+      shader.program.setUniform3fv(shader.getUniformAlias(inputID), this.cacheAmbientCubemap.data);
+    }
   }
 }
 
@@ -899,8 +943,8 @@ export class DefaultShader extends BaseShader {
   protected lighting: boolean;
   protected environmentCubemap: boolean;
   protected shadowMap: boolean;
-  // protected final AmbientCubemap ambientCubemap = new AmbientCubemap();
-  // protected final DirectionalLight directionalLights[];
+  protected ambientCubemap = new AmbientCubemap();
+  protected directionalLights: DirectionalLight[];
   // protected final PointLight pointLights[];
   // protected final SpotLight spotLights[];
 
@@ -937,9 +981,7 @@ export class DefaultShader extends BaseShader {
     this.config = config;
     this.program = shaderProgram;
 
-    //this.lighting = renderable.environment != null;
-    this.lighting = false;
-
+    this.lighting = renderable.environment != null;
     // this.environmentCubemap = attributes.has(CubemapAttribute.EnvironmentMap)
     //     || (lighting && attributes.has(CubemapAttribute.EnvironmentMap));
     this.environmentCubemap = false;
@@ -951,10 +993,12 @@ export class DefaultShader extends BaseShader {
     this.attributesMask = attributes.getMask() | DefaultShader.optionalAttributes;
     // this.vertexMask = renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked();
 
-    // this.directionalLights = new DirectionalLight[lighting && config.numDirectionalLights > 0 ? config.numDirectionalLights
-    //     : 0];
-    // for (int i = 0; i < directionalLights.length; i++)
-    //     directionalLights[i] = new DirectionalLight();
+    this.directionalLights = new Array<DirectionalLight>(
+      this.lighting && config.numDirectionalLights > 0 ? config.numDirectionalLights : 0
+    );
+    for (let i = 0; i < this.directionalLights.length; i++) {
+      this.directionalLights[i] = new DirectionalLight();
+    }
     // this.pointLights = new PointLight[lighting && config.numPointLights > 0 ? config.numPointLights : 0];
     // for (int i = 0; i < pointLights.length; i++)
     //     pointLights[i] = new PointLight();
@@ -1011,10 +1055,10 @@ export class DefaultShader extends BaseShader {
     this.u_ambientUVTransform = this.register(Inputs.ambientUVTransform.alias, null, Setters.ambientUVTransform);
     this.u_alphaTest = this.register(Inputs.alphaTest.alias);
 
-    // u_ambientCubemap = lighting
-    //     ? register(Inputs.ambientCube, new Setters.ACubemap(config.numDirectionalLights, config.numPointLights))
-    //     : -1;
-    // u_environmentCubemap = environmentCubemap ? register(Inputs.environmentCubemap, Setters.environmentCubemap) : -1;
+    this.u_ambientCubemap = this.lighting
+      ? this.register(Inputs.ambientCube.alias, null, new ACubemap(config.numDirectionalLights, config.numPointLights))
+      : -1;
+    //u_environmentCubemap = environmentCubemap ? register(Inputs.environmentCubemap, Setters.environmentCubemap) : -1;
   }
 
   public init() {
@@ -1029,26 +1073,26 @@ export class DefaultShader extends BaseShader {
     this.dirLightsSize = (this.loc(this.u_dirLights1color) as number) - this.dirLightsLoc;
     if (this.dirLightsSize < 0) this.dirLightsSize = 0;
 
-    this.pointLightsLoc = this.loc(this.u_pointLights0color) as number;
-    this.pointLightsColorOffset = (this.loc(this.u_pointLights0color) as number) - this.pointLightsLoc;
-    this.pointLightsPositionOffset = (this.loc(this.u_pointLights0position) as number) - this.pointLightsLoc;
-    this.pointLightsIntensityOffset = this.has(this.u_pointLights0intensity)
-      ? (this.loc(this.u_pointLights0intensity) as number) - this.pointLightsLoc
-      : -1;
-    this.pointLightsSize = (this.loc(this.u_pointLights1color) as number) - this.pointLightsLoc;
-    if (this.pointLightsSize < 0) this.pointLightsSize = 0;
+    // this.pointLightsLoc = this.loc(this.u_pointLights0color) as number;
+    // this.pointLightsColorOffset = (this.loc(this.u_pointLights0color) as number) - this.pointLightsLoc;
+    // this.pointLightsPositionOffset = (this.loc(this.u_pointLights0position) as number) - this.pointLightsLoc;
+    // this.pointLightsIntensityOffset = this.has(this.u_pointLights0intensity)
+    //   ? (this.loc(this.u_pointLights0intensity) as number) - this.pointLightsLoc
+    //   : -1;
+    // this.pointLightsSize = (this.loc(this.u_pointLights1color) as number) - this.pointLightsLoc;
+    // if (this.pointLightsSize < 0) this.pointLightsSize = 0;
 
-    this.spotLightsLoc = this.loc(this.u_spotLights0color) as number;
-    this.spotLightsColorOffset = (this.loc(this.u_spotLights0color) as number) - this.spotLightsLoc;
-    this.spotLightsPositionOffset = (this.loc(this.u_spotLights0position) as number) - this.spotLightsLoc;
-    this.spotLightsDirectionOffset = (this.loc(this.u_spotLights0direction) as number) - this.spotLightsLoc;
-    this.spotLightsIntensityOffset = this.has(this.u_spotLights0intensity)
-      ? (this.loc(this.u_spotLights0intensity) as number) - this.spotLightsLoc
-      : -1;
-    this.spotLightsCutoffAngleOffset = (this.loc(this.u_spotLights0cutoffAngle) as number) - this.spotLightsLoc;
-    this.spotLightsExponentOffset = (this.loc(this.u_spotLights0exponent) as number) - this.spotLightsLoc;
-    this.spotLightsSize = (this.loc(this.u_spotLights1color) as number) - this.spotLightsLoc;
-    if (this.spotLightsSize < 0) this.spotLightsSize = 0;
+    // this.spotLightsLoc = this.loc(this.u_spotLights0color) as number;
+    // this.spotLightsColorOffset = (this.loc(this.u_spotLights0color) as number) - this.spotLightsLoc;
+    // this.spotLightsPositionOffset = (this.loc(this.u_spotLights0position) as number) - this.spotLightsLoc;
+    // this.spotLightsDirectionOffset = (this.loc(this.u_spotLights0direction) as number) - this.spotLightsLoc;
+    // this.spotLightsIntensityOffset = this.has(this.u_spotLights0intensity)
+    //   ? (this.loc(this.u_spotLights0intensity) as number) - this.spotLightsLoc
+    //   : -1;
+    // this.spotLightsCutoffAngleOffset = (this.loc(this.u_spotLights0cutoffAngle) as number) - this.spotLightsLoc;
+    // this.spotLightsExponentOffset = (this.loc(this.u_spotLights0exponent) as number) - this.spotLightsLoc;
+    // this.spotLightsSize = (this.loc(this.u_spotLights1color) as number) - this.spotLightsLoc;
+    // if (this.spotLightsSize < 0) this.spotLightsSize = 0;
   }
 
   private static and(mask: number, flag: number): boolean {
@@ -1085,23 +1129,20 @@ export class DefaultShader extends BaseShader {
     if (this.and(vertexMask, Usage.BiNormal)) prefix += '#define binormalFlag\n';
     if (this.and(vertexMask, Usage.Tangent)) prefix += '#define tangentFlag\n';
     if (this.and(vertexMask, Usage.Normal)) prefix += '#define normalFlag\n';
-    // if (
-    //   this.and(vertexMask, Usage.Normal) ||
-    //   this.and(vertexMask, Usage.Tangent | Usage.BiNormal)
-    // ) {
-    //   if (renderable.environment != null) {
-    //       prefix += "#define lightingFlag\n";
-    //       prefix += "#define ambientCubemapFlag\n";
-    //       prefix += "#define numDirectionalLights " + config.numDirectionalLights + "\n";
-    //       prefix += "#define numPointLights " + config.numPointLights + "\n";
-    //       prefix += "#define numSpotLights " + config.numSpotLights + "\n";
-    //       if (attributes.has(ColorAttribute.Fog)) {
-    //           prefix += "#define fogFlag\n";
-    //       }
-    //       if (renderable.environment.shadowMap != null) prefix += "#define shadowMapFlag\n";
-    //       if (attributes.has(CubemapAttribute.EnvironmentMap)) prefix += "#define environmentCubemapFlag\n";
-    //   }
-    // }
+    if (this.and(vertexMask, Usage.Normal) || this.and(vertexMask, Usage.Tangent | Usage.BiNormal)) {
+      if (renderable.environment != null) {
+        prefix += '#define lightingFlag\n';
+        prefix += '#define ambientCubemapFlag\n';
+        prefix += '#define numDirectionalLights ' + config.numDirectionalLights + '\n';
+        prefix += '#define numPointLights ' + config.numPointLights + '\n';
+        prefix += '#define numSpotLights ' + config.numSpotLights + '\n';
+        if (attributes.has(ColorAttribute.Fog)) {
+          prefix += '#define fogFlag\n';
+        }
+        // if (renderable.environment.shadowMap != null) prefix += "#define shadowMapFlag\n";
+        // if (attributes.has(CubemapAttribute.EnvironmentMap)) prefix += "#define environmentCubemapFlag\n";
+      }
+    }
     const n = renderable.meshPart.mesh.getVertexAttributes().size();
     for (let i = 0; i < n; i++) {
       const attr = renderable.meshPart.mesh.getVertexAttributes().get(i);
@@ -1153,13 +1194,12 @@ export class DefaultShader extends BaseShader {
   public canRender(renderable: Renderable): boolean {
     if (renderable.bones != null && renderable.bones.length > this.config.numBones) return false;
     const renderableMask = DefaultShader.combineAttributeMasks(renderable);
+
     return (
       this.attributesMask === (renderableMask | DefaultShader.optionalAttributes)
-      //     &&
-      //   this.vertexMask ==
-      //     renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked()
+      // && this.vertexMask == renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked() &&
+      // (renderable.environment != null) == this.lighting
     );
-    //&& (renderable.environment != null) === this.lighting;
   }
 
   private normalMatrix: Matrix3 = new Matrix3();
@@ -1169,8 +1209,7 @@ export class DefaultShader extends BaseShader {
   public begin(camera: PerspectiveCamera, context: RenderContext) {
     super.begin(camera, context);
 
-    // for (final DirectionalLight dirLight : directionalLights)
-    //     dirLight.set(0, 0, 0, 0, -1, 0);
+    for (const dirLight of this.directionalLights) dirLight.set(0, 0, 0, 0, -1, 0);
     // for (final PointLight pointLight : pointLights)
     //     pointLight.set(0, 0, 0, 0, 0, 0, 0);
     // for (final SpotLight spotLight : spotLights)
@@ -1230,31 +1269,42 @@ export class DefaultShader extends BaseShader {
   private tmpV1: Vector3 = new Vector3();
 
   protected bindLights(renderable: Renderable, attributes: Attributes) {
-    // const lights = renderable.environment;
-    // const dla = attributes.get(DirectionalLightsAttribute.class, DirectionalLightsAttribute.Type);
-    // const dirs = dla === null ? null : dla.lights;
+    const lights = renderable.environment;
+    const dla = attributes.get(DirectionalLightsAttribute.Type) as DirectionalLightsAttribute;
+    const dirs = dla === null ? null : dla.lights;
     // const pla = attributes.get(PointLightsAttribute.class, PointLightsAttribute.Type);
     // const points = pla === null ? null : pla.lights;
     // const sla = attributes.get(SpotLightsAttribute.class, SpotLightsAttribute.Type);
     // const spots = sla === null ? null : sla.lights;
-    // if (dirLightsLoc >= 0) {
-    //     for (let i = 0; i < directionalLights.length; i++) {
-    //         if (dirs === null || i >= dirs.size) {
-    //             if (lightsSet && directionalLights[i].color.r === 0 && directionalLights[i].color.g === 0
-    //                 && directionalLights[i].color.b === 0) continue;
-    //             directionalLights[i].color.set(0, 0, 0, 1);
-    //         } else if (lightsSet && directionalLights[i].equals(dirs.get(i)))
-    //             continue;
-    //         else
-    //             directionalLights[i].set(dirs.get(i));
-    //         const idx = dirLightsLoc + i * dirLightsSize;
-    //         program.setUniformf(idx + dirLightsColorOffset, directionalLights[i].color.r, directionalLights[i].color.g,
-    //             directionalLights[i].color.b);
-    //         program.setUniformf(idx + dirLightsDirectionOffset, directionalLights[i].direction.x,
-    //             directionalLights[i].direction.y, directionalLights[i].direction.z);
-    //         if (dirLightsSize <= 0) break;
-    //     }
-    // }
+    if (this.dirLightsLoc >= 0) {
+      for (let i = 0; i < this.directionalLights.length; i++) {
+        if (dirs === null || i >= dirs.length) {
+          if (
+            this.lightsSet &&
+            this.directionalLights[i].color.r === 0 &&
+            this.directionalLights[i].color.g === 0 &&
+            this.directionalLights[i].color.b === 0
+          )
+            continue;
+          this.directionalLights[i].color.set(0, 0, 0, 1);
+        } else if (this.lightsSet && this.directionalLights[i].equals(dirs[i])) continue;
+        else this.directionalLights[i].setFrom(dirs[i].color, dirs[i].direction);
+        const idx = this.dirLightsLoc + i * this.dirLightsSize;
+        this.program.setUniform3fWithLocation(
+          idx + this.dirLightsColorOffset,
+          this.directionalLights[i].color.r,
+          this.directionalLights[i].color.g,
+          this.directionalLights[i].color.b
+        );
+        this.program.setUniform3fWithLocation(
+          idx + this.dirLightsDirectionOffset,
+          this.directionalLights[i].direction.x,
+          this.directionalLights[i].direction.y,
+          this.directionalLights[i].direction.z
+        );
+        if (this.dirLightsSize <= 0) break;
+      }
+    }
     // if (pointLightsLoc >= 0) {
     //     for (let i = 0; i < pointLights.length; i++) {
     //         if (points === null || i >= points.size) {
@@ -1301,7 +1351,7 @@ export class DefaultShader extends BaseShader {
     //     set(u_shadowTexture, lights.shadowMap.getDepthMap());
     //     set(u_shadowPCFOffset, 1 / (2 * lights.shadowMap.getDepthMap().texture.getWidth()));
     // }
-    // lightsSet = true;
+    this.lightsSet = true;
   }
 
   public dispose() {

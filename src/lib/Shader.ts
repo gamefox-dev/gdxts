@@ -117,6 +117,10 @@ export class Shader implements Disposable, Restorable {
     this.context.gl.uniform3f(this.getUniformLocation(uniform), value, value2, value3);
   }
 
+  public setUniform3fWithLocation(location: WebGLUniformLocation, value: number, value2: number, value3: number) {
+    this.context.gl.uniform3f(location, value, value2, value3);
+  }
+
   public setUniform4f(uniform: string, value: number, value2: number, value3: number, value4: number) {
     this.context.gl.uniform4f(this.getUniformLocation(uniform), value, value2, value3, value4);
   }
@@ -137,6 +141,11 @@ export class Shader implements Disposable, Restorable {
     let gl = this.context.gl;
     this.tmp4x4.set(value);
     gl.uniformMatrix4fv(this.getUniformLocation(uniform), false, this.tmp4x4);
+  }
+
+  public setUniform3fv(uniform: string, value: number[]) {
+    let gl = this.context.gl;
+    gl.uniform3fv(this.getUniformLocation(uniform), value);
   }
 
   public getUniformLocation(uniform: string, pedantic: boolean = true): WebGLUniformLocation {

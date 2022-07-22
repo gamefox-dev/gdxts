@@ -2,6 +2,7 @@ import { Disposable, FlushablePool } from '../Utils';
 import { DefaultRenderableSorter } from './DefaultRenderableSorter';
 import { DefaultShaderProvider } from './DefaultShaderProvider';
 import { DefaultTextureBinder } from './DefaultTextureBinder';
+import { Environment } from './environment/Environment';
 import { ModelInstance } from './ModelInstance';
 import { PerspectiveCamera } from './PerspectiveCamera';
 import { Renderable } from './Renderable';
@@ -11,7 +12,7 @@ import { Shader3D } from './shaders/Shader3D';
 class RenderablePool extends FlushablePool<Renderable> {
   obtain(): Renderable {
     const renderable = super.obtain();
-    //renderable.environment = null;
+    renderable.environment = null;
     renderable.material = null;
     renderable.meshPart.set('', null, 0, 0, 0);
     renderable.shader = null;
@@ -96,16 +97,19 @@ export class ModelBatch implements Disposable {
     this.camera = null;
   }
 
-  public render(renderable: Renderable) {
+  public renderWithRenderable(renderable: Renderable) {
     renderable.shader = this.shaderProvider.getShader(renderable);
     this.renderables.push(renderable);
   }
 
-  public renderWithModelInstance(renderableProvider: ModelInstance) {
+  public render(renderableProvider: ModelInstance, environment: Environment = null) {
     const offset = this.renderables.length;
     renderableProvider.getRenderables(this.renderables, this.renderablesPool);
     for (let i = offset; i < this.renderables.length; i++) {
       const renderable = this.renderables[i];
+      if (environment !== null) {
+        renderable.environment = environment;
+      }
       renderable.shader = this.shaderProvider.getShader(renderable);
     }
   }

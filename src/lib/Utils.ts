@@ -181,6 +181,11 @@ export class Color {
     return ((255 * this.a) << 24) | ((255 * this.b) << 16) | ((255 * this.g) << 8) | (255 * this.r);
   }
 
+  equals(other: Color): boolean {
+    if (this === other) return true;
+    return this.toIntBits() === other.toIntBits();
+  }
+
   static rgba8888ToColor(color: Color, value: number) {
     color.r = ((value & 0xff000000) >>> 24) / 255;
     color.g = ((value & 0x00ff0000) >>> 16) / 255;
