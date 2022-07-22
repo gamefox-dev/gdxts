@@ -2,7 +2,7 @@ import { Matrix4 } from '../../Matrix4';
 import { Vector3 } from '../../Vector3';
 import { BoundingBox } from '../BoundingBox';
 import { NodePart } from './NodePart';
-import { Quaternion } from '../Quaternion';
+import { Quaternion } from '../../Quaternion';
 
 export class Node {
   public id: string;

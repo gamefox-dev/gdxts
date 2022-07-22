@@ -1,4 +1,4 @@
-import { Attribute } from "./Attribute";
+import { Attribute } from './Attribute';
 
 export class Attributes {
   protected mask: number;
@@ -12,30 +12,30 @@ export class Attributes {
   // 	}
   //  }
 
-  getMask(): number {
+  public getMask(): number {
     return this.mask;
   }
 
-  get(type: number): Attribute {
+  public get(type: number): Attribute {
     for (const att of this.attributes) {
       if (att.type === type) return att;
     }
     return null;
   }
 
-  getArrayAttribute(out: Attribute[], type: number): Attribute[] {
+  public getArrayAttribute(out: Attribute[], type: number): Attribute[] {
     for (const att of this.attributes) {
       if (att.type === type) out.push(att);
     }
     return out;
   }
 
-  clear() {
+  public clear() {
     this.mask = 0;
     this.attributes = [];
   }
 
-  size() {
+  public size() {
     return this.attributes.length;
   }
 
@@ -47,7 +47,7 @@ export class Attributes {
     this.mask &= ~mask;
   }
 
-  set(attribute: Attribute) {
+  public set(attribute: Attribute) {
     const idx = this.indexOf(attribute.type);
     if (idx < 0) {
       this.enable(attribute.type);
@@ -59,63 +59,52 @@ export class Attributes {
     //sort(); // FIXME: See #4186
   }
 
-  getAttributes(): Attribute[] {
+  public getAttributes(): Attribute[] {
     return this.attributes;
   }
 
-  setAttributes(attributes: Attribute[]) {
+  public setAttributes(attributes: Attribute[]) {
     for (const att of attributes) {
       this.set(att);
     }
   }
 
-  has(type: number) {
+  public has(type: number) {
     return type !== 0 && (this.mask & type) === type;
   }
 
-  indexOf(type: number): number {
-    if (this.has(type))
-      for (let i = 0; i < this.attributes.length; i++)
-        if (this.attributes[i].type === type) return i;
+  public indexOf(type: number): number {
+    if (this.has(type)) for (let i = 0; i < this.attributes.length; i++) if (this.attributes[i].type === type) return i;
     return -1;
   }
 
-  set2Attributes(attribute1: Attribute, attribute2: Attribute) {
+  public set2Attributes(attribute1: Attribute, attribute2: Attribute) {
     this.set(attribute1);
     this.set(attribute2);
   }
 
-  set3Attributes(
-    attribute1: Attribute,
-    attribute2: Attribute,
-    attribute3: Attribute
-  ) {
+  public set3Attributes(attribute1: Attribute, attribute2: Attribute, attribute3: Attribute) {
     this.set(attribute1);
     this.set(attribute2);
     this.set(attribute3);
   }
 
-  set4Attributes(
-    attribute1: Attribute,
-    attribute2: Attribute,
-    attribute3: Attribute,
-    attribute4: Attribute
-  ) {
+  public set4Attributes(attribute1: Attribute, attribute2: Attribute, attribute3: Attribute, attribute4: Attribute) {
     this.set(attribute1);
     this.set(attribute2);
     this.set(attribute3);
     this.set(attribute4);
   }
 
-  setArrayAttribute(attributes: Attribute[]) {
+  public setArrayAttribute(attributes: Attribute[]) {
     for (const attr of attributes) this.set(attr);
   }
 
-  setAttribute(attribute: Attribute) {
+  public setAttribute(attribute: Attribute) {
     this.set(attribute);
   }
 
-  remove(mask: number) {
+  public remove(mask: number) {
     for (let i = this.attributes.length - 1; i >= 0; i--) {
       const type = this.attributes[i].type;
       if ((mask & type) === type) {
@@ -127,7 +116,7 @@ export class Attributes {
     //sort(); // FIXME: See #4186
   }
 
-  compare(arg0: Attribute, arg1: Attribute): number {
+  public compare(arg0: Attribute, arg1: Attribute): number {
     return arg0.type - arg1.type;
   }
 
@@ -137,8 +126,7 @@ export class Attributes {
     if (!compareValues) return true;
     // sort();
     // other.sort();
-    for (let i = 0; i < this.attributes.length; i++)
-      if (!this.attributes[i].equals(other.attributes[i])) return false;
+    for (let i = 0; i < this.attributes.length; i++) if (!this.attributes[i].equals(other.attributes[i])) return false;
     return true;
   }
 

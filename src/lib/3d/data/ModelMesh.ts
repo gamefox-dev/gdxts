@@ -1,5 +1,5 @@
-import { VertexAttribute } from "../VertexAttribute";
-import { ModelMeshPart } from "./ModelMeshPart";
+import { VertexAttribute } from '../attributes/VertexAttribute';
+import { ModelMeshPart } from './ModelMeshPart';
 
 export class ModelMesh {
   public id: string;

@@ -6,7 +6,7 @@ import { ModelInstance } from './ModelInstance';
 import { PerspectiveCamera } from './PerspectiveCamera';
 import { Renderable } from './Renderable';
 import { RenderContext } from './RenderContext';
-import { Shader3D } from './Shader3D';
+import { Shader3D } from './shaders/Shader3D';
 
 class RenderablePool extends FlushablePool<Renderable> {
   obtain(): Renderable {
@@ -43,35 +43,35 @@ export class ModelBatch implements Disposable {
     this.shaderProvider = this.shaderProvider == null ? new DefaultShaderProvider(gl) : this.shaderProvider;
   }
 
-  begin(cam: PerspectiveCamera) {
+  public begin(cam: PerspectiveCamera) {
     if (this.camera != null) throw new Error('Call end() first.');
     this.camera = cam;
     if (this.ownContext) this.context.begin();
   }
 
-  setCamera(cam: PerspectiveCamera) {
+  public setCamera(cam: PerspectiveCamera) {
     if (this.camera == null) throw new Error('Call begin() first.');
     if (this.renderables.length > 0) this.flush();
     this.camera = cam;
   }
 
-  getCamera(): PerspectiveCamera {
+  public getCamera(): PerspectiveCamera {
     return this.camera;
   }
 
-  ownsRenderContext(): boolean {
+  public ownsRenderContext(): boolean {
     return this.ownContext;
   }
 
-  getRenderContext(): RenderContext {
+  public getRenderContext(): RenderContext {
     return this.context;
   }
 
-  getRenderableSorter(): DefaultRenderableSorter {
+  public getRenderableSorter(): DefaultRenderableSorter {
     return this.sorter;
   }
 
-  flush() {
+  public flush() {
     this.sorter.sort(this.camera, this.renderables);
     let currentShader: Shader3D = null;
     for (let i = 0; i < this.renderables.length; i++) {

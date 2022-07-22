@@ -1,4 +1,4 @@
-import { DefaultTextureBinder } from "./DefaultTextureBinder";
+import { DefaultTextureBinder } from './DefaultTextureBinder';
 
 export class RenderContext {
   /** used to bind textures **/
@@ -18,7 +18,7 @@ export class RenderContext {
     this.gl = DefaultTextureBinder.gl;
   }
 
-  begin() {
+  public begin() {
     this.gl.disable(this.gl.DEPTH_TEST);
     this.depthFunc = 0;
     this.gl.depthMask(true);
@@ -30,7 +30,7 @@ export class RenderContext {
     this.textureBinder.begin();
   }
 
-  end() {
+  public end() {
     if (this.depthFunc !== 0) this.gl.disable(this.gl.DEPTH_TEST);
     if (!this.depthMask) this.gl.depthMask(true);
     if (this.blending) this.gl.disable(this.gl.BLEND);
@@ -38,16 +38,11 @@ export class RenderContext {
     this.textureBinder.end();
   }
 
-  setDepthMask(depthMask: boolean) {
-    if (this.depthMask !== depthMask)
-      this.gl.depthMask((this.depthMask = depthMask));
+  public setDepthMask(depthMask: boolean) {
+    if (this.depthMask !== depthMask) this.gl.depthMask((this.depthMask = depthMask));
   }
 
-  setDepthTest(
-    depthFunction: number,
-    depthRangeNear: number,
-    depthRangeFar: number
-  ) {
+  public setDepthTest(depthFunction: number, depthRangeNear: number, depthRangeFar: number) {
     const wasEnabled = this.depthFunc !== 0;
     const enabled = depthFunction !== 0;
     if (this.depthFunc !== depthFunction) {
@@ -58,44 +53,29 @@ export class RenderContext {
       } else this.gl.disable(this.gl.DEPTH_TEST);
     }
     if (enabled) {
-      if (!wasEnabled || this.depthFunc !== depthFunction)
-        this.gl.depthFunc((this.depthFunc = depthFunction));
-      if (
-        !wasEnabled ||
-        this.depthRangeNear !== depthRangeNear ||
-        this.depthRangeFar !== depthRangeFar
-      )
-        this.gl.depthRange(
-          (this.depthRangeNear = depthRangeNear),
-          (this.depthRangeFar = depthRangeFar)
-        );
+      if (!wasEnabled || this.depthFunc !== depthFunction) this.gl.depthFunc((this.depthFunc = depthFunction));
+      if (!wasEnabled || this.depthRangeNear !== depthRangeNear || this.depthRangeFar !== depthRangeFar)
+        this.gl.depthRange((this.depthRangeNear = depthRangeNear), (this.depthRangeFar = depthRangeFar));
     }
   }
 
-  setBlending(enabled: boolean, sFactor: number, dFactor: number) {
+  public setBlending(enabled: boolean, sFactor: number, dFactor: number) {
     if (enabled !== this.blending) {
       this.blending = enabled;
       if (enabled) this.gl.enable(this.gl.BLEND);
       else this.gl.disable(this.gl.BLEND);
     }
-    if (
-      enabled &&
-      (this.blendSFactor !== sFactor || this.blendDFactor !== dFactor)
-    ) {
+    if (enabled && (this.blendSFactor !== sFactor || this.blendDFactor !== dFactor)) {
       this.gl.blendFunc(sFactor, dFactor);
       this.blendSFactor = sFactor;
       this.blendDFactor = dFactor;
     }
   }
 
-  setCullFace(face: number) {
+  public setCullFace(face: number) {
     if (face !== this.cullFace) {
       this.cullFace = face;
-      if (
-        face === this.gl.FRONT ||
-        face === this.gl.BACK ||
-        face === this.gl.FRONT_AND_BACK
-      ) {
+      if (face === this.gl.FRONT || face === this.gl.BACK || face === this.gl.FRONT_AND_BACK) {
         this.gl.enable(this.gl.CULL_FACE);
         this.gl.cullFace(face);
       } else this.gl.disable(this.gl.CULL_FACE);

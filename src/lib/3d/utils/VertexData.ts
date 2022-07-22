@@ -1,6 +1,6 @@
 import { Shader } from '../../Shader';
 import { Disposable } from '../../Utils';
-import { VertexAttributes } from '../VertexAttributes';
+import { VertexAttributes } from '../attributes/VertexAttributes';
 
 export interface VertexData extends Disposable {
   getNumVertices(): number;

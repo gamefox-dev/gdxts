@@ -2,8 +2,8 @@ import { createStage, createViewport, createGameLoop, Game, Color } from './lib'
 import { Material } from './lib/3d/Material';
 import { PerspectiveCamera } from './lib/3d/PerspectiveCamera';
 import { ModelBuilder } from './lib/3d/utils/ModelBuilder';
-import { ColorAttribute } from './lib/3d/ColorAttribute';
-import { Usage } from './lib/3d/VertexAttribute';
+import { ColorAttribute } from './lib/3d/attributes/ColorAttribute';
+import { Usage } from './lib/3d/attributes/VertexAttribute';
 import { ModelInstance } from './lib/3d/ModelInstance';
 import { ModelBatch } from './lib/3d/ModelBatch';
 
@@ -16,7 +16,11 @@ const init = async () => {
   });
 
   const gl = viewport.getContext();
-  const cam = new PerspectiveCamera(67, 500, 1000);
+  const cam = new PerspectiveCamera(67, 640, 480);
+  cam.position.set(10, 10, 10);
+  cam.lookAt(0, 0, 0);
+  cam.near = 1;
+  cam.far = 300;
   cam.update();
 
   const modelBatch = new ModelBatch(gl);

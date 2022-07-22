@@ -14,13 +14,13 @@ export class VertexAttributes {
     this.vertexSize = this.calculateOffsets();
   }
 
-  getOffset(usage: number, defaultIfNotFound: number = 0) {
+  public getOffset(usage: number, defaultIfNotFound: number = 0) {
     const vertexAttribute = this.findByUsage(usage);
     if (vertexAttribute == null) return defaultIfNotFound;
     return vertexAttribute.offset / 4;
   }
 
-  findByUsage(usage: number): VertexAttribute {
+  public findByUsage(usage: number): VertexAttribute {
     for (const att of this.attributes) {
       if (att.usage === usage) return att;
     }
@@ -37,15 +37,15 @@ export class VertexAttributes {
     return count;
   }
 
-  size(): number {
+  public size(): number {
     return this.attributes.length;
   }
 
-  get(index: number): VertexAttribute {
+  public get(index: number): VertexAttribute {
     return this.attributes[index];
   }
 
-  toString(): string {
+  public toString(): string {
     let returnValue = '[';
     for (let i = 0; i < this.attributes.length; i++) {
       returnValue += '(';

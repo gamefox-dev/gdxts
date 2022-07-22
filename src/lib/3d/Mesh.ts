@@ -5,11 +5,11 @@ import { Vector2 } from '../Vector2';
 import { Vector3 } from '../Vector3';
 import { BoundingBox } from './BoundingBox';
 import { GL20 } from './GL20';
-import { Matrix3 } from './Matrix3';
+import { Matrix3 } from '../Matrix3';
 import { IndexBufferObject } from './utils/IndexBufferObject';
 import { VertexBufferObject } from './utils/VertexBufferObject';
-import { Usage, VertexAttribute } from './VertexAttribute';
-import { VertexAttributes } from './VertexAttributes';
+import { Usage, VertexAttribute } from './attributes/VertexAttribute';
+import { VertexAttributes } from './attributes/VertexAttributes';
 
 export enum VertexDataType {
   VertexArray,

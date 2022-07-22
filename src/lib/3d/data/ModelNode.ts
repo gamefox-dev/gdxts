@@ -1,6 +1,6 @@
-import { Vector3 } from "../../Vector3";
-import { Quaternion } from "../Quaternion";
-import { ModelNodePart } from "./ModelNodePart";
+import { Vector3 } from '../../Vector3';
+import { Quaternion } from '../../Quaternion';
+import { ModelNodePart } from './ModelNodePart';
 
 export class ModelNode {
   public id: string;

@@ -1,5 +1,5 @@
-import { Matrix4 } from "../Matrix4";
-import { Vector3 } from "../Vector3";
+import { Matrix4 } from '../Matrix4';
+import { Vector3 } from '../Vector3';
 
 export class BoundingBox {
   tmpVector = new Vector3();
@@ -8,85 +8,83 @@ export class BoundingBox {
   cnt = new Vector3();
   dim = new Vector3();
 
-  getCenter(out: Vector3) {
+  public getCenter(out: Vector3) {
     return out.set(this.cnt.x, this.cnt.y, this.cnt.z);
   }
 
-  getCenterX() {
+  public getCenterX() {
     return this.cnt.x;
   }
 
-  getCenterY() {
+  public getCenterY() {
     return this.cnt.y;
   }
 
-  getCenterZ() {
+  public getCenterZ() {
     return this.cnt.z;
   }
 
-  getCorner000(out: Vector3) {
+  public getCorner000(out: Vector3) {
     return out.set(this.min.x, this.min.y, this.min.z);
   }
 
-  getCorner001(out: Vector3) {
+  public getCorner001(out: Vector3) {
     return out.set(this.min.x, this.min.y, this.max.z);
   }
 
-  getCorner010(out: Vector3) {
+  public getCorner010(out: Vector3) {
     return out.set(this.min.x, this.max.y, this.min.z);
   }
 
-  getCorner011(out: Vector3) {
+  public getCorner011(out: Vector3) {
     return out.set(this.min.x, this.max.y, this.max.z);
   }
 
-  getCorner100(out: Vector3) {
+  public getCorner100(out: Vector3) {
     return out.set(this.max.x, this.min.y, this.min.z);
   }
 
-  getCorner101(out: Vector3) {
+  public getCorner101(out: Vector3) {
     return out.set(this.max.x, this.min.y, this.max.z);
   }
 
-  getCorner110(out: Vector3) {
+  public getCorner110(out: Vector3) {
     return out.set(this.max.x, this.max.y, this.min.z);
   }
 
-  getCorner111(out: Vector3) {
+  public getCorner111(out: Vector3) {
     return out.set(this.max.x, this.max.y, this.max.z);
   }
 
-  getDimensions(out: Vector3) {
+  public getDimensions(out: Vector3) {
     return out.set(this.dim.x, this.dim.y, this.dim.z);
   }
 
-  getWidth() {
+  public getWidth() {
     return this.dim.x;
   }
 
-  getHeight() {
+  public getHeight() {
     return this.dim.y;
   }
 
-  getDepth() {
+  public getDepth() {
     return this.dim.z;
   }
 
-  getMin(out: Vector3) {
+  public getMin(out: Vector3) {
     return out.set(this.min.x, this.min.y, this.min.z);
   }
 
-  /** @param out The {@link Vector3} to receive the maximum values.
-   * @return The vector specified with the out argument */
-  getMax(out: Vector3) {
+  public getMax(out: Vector3) {
     return out.set(this.max.x, this.max.y, this.max.z);
   }
 
-  setByBoundingBox(bounds: BoundingBox): BoundingBox {
+  public setByBoundingBox(bounds: BoundingBox): BoundingBox {
     return this.setByMinMax(bounds.min, bounds.max);
   }
 
-  setByMinMax(minimum: Vector3, maximum: Vector3): BoundingBox {
+  public setByMinMax(minimum: Vector3, maximum: Vector3): BoundingBox {
     this.min.set(
       minimum.x < maximum.x ? minimum.x : maximum.x,
       minimum.y < maximum.y ? minimum.y : maximum.y,
@@ -101,61 +99,41 @@ export class BoundingBox {
     return this;
   }
 
-  update() {
+  public update() {
     this.cnt.set(this.min.x, this.min.y, this.min.z).add(this.max).scale(0.5);
     this.dim.set(this.max.x, this.max.y, this.max.z).sub(this.min);
   }
 
-  setByArrayVector3(points: Vector3[]) {
+  public setByArrayVector3(points: Vector3[]) {
     this.inf();
     for (const l_point of points) this.extByVector3(l_point);
     return this;
   }
 
-  inf(): BoundingBox {
-    this.min.set(
-      Number.POSITIVE_INFINITY,
-      Number.POSITIVE_INFINITY,
-      Number.POSITIVE_INFINITY
-    );
-    this.max.set(
-      Number.NEGATIVE_INFINITY,
-      Number.NEGATIVE_INFINITY,
-      Number.NEGATIVE_INFINITY
-    );
+  public inf(): BoundingBox {
+    this.min.set(Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY, Number.POSITIVE_INFINITY);
+    this.max.set(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
     this.cnt.set(0, 0, 0);
     this.dim.set(0, 0, 0);
     return this;
   }
 
-  extByVector3(point: Vector3): BoundingBox {
+  public extByVector3(point: Vector3): BoundingBox {
     return this.setByMinMax(
-      this.min.set(
-        this.MIN(this.min.x, point.x),
-        this.MIN(this.min.y, point.y),
-        this.MIN(this.min.z, point.z)
-      ),
-      this.max.set(
-        Math.max(this.max.x, point.x),
-        Math.max(this.max.y, point.y),
-        Math.max(this.max.z, point.z)
-      )
+      this.min.set(this.MIN(this.min.x, point.x), this.MIN(this.min.y, point.y), this.MIN(this.min.z, point.z)),
+      this.max.set(Math.max(this.max.x, point.x), Math.max(this.max.y, point.y), Math.max(this.max.z, point.z))
     );
   }
 
-  clr(): BoundingBox {
+  public clr(): BoundingBox {
     return this.setByMinMax(this.min.set(0, 0, 0), this.max.set(0, 0, 0));
   }
 
-  isValid(): boolean {
-    return (
-      this.min.x <= this.max.x &&
-      this.min.y <= this.max.y &&
-      this.min.z <= this.max.z
-    );
+  public isValid(): boolean {
+    return this.min.x <= this.max.x && this.min.y <= this.max.y && this.min.z <= this.max.z;
   }
 
-  extByBoundingBox(a_bounds: BoundingBox): BoundingBox {
+  public extByBoundingBox(a_bounds: BoundingBox): BoundingBox {
     return this.setByMinMax(
       this.min.set(
         this.MIN(this.min.x, a_bounds.min.x),
@@ -170,7 +148,7 @@ export class BoundingBox {
     );
   }
 
-  extByRadius(center: Vector3, radius: number): BoundingBox {
+  public extByRadius(center: Vector3, radius: number): BoundingBox {
     return this.setByMinMax(
       this.min.set(
         this.MIN(this.min.x, center.x - radius),
@@ -185,54 +163,19 @@ export class BoundingBox {
     );
   }
 
-  extByBoundingBoxAndTransform(
-    bounds: BoundingBox,
-    transform: Matrix4
-  ): BoundingBox {
-    this.extByVector3(
-      this.tmpVector
-        .set(bounds.min.x, bounds.min.y, bounds.min.z)
-        .multiply(transform)
-    );
-    this.extByVector3(
-      this.tmpVector
-        .set(bounds.min.x, bounds.min.y, bounds.max.z)
-        .multiply(transform)
-    );
-    this.extByVector3(
-      this.tmpVector
-        .set(bounds.min.x, bounds.max.y, bounds.min.z)
-        .multiply(transform)
-    );
-    this.extByVector3(
-      this.tmpVector
-        .set(bounds.min.x, bounds.max.y, bounds.max.z)
-        .multiply(transform)
-    );
-    this.extByVector3(
-      this.tmpVector
-        .set(bounds.max.x, bounds.min.y, bounds.min.z)
-        .multiply(transform)
-    );
-    this.extByVector3(
-      this.tmpVector
-        .set(bounds.max.x, bounds.min.y, bounds.max.z)
-        .multiply(transform)
-    );
-    this.extByVector3(
-      this.tmpVector
-        .set(bounds.max.x, bounds.max.y, bounds.min.z)
-        .multiply(transform)
-    );
-    this.extByVector3(
-      this.tmpVector
-        .set(bounds.max.x, bounds.max.y, bounds.max.z)
-        .multiply(transform)
-    );
+  public extByBoundingBoxAndTransform(bounds: BoundingBox, transform: Matrix4): BoundingBox {
+    this.extByVector3(this.tmpVector.set(bounds.min.x, bounds.min.y, bounds.min.z).multiply(transform));
+    this.extByVector3(this.tmpVector.set(bounds.min.x, bounds.min.y, bounds.max.z).multiply(transform));
+    this.extByVector3(this.tmpVector.set(bounds.min.x, bounds.max.y, bounds.min.z).multiply(transform));
+    this.extByVector3(this.tmpVector.set(bounds.min.x, bounds.max.y, bounds.max.z).multiply(transform));
+    this.extByVector3(this.tmpVector.set(bounds.max.x, bounds.min.y, bounds.min.z).multiply(transform));
+    this.extByVector3(this.tmpVector.set(bounds.max.x, bounds.min.y, bounds.max.z).multiply(transform));
+    this.extByVector3(this.tmpVector.set(bounds.max.x, bounds.max.y, bounds.min.z).multiply(transform));
+    this.extByVector3(this.tmpVector.set(bounds.max.x, bounds.max.y, bounds.max.z).multiply(transform));
     return this;
   }
 
-  multiply(transform: Matrix4): BoundingBox {
+  public multiply(transform: Matrix4): BoundingBox {
     const x0 = this.min.x,
       y0 = this.min.y,
       z0 = this.min.z,
@@ -251,7 +194,7 @@ export class BoundingBox {
     return this;
   }
 
-  containsBoundingBox(b: BoundingBox): boolean {
+  public containsBoundingBox(b: BoundingBox): boolean {
     return (
       !this.isValid() ||
       (this.min.x <= b.min.x &&
@@ -263,7 +206,7 @@ export class BoundingBox {
     );
   }
 
-  intersects(b: BoundingBox) {
+  public intersects(b: BoundingBox) {
     if (!this.isValid()) return false;
 
     // test using SAT (separating axis theorem)
@@ -280,7 +223,7 @@ export class BoundingBox {
     return lx <= sumx && ly <= sumy && lz <= sumz;
   }
 
-  contains(v: Vector3) {
+  public contains(v: Vector3) {
     return (
       this.min.x <= v.x &&
       this.max.x >= v.x &&
@@ -291,30 +234,22 @@ export class BoundingBox {
     );
   }
 
-  toString(): string {
-    return "[" + this.min + "|" + this.max + "]";
+  public toString(): string {
+    return '[' + this.min + '|' + this.max + ']';
   }
 
-  ext(x: number, y: number, z: number): BoundingBox {
+  public ext(x: number, y: number, z: number): BoundingBox {
     return this.setByMinMax(
-      this.min.set(
-        this.MIN(this.min.x, x),
-        this.MIN(this.min.y, y),
-        this.MIN(this.min.z, z)
-      ),
-      this.max.set(
-        this.MAX(this.max.x, x),
-        this.MAX(this.max.y, y),
-        this.MAX(this.max.z, z)
-      )
+      this.min.set(this.MIN(this.min.x, x), this.MIN(this.min.y, y), this.MIN(this.min.z, z)),
+      this.max.set(this.MAX(this.max.x, x), this.MAX(this.max.y, y), this.MAX(this.max.z, z))
     );
   }
 
-  MIN(a: number, b: number) {
+  public MIN(a: number, b: number) {
     return a > b ? b : a;
   }
 
-  MAX(a: number, b: number) {
+  public MAX(a: number, b: number) {
     return a > b ? a : b;
   }
 }

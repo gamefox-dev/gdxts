@@ -1,4 +1,4 @@
-import { Matrix3 } from "./3d/Matrix3";
+import { Matrix3 } from './Matrix3';
 
 export class Vector2 {
   x = 0;

@@ -1,6 +1,6 @@
 import { Shader } from '../../Shader';
 import { GL20 } from '../GL20';
-import { VertexAttributes } from '../VertexAttributes';
+import { VertexAttributes } from '../attributes/VertexAttributes';
 
 export class VertexBufferObject {
   private attributes: VertexAttributes;
@@ -99,7 +99,7 @@ export class VertexBufferObject {
       }
     } else {
       for (let i = 0; i < numAttributes; i++) {
-        const attribute = this.attributes[i];
+        const attribute = this.attributes.get(i);
         const location = locations[i];
         if (location < 0) continue;
         this.gl.enableVertexAttribArray(location);

@@ -1,16 +1,17 @@
-import { Matrix4 } from '../Matrix4';
-import { Mesh } from './Mesh';
-import { Shader } from '../Shader';
-import { Texture } from '../Texture';
-import { Color } from '../Utils';
-import { Vector2 } from '../Vector2';
-import { Vector3 } from '../Vector3';
-import { Attributes } from './Attributes';
-import { Matrix3 } from './Matrix3';
-import { PerspectiveCamera } from './PerspectiveCamera';
-import { Renderable } from './Renderable';
-import { RenderContext } from './RenderContext';
+import { Matrix4 } from '../../Matrix4';
+import { Mesh } from '../Mesh';
+import { Shader } from '../../Shader';
+import { Texture } from '../../Texture';
+import { Color } from '../../Utils';
+import { Vector2 } from '../../Vector2';
+import { Vector3 } from '../../Vector3';
+import { Attributes } from '../attributes/Attributes';
+import { Matrix3 } from '../../Matrix3';
+import { PerspectiveCamera } from '../PerspectiveCamera';
+import { Renderable } from '../Renderable';
+import { RenderContext } from '../RenderContext';
 import { Shader3D } from './Shader3D';
+import { VertexAttributes } from '../attributes/VertexAttributes';
 
 export interface Validator {
   validate(shader: BaseShader, inputID: number, renderable: Renderable): boolean;
@@ -75,6 +76,7 @@ export class BaseShader implements Shader3D {
   private locations: WebGLUniformLocation[];
   private globalUniforms: WebGLUniformLocation[] = [];
   private localUniforms: WebGLUniformLocation[] = [];
+  private attributes: Map<number, number> = new Map<number, number>();
 
   program: Shader;
   context: RenderContext;
@@ -130,6 +132,15 @@ export class BaseShader implements Shader3D {
         this.validators.splice(i, 0, null);
       }
     }
+    if (renderable != null) {
+      const attrs = renderable.meshPart.mesh.getVertexAttributes();
+      const c = attrs.size();
+      for (let i = 0; i < c; i++) {
+        const attr = attrs.get(i);
+        const location = program.getAttributeLocation(attr.alias);
+        if (location >= 0) this.attributes.set(attr.getKey(), location);
+      }
+    }
   }
 
   begin(camera: PerspectiveCamera, context: RenderContext) {
@@ -163,9 +174,21 @@ export class BaseShader implements Shader3D {
     if (this.currentMesh !== renderable.meshPart.mesh) {
       if (this.currentMesh != null) this.currentMesh.unbind(this.program);
       this.currentMesh = renderable.meshPart.mesh;
-      this.currentMesh.bind(this.program);
+      this.currentMesh.bind(this.program, this.getAttributeLocations(renderable.meshPart.mesh.getVertexAttributes()));
     }
-    renderable.meshPart.render(this.program);
+    renderable.meshPart.render(this.program, false);
+  }
+
+  private tempArray: number[] = [];
+  private getAttributeLocations(attrs: VertexAttributes): number[] {
+    this.tempArray.length = 0;
+    const n = attrs.size();
+    for (let i = 0; i < n; i++) {
+      let number = this.attributes.get(attrs.get(i).getKey());
+      if (number === undefined || number === null) number = -1;
+      this.tempArray.push(number);
+    }
+    return this.tempArray;
   }
 
   public end() {

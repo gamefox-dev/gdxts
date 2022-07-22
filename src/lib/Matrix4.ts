@@ -1,6 +1,6 @@
-import { Quaternion } from "./3d/Quaternion";
-import { MathUtils } from "./Utils";
-import { Vector3 } from "./Vector3";
+import { Quaternion } from './Quaternion';
+import { MathUtils } from './Utils';
+import { Vector3 } from './Vector3';
 
 export const M00 = 0;
 export const M01 = 4;
@@ -43,6 +43,7 @@ export class Matrix4 {
   private static xAxis: Vector3 = null;
   private static yAxis: Vector3 = null;
   private static zAxis: Vector3 = null;
+  private static tempVec: Vector3 = null;
   private static tmpMatrix = new Matrix4();
 
   constructor() {
@@ -58,11 +59,7 @@ export class Matrix4 {
     return this;
   }
 
-  setFromTranslationRotation(
-    position: Vector3,
-    orientation: Quaternion,
-    scale: Vector3
-  ) {
+  setFromTranslationRotation(position: Vector3, orientation: Quaternion, scale: Vector3) {
     const xs = orientation.x * 2,
       ys = orientation.y * 2,
       zs = orientation.z * 2;
@@ -533,6 +530,14 @@ export class Matrix4 {
     Matrix4.tmpMatrix.values[M23] = -position.z;
     this.multiply(Matrix4.tmpMatrix);
 
+    return this;
+  }
+
+  setToLookAt(position: Vector3, target: Vector3, up: Vector3) {
+    if (Matrix4.tempVec === null) Matrix4.tempVec = new Vector3();
+    let vec = Matrix4.tempVec;
+    vec.setFrom(target).sub(position);
+    this.lookAt(position, Matrix4.tempVec, up);
     return this;
   }
 

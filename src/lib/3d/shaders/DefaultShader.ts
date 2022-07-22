@@ -1,19 +1,19 @@
-import { Matrix4 } from '../Matrix4';
-import { Shader } from '../Shader';
-import { Vector3 } from '../Vector3';
-import { Attributes } from './Attributes';
+import { Matrix4 } from '../../Matrix4';
+import { Shader } from '../../Shader';
+import { Vector3 } from '../../Vector3';
+import { Attributes } from '../attributes/Attributes';
 import { BaseShader, GlobalSetter, LocalSetter, Uniform } from './BaseShader';
-import { BlendingAttribute } from './BlendingAttribute';
-import { ColorAttribute } from './ColorAttribute';
-import { FloatAttribute } from './FloatAttribute';
-import { GL20 } from './GL20';
-import { IntAttribute } from './IntAttribute';
-import { Matrix3 } from './Matrix3';
-import { PerspectiveCamera } from './PerspectiveCamera';
-import { Renderable } from './Renderable';
-import { RenderContext } from './RenderContext';
-import { TextureAttribute } from './TextureAttribute';
-import { Usage } from './VertexAttribute';
+import { BlendingAttribute } from '../attributes/BlendingAttribute';
+import { ColorAttribute } from '../attributes/ColorAttribute';
+import { FloatAttribute } from '../attributes/FloatAttribute';
+import { GL20 } from '../GL20';
+import { IntAttribute } from '../attributes/IntAttribute';
+import { Matrix3 } from '../../Matrix3';
+import { PerspectiveCamera } from '../PerspectiveCamera';
+import { Renderable } from '../Renderable';
+import { RenderContext } from '../RenderContext';
+import { TextureAttribute } from '../attributes/TextureAttribute';
+import { Usage } from '../attributes/VertexAttribute';
 
 export class Config {
   vertexShader: string = null;

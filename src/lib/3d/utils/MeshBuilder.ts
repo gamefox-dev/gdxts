@@ -8,11 +8,11 @@ import { Vector3 } from '../../Vector3';
 import { BoundingBox } from '../BoundingBox';
 import { VertexInfo } from '../data/VertexInfo';
 import { GL20 } from '../GL20';
-import { Matrix3 } from '../Matrix3';
+import { Matrix3 } from '../../Matrix3';
 import { Mesh } from '../Mesh';
 import { MeshPart } from '../model/MeshPart';
-import { Usage, VertexAttribute } from '../VertexAttribute';
-import { VertexAttributes } from '../VertexAttributes';
+import { Usage, VertexAttribute } from '../attributes/VertexAttribute';
+import { VertexAttributes } from '../attributes/VertexAttributes';
 import { BoxShapeBuilder } from './BoxShapeBuilder';
 
 export class MeshBuilder {
@@ -185,7 +185,7 @@ export class MeshBuilder {
       throw new Error("Mesh can't hold enough indices: " + mesh.getMaxIndices() + ' < ' + this.indices.length);
 
     mesh.setVertices(this.vertices, 0, this.vertices.length);
-    mesh.setIndices(this.indices, 0, this.vertices.length);
+    mesh.setIndices(this.indices, 0, this.indices.length);
 
     for (const p of this.parts) p.mesh = mesh;
     this.parts.length = 0;

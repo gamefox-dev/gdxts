@@ -3,7 +3,7 @@ import { Vector3 } from '../../Vector3';
 import { BoundingBox } from '../BoundingBox';
 import { VertexInfo } from '../data/VertexInfo';
 import { GL20 } from '../GL20';
-import { Usage } from '../VertexAttribute';
+import { Usage } from '../attributes/VertexAttribute';
 import { MeshBuilder } from './MeshBuilder';
 
 export class BoxShapeBuilder {
@@ -64,12 +64,12 @@ export class BoxShapeBuilder {
     const i111 = builder.vertex(corner111);
 
     const primitiveType = builder.getPrimitiveType();
-    if (primitiveType == GL20.GL_LINES) {
+    if (primitiveType === GL20.GL_LINES) {
       builder.ensureIndices(24);
       builder.rect(i000, i100, i110, i010);
       builder.rect(i101, i001, i011, i111);
       builder.index8Values(i000, i001, i010, i011, i110, i111, i100, i101);
-    } else if (primitiveType == GL20.GL_POINTS) {
+    } else if (primitiveType === GL20.GL_POINTS) {
       builder.ensureRectangleIndices(2);
       builder.rect(i000, i100, i110, i010);
       builder.rect(i101, i001, i011, i111);

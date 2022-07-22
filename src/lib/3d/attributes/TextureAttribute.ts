@@ -1,37 +1,25 @@
-import { Texture } from "../Texture";
-import { TextureRegion } from "../TextureRegion";
-import { Attribute } from "./Attribute";
+import { Texture } from '../../Texture';
+import { TextureRegion } from '../../TextureRegion';
+import { Attribute } from './Attribute';
 
 export class TextureAttribute extends Attribute {
-  public static DiffuseAlias: string = "diffuseTexture";
+  public static DiffuseAlias: string = 'diffuseTexture';
   public static Diffuse: number = this.register(TextureAttribute.DiffuseAlias);
-  public static SpecularAlias: string = "specularTexture";
-  public static Specular: number = this.register(
-    TextureAttribute.SpecularAlias
-  );
-  public static BumpAlias: string = "bumpTexture";
+  public static SpecularAlias: string = 'specularTexture';
+  public static Specular: number = this.register(TextureAttribute.SpecularAlias);
+  public static BumpAlias: string = 'bumpTexture';
   public static Bump: number = this.register(TextureAttribute.BumpAlias);
-  public static NormalAlias: string = "normalTexture";
+  public static NormalAlias: string = 'normalTexture';
   public static Normal: number = this.register(TextureAttribute.NormalAlias);
-  public static AmbientAlias: string = "ambientTexture";
+  public static AmbientAlias: string = 'ambientTexture';
   public static Ambient: number = this.register(TextureAttribute.AmbientAlias);
-  public static EmissiveAlias: string = "emissiveTexture";
-  public static Emissive: number = this.register(
-    TextureAttribute.EmissiveAlias
-  );
-  public static ReflectionAlias: string = "reflectionTexture";
-  public static Reflection: number = this.register(
-    TextureAttribute.ReflectionAlias
-  );
+  public static EmissiveAlias: string = 'emissiveTexture';
+  public static Emissive: number = this.register(TextureAttribute.EmissiveAlias);
+  public static ReflectionAlias: string = 'reflectionTexture';
+  public static Reflection: number = this.register(TextureAttribute.ReflectionAlias);
 
   protected static Mask: number =
-    this.Diffuse |
-    this.Specular |
-    this.Bump |
-    this.Normal |
-    this.Ambient |
-    this.Emissive |
-    this.Reflection;
+    this.Diffuse | this.Specular | this.Bump | this.Normal | this.Ambient | this.Emissive | this.Reflection;
 
   public static is(mask: number): boolean {
     return (mask & TextureAttribute.Mask) !== 0;
@@ -91,7 +79,7 @@ export class TextureAttribute extends Attribute {
     this.Attribute(type);
   }
 
-  setTextureRegion(region: TextureRegion) {
+  public setTextureRegion(region: TextureRegion) {
     this.texture = region.texture;
     this.offsetU = region.u;
     this.offsetV = region.v;
@@ -99,16 +87,16 @@ export class TextureAttribute extends Attribute {
     this.scaleV = region.v2 - this.offsetV;
   }
 
-  setTexture(texture: Texture) {
+  public setTexture(texture: Texture) {
     this.texture = texture;
   }
 
-  setOffset(offsetU: number, offsetV: number) {
+  public setOffset(offsetU: number, offsetV: number) {
     this.offsetU = offsetU;
     this.offsetV = offsetV;
   }
 
-  setScale(scaleU: number, scaleV: number) {
+  public setScale(scaleU: number, scaleV: number) {
     this.scaleU = scaleU;
     this.scaleV = scaleV;
   }

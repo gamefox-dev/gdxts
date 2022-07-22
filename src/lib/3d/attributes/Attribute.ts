@@ -12,9 +12,7 @@ export class Attribute {
   static getAttributeAlias(type: number): string {
     let idx = -1;
     while (type !== 0 && ++idx < 63 && ((type >> idx) & 1) === 0);
-    return idx >= 0 && idx < Attribute.types.length
-      ? Attribute.types[idx]
-      : null;
+    return idx >= 0 && idx < Attribute.types.length ? Attribute.types[idx] : null;
   }
 
   static register(alias: string): number {
@@ -37,11 +35,11 @@ export class Attribute {
   }
 
   public equals(obj: Attribute): boolean {
-    if (obj == null) return false;
-    if (obj == this) return true;
+    if (obj === null) return false;
+    if (obj === this) return true;
     if (!obj) return false;
-    if (this.type != obj.type) return false;
-    return obj.hashCode() == this.hashCode();
+    if (this.type !== obj.type) return false;
+    return obj.hashCode() === this.hashCode();
   }
 
   protected numberOfTrailingZeros(i: number): number {
@@ -76,7 +74,7 @@ export class Attribute {
     return n - ((x << 1) >>> 31);
   }
 
-  toString(): string {
+  public toString(): string {
     return Attribute.getAttributeAlias(this.type);
   }
 

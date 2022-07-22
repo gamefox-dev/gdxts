@@ -1,4 +1,4 @@
-import { Texture } from "../Texture";
+import { Texture } from '../Texture';
 
 export class DefaultTextureBinder {
   static ROUNDROBIN: number = 0;
@@ -14,44 +14,34 @@ export class DefaultTextureBinder {
   private bindCount: number = 0;
   static gl: WebGLRenderingContext;
 
-  constructor(
-    gl: WebGLRenderingContext,
-    method: number,
-    offset: number = 0,
-    count: number = -1
-  ) {
+  constructor(gl: WebGLRenderingContext, method: number, offset: number = 0, count: number = -1) {
     DefaultTextureBinder.gl = gl;
-    const max = Math.min(
-      DefaultTextureBinder.getMaxTextureUnits(),
-      DefaultTextureBinder.MAX_GLES_UNITS
-    );
+    const max = Math.min(DefaultTextureBinder.getMaxTextureUnits(), DefaultTextureBinder.MAX_GLES_UNITS);
     if (count < 0) count = max - offset;
-    if (offset < 0 || count < 0 || offset + count > max)
-      throw new Error("Illegal arguments");
+    if (offset < 0 || count < 0 || offset + count > max) throw new Error('Illegal arguments');
     this.method = method;
     this.offset = offset;
     this.count = count;
     this.textures = new Array<Texture>(count);
-    this.unitsLRU =
-      method === DefaultTextureBinder.LRU ? new Array<number>(count) : null;
+    this.unitsLRU = method === DefaultTextureBinder.LRU ? new Array<number>(count) : null;
   }
 
   private static getMaxTextureUnits(): number {
     return this.gl.getParameter(this.gl.MAX_TEXTURE_IMAGE_UNITS) as number;
   }
 
-  begin() {
+  public begin() {
     for (let i = 0; i < this.count; i++) {
       this.textures[i] = null;
       if (this.unitsLRU != null) this.unitsLRU[i] = i;
     }
   }
 
-  end() {
+  public end() {
     DefaultTextureBinder.gl.activeTexture(DefaultTextureBinder.gl.TEXTURE0);
   }
 
-  bindTexture(texture: Texture, rebind: boolean = false): number {
+  public bindTexture(texture: Texture, rebind: boolean = false): number {
     let idx: number, result: number;
     let reused = false;
 
@@ -69,10 +59,7 @@ export class DefaultTextureBinder {
     if (reused) {
       this.reuseCount++;
       if (rebind) texture.bind(result);
-      else
-        DefaultTextureBinder.gl.activeTexture(
-          DefaultTextureBinder.gl.TEXTURE0 + result
-        );
+      else DefaultTextureBinder.gl.activeTexture(DefaultTextureBinder.gl.TEXTURE0 + result);
     } else this.bindCount++;
     return result;
   }
@@ -119,15 +106,15 @@ export class DefaultTextureBinder {
     return idx;
   }
 
-  getBindCount(): number {
+  public getBindCount(): number {
     return this.bindCount;
   }
 
-  getReuseCount(): number {
+  public getReuseCount(): number {
     return this.reuseCount;
   }
 
-  resetCounts() {
+  public resetCounts() {
     this.bindCount = this.reuseCount = 0;
   }
 }

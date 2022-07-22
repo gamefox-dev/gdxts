@@ -1,4 +1,4 @@
-import { Attributes } from "./Attributes";
+import { Attributes } from './attributes/Attributes';
 
 export class Material extends Attributes {
   private static counter: number = 0;
@@ -6,13 +6,11 @@ export class Material extends Attributes {
 
   constructor() {
     super();
-    this.id = "mtl" + ++Material.counter;
+    this.id = 'mtl' + ++Material.counter;
   }
 
   public equals(other: Material): boolean {
-    return (
-      other && (other == this || (other.id === this.id && super.equals(other)))
-    );
+    return other && (other == this || (other.id === this.id && super.equals(other)));
   }
 
   public copy(): Material {

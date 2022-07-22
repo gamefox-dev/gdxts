@@ -1,8 +1,8 @@
-import { Attribute } from "./Attribute";
-import { GL20 } from "./GL20";
+import { Attribute } from './Attribute';
+import { GL20 } from '../GL20';
 
 export class BlendingAttribute extends Attribute {
-  public static Alias: string = "blended";
+  public static Alias: string = 'blended';
   public static Type: number = this.register(this.Alias);
 
   public static is(mask: number): boolean {
@@ -28,7 +28,7 @@ export class BlendingAttribute extends Attribute {
     this.opacity = opacity;
   }
 
-  set(
+  public set(
     blended: boolean = true,
     sourceFunc: number = GL20.GL_SRC_ALPHA,
     destFunc: number = GL20.GL_ONE_MINUS_SRC_ALPHA,

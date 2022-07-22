@@ -1,34 +1,24 @@
-import { Color } from "../Utils";
-import { Attribute } from "./Attribute";
+import { Color } from '../../Utils';
+import { Attribute } from './Attribute';
 
 export class ColorAttribute extends Attribute {
-  public static DiffuseAlias: string = "diffuseColor";
+  public static DiffuseAlias: string = 'diffuseColor';
   public static Diffuse: number = this.register(ColorAttribute.DiffuseAlias);
-  public static SpecularAlias: string = "specularColor";
+  public static SpecularAlias: string = 'specularColor';
   public static Specular: number = this.register(ColorAttribute.SpecularAlias);
-  public static AmbientAlias: string = "ambientColor";
+  public static AmbientAlias: string = 'ambientColor';
   public static Ambient: number = this.register(ColorAttribute.AmbientAlias);
-  public static EmissiveAlias: string = "emissiveColor";
+  public static EmissiveAlias: string = 'emissiveColor';
   public static Emissive: number = this.register(ColorAttribute.EmissiveAlias);
-  public static ReflectionAlias: string = "reflectionColor";
-  public static Reflection: number = this.register(
-    ColorAttribute.ReflectionAlias
-  );
-  public static AmbientLightAlias: string = "ambientLightColor";
-  public static AmbientLight: number = this.register(
-    ColorAttribute.AmbientLightAlias
-  );
-  public static FogAlias: string = "fogColor";
+  public static ReflectionAlias: string = 'reflectionColor';
+  public static Reflection: number = this.register(ColorAttribute.ReflectionAlias);
+  public static AmbientLightAlias: string = 'ambientLightColor';
+  public static AmbientLight: number = this.register(ColorAttribute.AmbientLightAlias);
+  public static FogAlias: string = 'fogColor';
   public static Fog: number = this.register(ColorAttribute.FogAlias);
 
   protected static Mask: number =
-    this.Ambient |
-    this.Diffuse |
-    this.Specular |
-    this.Emissive |
-    this.Reflection |
-    this.AmbientLight |
-    this.Fog;
+    this.Ambient | this.Diffuse | this.Specular | this.Emissive | this.Reflection | this.AmbientLight | this.Fog;
 
   public static is(mask: number): boolean {
     return (mask & this.Mask) !== 0;

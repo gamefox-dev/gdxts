@@ -1,7 +1,7 @@
-import { Matrix4 } from "../Matrix4";
-import { MathUtils } from "../Utils";
-import { Vector3 } from "../Vector3";
-import { Matrix3 } from "./Matrix3";
+import { Matrix4 } from './Matrix4';
+import { MathUtils } from './Utils';
+import { Vector3 } from './Vector3';
+import { Matrix3 } from './Matrix3';
 
 export class Quaternion {
   private static tmp1: Quaternion = new Quaternion(0, 0, 0, 0);
@@ -29,13 +29,11 @@ export class Quaternion {
   }
 
   public len(): number {
-    return Math.sqrt(
-      this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w
-    );
+    return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
   }
 
   public toString(): string {
-    return "[" + this.x + "|" + this.y + "|" + this.z + "|" + this.w + "]";
+    return '[' + this.x + '|' + this.y + '|' + this.z + '|' + this.w + ']';
   }
 
   public setEulerAngles(yaw: number, pitch: number, roll: number): Quaternion {
@@ -46,11 +44,7 @@ export class Quaternion {
     );
   }
 
-  public setEulerAnglesRad(
-    yaw: number,
-    pitch: number,
-    roll: number
-  ): Quaternion {
+  public setEulerAnglesRad(yaw: number, pitch: number, roll: number): Quaternion {
     const hr = roll * 0.5;
     const shr = Math.sin(hr);
     const chr = Math.cos(hr);
@@ -80,10 +74,7 @@ export class Quaternion {
   public getRollRad(): number {
     const pole = this.getGimbalPole();
     return pole === 0
-      ? Math.atan2(
-          2 * (this.w * this.z + this.y * this.x),
-          1 - 2 * (this.x * this.x + this.z * this.z)
-        )
+      ? Math.atan2(2 * (this.w * this.z + this.y * this.x), 1 - 2 * (this.x * this.x + this.z * this.z))
       : pole * 2 * Math.atan2(this.y, this.w);
   }
 
@@ -94,9 +85,7 @@ export class Quaternion {
   public getPitchRad(): number {
     const pole = this.getGimbalPole();
     return pole === 0
-      ? Math.asin(
-          MathUtils.clamp(2 * (this.w * this.x - this.z * this.y), -1, 1)
-        )
+      ? Math.asin(MathUtils.clamp(2 * (this.w * this.x - this.z * this.y), -1, 1))
       : pole * MathUtils.PI * 0.5;
   }
 
@@ -106,10 +95,7 @@ export class Quaternion {
 
   public getYawRad(): number {
     return this.getGimbalPole() === 0
-      ? Math.atan2(
-          2 * (this.y * this.w + this.x * this.z),
-          1 - 2 * (this.y * this.y + this.x * this.x)
-        )
+      ? Math.atan2(2 * (this.y * this.w + this.x * this.z), 1 - 2 * (this.y * this.y + this.x * this.x))
       : 0;
   }
 
@@ -122,9 +108,7 @@ export class Quaternion {
   }
 
   public len2(): number {
-    return (
-      this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w
-    );
+    return this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
   }
   public nor(): Quaternion {
     let len = this.len2();
@@ -225,44 +209,25 @@ export class Quaternion {
 
   public isIdentity(): boolean {
     return (
-      MathUtils.isZero(this.x) &&
-      MathUtils.isZero(this.y) &&
-      MathUtils.isZero(this.z) &&
-      MathUtils.isEqual(this.w, 1)
+      MathUtils.isZero(this.x) && MathUtils.isZero(this.y) && MathUtils.isZero(this.z) && MathUtils.isEqual(this.w, 1)
     );
   }
 
-  public setFromAxis(
-    x: number,
-    y: number,
-    z: number,
-    degrees: number
-  ): Quaternion {
+  public setFromAxis(x: number, y: number, z: number, degrees: number): Quaternion {
     return this.setFromAxisRad(x, y, z, degrees * MathUtils.degreesToRadians);
   }
 
-  public setFromAxisRad(
-    x: number,
-    y: number,
-    z: number,
-    radians: number
-  ): Quaternion {
+  public setFromAxisRad(x: number, y: number, z: number, radians: number): Quaternion {
     let d = new Vector3(x, y, z).length();
     if (d === 0) return this.idt();
     d = 1 / d;
-    const l_ang =
-      radians < 0
-        ? MathUtils.PI2 - (-radians % MathUtils.PI2)
-        : radians % MathUtils.PI2;
+    const l_ang = radians < 0 ? MathUtils.PI2 - (-radians % MathUtils.PI2) : radians % MathUtils.PI2;
     const l_sin = Math.sin(l_ang / 2);
     const l_cos = Math.cos(l_ang / 2);
     return this.set(d * x * l_sin, d * y * l_sin, d * z * l_sin, l_cos).nor();
   }
 
-  public setFromMatrix4(
-    matrix: Matrix4,
-    normalizeAxes: boolean = false
-  ): Quaternion {
+  public setFromMatrix4(matrix: Matrix4, normalizeAxes: boolean = false): Quaternion {
     return this.setFromAxes(
       matrix.values[Matrix4.M00],
       matrix.values[Matrix4.M01],
@@ -356,12 +321,7 @@ export class Quaternion {
   public setFromCross(v1: Vector3, v2: Vector3): Quaternion {
     const dot = MathUtils.clamp(v1.dot(v2), -1, 1);
     const angle = Math.acos(dot);
-    return this.setFromAxisRad(
-      v1.y * v2.z - v1.z * v2.y,
-      v1.z * v2.x - v1.x * v2.z,
-      v1.x * v2.y - v1.y * v2.x,
-      angle
-    );
+    return this.setFromAxisRad(v1.y * v2.z - v1.z * v2.y, v1.z * v2.x - v1.x * v2.z, v1.x * v2.y - v1.y * v2.x, angle);
   }
 
   public slerp(end: Quaternion, alpha: number): Quaternion {
@@ -443,9 +403,7 @@ export class Quaternion {
   }
 
   public getAxisAngle(axis: Vector3): number {
-    return (
-      this.getAxisAngleRad(axis.x, axis.y, axis.z) * MathUtils.radiansToDegrees
-    );
+    return this.getAxisAngleRad(axis.x, axis.y, axis.z) * MathUtils.radiansToDegrees;
   }
 
   public getAxisAngleRad(x: number, y: number, z: number) {

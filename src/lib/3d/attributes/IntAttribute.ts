@@ -1,7 +1,7 @@
-import { Attribute } from "./Attribute";
+import { Attribute } from './Attribute';
 
 export class IntAttribute extends Attribute {
-  public static CullFaceAlias = "cullface";
+  public static CullFaceAlias = 'cullface';
   public static CullFace: number = this.register(IntAttribute.CullFaceAlias);
 
   public static createCullFace(value: number): IntAttribute {

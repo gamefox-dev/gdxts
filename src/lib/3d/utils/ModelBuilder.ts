@@ -3,7 +3,7 @@ import { Node } from '../model/Node';
 import { MeshBuilder } from './MeshBuilder';
 import { Material } from '../Material';
 import { Matrix4 } from '../../Matrix4';
-import { VertexAttributes } from '../VertexAttributes';
+import { VertexAttributes } from '../attributes/VertexAttributes';
 import { Disposable } from '../../Utils';
 import { MeshPart } from '../model/MeshPart';
 import { NodePart } from '../model/NodePart';

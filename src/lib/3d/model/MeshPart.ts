@@ -5,17 +5,17 @@ import { Vector3 } from '../../Vector3';
 import { BoundingBox } from '../BoundingBox';
 
 export class MeshPart implements Disposable {
-  id = '';
-  primitiveType = 0;
-  offset = 0;
-  size = 0;
-  mesh: Mesh = null;
-  center = new Vector3();
-  halfExtents = new Vector3();
-  radius = -1;
-  bounds = new BoundingBox();
+  public id = '';
+  public primitiveType = 0;
+  public offset = 0;
+  public size = 0;
+  public mesh: Mesh = null;
+  public center = new Vector3();
+  public halfExtents = new Vector3();
+  public radius = -1;
+  public bounds = new BoundingBox();
 
-  dispose() {}
+  public dispose() {}
 
   constructor(other: MeshPart = null) {
     if (other != null) {
@@ -23,7 +23,7 @@ export class MeshPart implements Disposable {
     }
   }
 
-  setByMeshPart(other: MeshPart): MeshPart {
+  public setByMeshPart(other: MeshPart): MeshPart {
     this.id = other.id;
     this.mesh = other.mesh;
     this.offset = other.offset;
@@ -35,7 +35,7 @@ export class MeshPart implements Disposable {
     return this;
   }
 
-  set(id: string, mesh: Mesh, offset: number, size: number, type: number): MeshPart {
+  public set(id: string, mesh: Mesh, offset: number, size: number, type: number): MeshPart {
     this.id = id;
     this.mesh = mesh;
     this.offset = offset;
@@ -47,14 +47,14 @@ export class MeshPart implements Disposable {
     return this;
   }
 
-  update() {
+  public update() {
     this.mesh.extendBoundingBox(this.bounds, this.offset, this.size, null);
     this.bounds.getCenter(this.center);
     this.bounds.getDimensions(this.halfExtents).scale(0.5);
     this.radius = this.halfExtents.length();
   }
 
-  equals(other: MeshPart): boolean {
+  public equals(other: MeshPart): boolean {
     return (
       other === this ||
       (other != null &&
@@ -65,7 +65,7 @@ export class MeshPart implements Disposable {
     );
   }
 
-  render(shader: Shader) {
-    this.mesh.render(shader, this.primitiveType, this.offset, this.size);
+  public render(shader: Shader, autoBind: boolean) {
+    this.mesh.render(shader, this.primitiveType, this.offset, this.size, autoBind);
   }
 }

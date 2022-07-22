@@ -1,5 +1,5 @@
-import { Shader } from '../Shader';
-import { GL20 } from './GL20';
+import { Shader } from '../../Shader';
+import { GL20 } from '../GL20';
 
 export class Usage {
   public static Position = 1;
@@ -40,7 +40,7 @@ export class VertexAttribute {
     this.usageIndex = this.numberOfTrailingZeros(usage);
   }
 
-  copy(): VertexAttribute {
+  public copy(): VertexAttribute {
     return new VertexAttribute(this.usage, this.numComponents, this.type, this.normalized, this.alias, this.unit);
   }
 
@@ -64,11 +64,11 @@ export class VertexAttribute {
     return new VertexAttribute(Usage.ColorUnpacked, 4, GL20.GL_FLOAT, false, Shader.COLOR);
   }
 
-  getKey(): number {
+  public getKey(): number {
     return (this.usageIndex << 8) + (this.unit & 0xff);
   }
 
-  numberOfTrailingZeros(n: number): number {
+  public numberOfTrailingZeros(n: number): number {
     let result = 0;
     for (let i = 5; i <= n; i += 5) {
       var num = i;

@@ -1,6 +1,6 @@
-import { Config, DefaultShader } from './DefaultShader';
+import { Config, DefaultShader } from './shaders/DefaultShader';
 import { Renderable } from './Renderable';
-import { Shader3D } from './Shader3D';
+import { Shader3D } from './shaders/Shader3D';
 import { Disposable } from '../Utils';
 
 export class DefaultShaderProvider implements Disposable {

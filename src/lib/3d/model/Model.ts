@@ -1,23 +1,23 @@
-import { Matrix4 } from "../../Matrix4";
-import { Mesh } from "../Mesh";
-import { Node } from "./Node";
-import { Disposable } from "../../Utils";
-import { ModelData } from "../data/ModelData";
-import { ModelNode } from "../data/ModelNode";
-import { Material } from "../Material";
-import { MeshPart } from "./MeshPart";
-import { FileTextureProvider } from "../utils/TextureProvider";
-import { ModelMesh } from "../data/ModelMesh";
-import { ModelMaterial } from "../data/ModelMaterial";
-import { ColorAttribute } from "../ColorAttribute";
-import { FloatAttribute } from "../FloatAttribute";
-import { BlendingAttribute } from "../BlendingAttribute";
-import { GL20 } from "../GL20";
-import { Texture } from "../../Texture";
-import { ModelTexture } from "../data/ModelTexture";
-import { TextureAttribute } from "../TextureAttribute";
-import { BoundingBox } from "../BoundingBox";
-import { NodePart } from "./NodePart";
+import { Matrix4 } from '../../Matrix4';
+import { Mesh } from '../Mesh';
+import { Node } from './Node';
+import { Disposable } from '../../Utils';
+import { ModelData } from '../data/ModelData';
+import { ModelNode } from '../data/ModelNode';
+import { Material } from '../Material';
+import { MeshPart } from './MeshPart';
+import { FileTextureProvider } from '../utils/TextureProvider';
+import { ModelMesh } from '../data/ModelMesh';
+import { ModelMaterial } from '../data/ModelMaterial';
+import { ColorAttribute } from '../attributes/ColorAttribute';
+import { FloatAttribute } from '../attributes/FloatAttribute';
+import { BlendingAttribute } from '../attributes/BlendingAttribute';
+import { GL20 } from '../GL20';
+import { Texture } from '../../Texture';
+import { ModelTexture } from '../data/ModelTexture';
+import { TextureAttribute } from '../attributes/TextureAttribute';
+import { BoundingBox } from '../BoundingBox';
+import { NodePart } from './NodePart';
 
 export class Model implements Disposable {
   public materials: Material[] = [];
@@ -95,10 +95,7 @@ export class Model implements Disposable {
   //      }
   //  }
 
-  private nodePartBones: Map<NodePart, Map<String, Matrix4>> = new Map<
-    NodePart,
-    Map<String, Matrix4>
-  >();
+  private nodePartBones: Map<NodePart, Map<String, Matrix4>> = new Map<NodePart, Map<String, Matrix4>>();
   protected loadNodes(modelNodes: ModelNode[]) {
     this.nodePartBones.clear();
     for (const node of modelNodes) {
@@ -106,15 +103,11 @@ export class Model implements Disposable {
     }
 
     this.nodePartBones.forEach((value: Map<string, Matrix4>, key: NodePart) => {
-      if (key.invBoneBindTransforms == null)
-        key.invBoneBindTransforms = new Map<Node, Matrix4>();
+      if (key.invBoneBindTransforms == null) key.invBoneBindTransforms = new Map<Node, Matrix4>();
       key.invBoneBindTransforms.clear();
 
       value.forEach((value1: Matrix4, key1: string) => {
-        key.invBoneBindTransforms.set(
-          this.getNode(key1),
-          new Matrix4().set(value1.values).invert()
-        );
+        key.invBoneBindTransforms.set(this.getNode(key1), new Matrix4().set(value1.values).invert());
       });
     });
   }
@@ -124,20 +117,10 @@ export class Model implements Disposable {
     node.id = modelNode.id;
 
     if (modelNode.translation != null)
-      node.translation.set(
-        modelNode.translation.x,
-        modelNode.translation.y,
-        modelNode.translation.z
-      );
+      node.translation.set(modelNode.translation.x, modelNode.translation.y, modelNode.translation.z);
     if (modelNode.rotation != null)
-      node.rotation.set(
-        modelNode.rotation.x,
-        modelNode.rotation.y,
-        modelNode.rotation.z,
-        modelNode.rotation.w
-      );
-    if (modelNode.scale != null)
-      node.scale.set(modelNode.scale.x, modelNode.scale.y, modelNode.scale.z);
+      node.rotation.set(modelNode.rotation.x, modelNode.rotation.y, modelNode.rotation.z, modelNode.rotation.w);
+    if (modelNode.scale != null) node.scale.set(modelNode.scale.x, modelNode.scale.y, modelNode.scale.z);
 
     if (modelNode.parts != null) {
       for (const modelNodePart of modelNode.parts) {
@@ -162,15 +145,13 @@ export class Model implements Disposable {
           }
         }
 
-        if (meshPart == null || meshMaterial == null)
-          throw new Error("Invalid node: " + node.id);
+        if (meshPart == null || meshMaterial == null) throw new Error('Invalid node: ' + node.id);
 
         const nodePart = new NodePart();
         nodePart.meshPart = meshPart;
         nodePart.material = meshMaterial;
         node.parts.push(nodePart);
-        if (modelNodePart.bones != null)
-          this.nodePartBones.set(nodePart, modelNodePart.bones);
+        if (modelNodePart.bones != null) this.nodePartBones.set(nodePart, modelNodePart.bones);
       }
     }
 
@@ -221,42 +202,23 @@ export class Model implements Disposable {
     //      part.update();
   }
 
-  protected async loadMaterials(
-    modelMaterials: ModelMaterial[],
-    textureProvider: FileTextureProvider
-  ) {
+  protected async loadMaterials(modelMaterials: ModelMaterial[], textureProvider: FileTextureProvider) {
     for (const mtl of modelMaterials) {
       this.materials.push(await this.convertMaterial(mtl, textureProvider));
     }
   }
 
-  protected async convertMaterial(
-    mtl: ModelMaterial,
-    textureProvider: FileTextureProvider
-  ): Promise<Material> {
+  protected async convertMaterial(mtl: ModelMaterial, textureProvider: FileTextureProvider): Promise<Material> {
     const result = new Material();
     result.id = mtl.id;
-    if (mtl.ambient != null)
-      result.set(new ColorAttribute(ColorAttribute.Ambient, mtl.ambient));
-    if (mtl.diffuse != null)
-      result.set(new ColorAttribute(ColorAttribute.Diffuse, mtl.diffuse));
-    if (mtl.specular != null)
-      result.set(new ColorAttribute(ColorAttribute.Specular, mtl.specular));
-    if (mtl.emissive != null)
-      result.set(new ColorAttribute(ColorAttribute.Emissive, mtl.emissive));
-    if (mtl.reflection != null)
-      result.set(new ColorAttribute(ColorAttribute.Reflection, mtl.reflection));
-    if (mtl.shininess > 0)
-      result.set(new FloatAttribute(FloatAttribute.Shininess, mtl.shininess));
+    if (mtl.ambient != null) result.set(new ColorAttribute(ColorAttribute.Ambient, mtl.ambient));
+    if (mtl.diffuse != null) result.set(new ColorAttribute(ColorAttribute.Diffuse, mtl.diffuse));
+    if (mtl.specular != null) result.set(new ColorAttribute(ColorAttribute.Specular, mtl.specular));
+    if (mtl.emissive != null) result.set(new ColorAttribute(ColorAttribute.Emissive, mtl.emissive));
+    if (mtl.reflection != null) result.set(new ColorAttribute(ColorAttribute.Reflection, mtl.reflection));
+    if (mtl.shininess > 0) result.set(new FloatAttribute(FloatAttribute.Shininess, mtl.shininess));
     if (mtl.opacity !== 1)
-      result.set(
-        new BlendingAttribute(
-          GL20.GL_SRC_ALPHA,
-          GL20.GL_ONE_MINUS_SRC_ALPHA,
-          true,
-          mtl.opacity
-        )
-      );
+      result.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, true, mtl.opacity));
 
     const textures = new Map<string, Texture>();
 
@@ -318,8 +280,7 @@ export class Model implements Disposable {
   }
 
   public manageDisposable(disposable: Disposable) {
-    if (this.disposables.indexOf(disposable) < 0)
-      this.disposables.push(disposable);
+    if (this.disposables.indexOf(disposable) < 0) this.disposables.push(disposable);
   }
 
   public getManagedDisposables(): Disposable[] {
@@ -375,22 +336,14 @@ export class Model implements Disposable {
     let material: Material;
     if (ignoreCase) {
       for (let i = 0; i < n; i++)
-        if (
-          (material = this.materials[i]).id.toUpperCase() === id.toUpperCase()
-        )
-          return material;
+        if ((material = this.materials[i]).id.toUpperCase() === id.toUpperCase()) return material;
     } else {
-      for (let i = 0; i < n; i++)
-        if ((material = this.materials[i]).id === id) return material;
+      for (let i = 0; i < n; i++) if ((material = this.materials[i]).id === id) return material;
     }
     return null;
   }
 
-  public getNode(
-    id: string,
-    recursive: boolean = true,
-    ignoreCase: boolean = false
-  ): Node {
+  public getNode(id: string, recursive: boolean = true, ignoreCase: boolean = false): Node {
     return Node.getNode(this.nodes, id, recursive, ignoreCase);
   }
 }
