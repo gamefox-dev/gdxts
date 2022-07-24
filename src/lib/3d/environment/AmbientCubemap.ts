@@ -64,7 +64,7 @@ export class AmbientCubemap {
       y2 = y * y,
       z2 = z * z;
     let d = x2 + y2 + z2;
-    if (d == 0) return this;
+    if (d === 0) return this;
     d = (1 / d) * (d + 1);
     const rd = r * d,
       gd = g * d,

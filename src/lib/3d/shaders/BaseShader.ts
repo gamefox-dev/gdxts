@@ -209,7 +209,7 @@ export class BaseShader implements Shader3D {
   }
 
   public has(inputID: number): boolean {
-    return inputID >= 0 && inputID < this.locations.length && this.locations[inputID] != null;
+    return inputID >= 0 && inputID < this.locations.length && this.locations[inputID] !== null;
   }
 
   public loc(inputID: number): WebGLUniformLocation {
@@ -217,68 +217,67 @@ export class BaseShader implements Shader3D {
   }
 
   public setMatrix4(uniform: number, value: Matrix4): boolean {
-    if (this.uniforms[uniform] == null) return false;
-    const name = this.uniforms[uniform];
+    if (this.uniforms[uniform] === null) return false;
     this.program.setUniform4x4f(this.uniforms[uniform], value.values);
     return true;
   }
 
   public setMatrix3(uniform: number, value: Matrix3): boolean {
-    if (this.uniforms[uniform] == null) return false;
+    if (this.uniforms[uniform] === null) return false;
     this.program.setUniform3x3f(this.uniforms[uniform], value.getValues());
     return true;
   }
 
   public setVector3(uniform: number, value: Vector3): boolean {
-    if (this.uniforms[uniform] == null) return false;
+    if (this.uniforms[uniform] === null) return false;
     this.program.setUniform3f(this.uniforms[uniform], value.x, value.y, value.z);
     return true;
   }
 
   public setVector2(uniform: number, value: Vector2): boolean {
-    if (this.uniforms[uniform] == null) return false;
+    if (this.uniforms[uniform] === null) return false;
     this.program.setUniform2f(this.uniforms[uniform], value.x, value.y);
     return true;
   }
 
   public setColor(uniform: number, value: Color): boolean {
-    if (this.uniforms[uniform] == null) return false;
+    if (this.uniforms[uniform] === null) return false;
     this.program.setUniform4f(this.uniforms[uniform], value.r, value.g, value.b, value.a);
     return true;
   }
 
   public setF(uniform: number, value: number): boolean {
-    if (this.uniforms[uniform] == null) return false;
+    if (this.uniforms[uniform] === null) return false;
     this.program.setUniformf(this.uniforms[uniform], value);
     return true;
   }
 
   public set2f(uniform: number, v1: number, v2: number) {
-    if (this.uniforms[uniform] == null) return false;
+    if (this.uniforms[uniform] === null) return false;
     this.program.setUniform2f(this.uniforms[uniform], v1, v2);
     return true;
   }
 
   public set3f(uniform: number, v1: number, v2: number, v3: number) {
-    if (this.uniforms[uniform] == null) return false;
+    if (this.uniforms[uniform] === null) return false;
     this.program.setUniform3f(this.uniforms[uniform], v1, v2, v3);
     return true;
   }
 
   public set4f(uniform: number, v1: number, v2: number, v3: number, v4: number) {
-    if (this.uniforms[uniform] == null) return false;
+    if (this.uniforms[uniform] === null) return false;
     this.program.setUniform4f(this.uniforms[uniform], v1, v2, v3, v4);
     return true;
   }
 
   public setI(uniform: number, value: number): boolean {
-    if (this.uniforms[uniform] == null) return false;
+    if (this.uniforms[uniform] === null) return false;
     this.program.setUniformi(this.uniforms[uniform], value);
     return true;
   }
 
   public setTexture(uniform: number, texture: Texture): boolean {
-    if (this.uniforms[uniform] == null) return false;
+    if (this.uniforms[uniform] === null) return false;
     this.program.setUniformi(this.uniforms[uniform], this.context.textureBinder.bindTexture(texture));
     return true;
   }

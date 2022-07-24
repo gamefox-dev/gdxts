@@ -117,6 +117,10 @@ export class Shader implements Disposable, Restorable {
     this.context.gl.uniform3f(this.getUniformLocation(uniform), value, value2, value3);
   }
 
+  public setUniform1fWithLocation(location: WebGLUniformLocation, value: number) {
+    this.context.gl.uniform1f(location, value);
+  }
+
   public setUniform3fWithLocation(location: WebGLUniformLocation, value: number, value2: number, value3: number) {
     this.context.gl.uniform3f(location, value, value2, value3);
   }

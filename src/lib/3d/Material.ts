@@ -10,7 +10,7 @@ export class Material extends Attributes {
   }
 
   public equals(other: Material): boolean {
-    return other && (other == this || (other.id === this.id && super.equals(other)));
+    return other && (other === this || (other.id === this.id && super.equals(other)));
   }
 
   public copy(): Material {

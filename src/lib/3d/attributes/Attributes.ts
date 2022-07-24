@@ -121,8 +121,8 @@ export class Attributes {
   }
 
   public same(other: Attributes, compareValues: boolean): boolean {
-    if (other == this) return true;
-    if (other == null || this.mask != other.mask) return false;
+    if (other === this) return true;
+    if (other === null || this.mask !== other.mask) return false;
     if (!compareValues) return true;
     // sort();
     // other.sort();

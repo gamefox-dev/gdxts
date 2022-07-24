@@ -1,4 +1,4 @@
-import { createStage, createViewport, createGameLoop, Game, Color } from './lib';
+import { createStage, createViewport, createGameLoop, Game, Color, Vector3 } from './lib';
 import { Material } from './lib/3d/Material';
 import { PerspectiveCamera } from './lib/3d/PerspectiveCamera';
 import { ModelBuilder } from './lib/3d/utils/ModelBuilder';
@@ -8,6 +8,8 @@ import { ModelInstance } from './lib/3d/ModelInstance';
 import { ModelBatch } from './lib/3d/ModelBatch';
 import { Environment } from './lib/3d/environment/Environment';
 import { DirectionalLight } from './lib/3d/environment/DirectionalLight';
+import { PointLight } from './lib/3d/environment/PointLight';
+import { SpotLight } from './lib/3d/environment/SpotLight';
 
 const init = async () => {
   const stage = createStage();
@@ -32,7 +34,8 @@ const init = async () => {
 
   const environment = new Environment();
   environment.set(new ColorAttribute(ColorAttribute.AmbientLight, new Color(0.4, 0.4, 0.4, 1)));
-  environment.addDirectionalLight(new DirectionalLight().set(0.8, 0.8, 0.8, -1, -0.8, -0.2));
+  //environment.addDirectionalLight(new DirectionalLight().set(0.8, 0.8, 0.8, -1, -0.8, -0.2));
+  environment.addPointLight(new PointLight().set(new Color(0, 1, 1), new Vector3(10, 0, 10), 100));
 
   const model = modelBuilder.createBox(5, 5, 5, material, Usage.Position | Usage.Normal);
   const instance = new ModelInstance(model);

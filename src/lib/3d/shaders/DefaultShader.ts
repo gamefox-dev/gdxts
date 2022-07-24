@@ -17,6 +17,10 @@ import { Usage } from '../attributes/VertexAttribute';
 import { DirectionalLight } from '../environment/DirectionalLight';
 import { DirectionalLightsAttribute } from '../attributes/DirectionalLightsAttribute';
 import { AmbientCubemap } from '../environment/AmbientCubemap';
+import { PointLight } from '../environment/PointLight';
+import { SpotLight } from '../environment/SpotLight';
+import { PointLightsAttribute } from '../attributes/PointLightAttribute';
+import { SpotLightsAttribute } from '../attributes/SpotLightAttribute';
 
 export class Config {
   vertexShader: string = null;
@@ -939,14 +943,15 @@ export class DefaultShader extends BaseShader {
   protected spotLightsCutoffAngleOffset: number;
   protected spotLightsExponentOffset: number;
   protected spotLightsSize: number;
+  protected lightLocs = new Array<WebGLUniformLocation>();
 
   protected lighting: boolean;
   protected environmentCubemap: boolean;
   protected shadowMap: boolean;
   protected ambientCubemap = new AmbientCubemap();
   protected directionalLights: DirectionalLight[];
-  // protected final PointLight pointLights[];
-  // protected final SpotLight spotLights[];
+  protected pointLights: PointLight[];
+  protected spotLights: SpotLight[];
 
   private renderable: Renderable;
   protected attributesMask: number;
@@ -999,12 +1004,11 @@ export class DefaultShader extends BaseShader {
     for (let i = 0; i < this.directionalLights.length; i++) {
       this.directionalLights[i] = new DirectionalLight();
     }
-    // this.pointLights = new PointLight[lighting && config.numPointLights > 0 ? config.numPointLights : 0];
-    // for (int i = 0; i < pointLights.length; i++)
-    //     pointLights[i] = new PointLight();
-    // this.spotLights = new SpotLight[lighting && config.numSpotLights > 0 ? config.numSpotLights : 0];
-    // for (int i = 0; i < spotLights.length; i++)
-    //     spotLights[i] = new SpotLight();
+    this.pointLights = new Array<PointLight>(this.lighting && config.numPointLights > 0 ? config.numPointLights : 0);
+    for (let i = 0; i < this.pointLights.length; i++) this.pointLights[i] = new PointLight();
+
+    this.spotLights = new Array<SpotLight>(this.lighting && config.numSpotLights > 0 ? config.numSpotLights : 0);
+    for (let i = 0; i < this.spotLights.length; i++) this.spotLights[i] = new SpotLight();
 
     // if (!config.ignoreUnimplemented && (implementedFlags & attributesMask) != attributesMask)
     //     throw new Error("Some attributes not implemented yet (" + attributesMask + ")");
@@ -1067,32 +1071,32 @@ export class DefaultShader extends BaseShader {
     this.initWithVariables(program, this.renderable);
     this.renderable = null;
 
-    this.dirLightsLoc = this.loc(this.u_dirLights0color) as number;
-    this.dirLightsColorOffset = (this.loc(this.u_dirLights0color) as number) - this.dirLightsLoc;
-    this.dirLightsDirectionOffset = (this.loc(this.u_dirLights0direction) as number) - this.dirLightsLoc;
-    this.dirLightsSize = (this.loc(this.u_dirLights1color) as number) - this.dirLightsLoc;
+    this.dirLightsLoc = this.getLightLoc(this.u_dirLights0color);
+    this.dirLightsColorOffset = this.getLightLoc(this.u_dirLights0color) - this.dirLightsLoc;
+    this.dirLightsDirectionOffset = this.getLightLoc(this.u_dirLights0direction) - this.dirLightsLoc;
+    this.dirLightsSize = this.getLightLoc(this.u_dirLights1color) - this.dirLightsLoc;
     if (this.dirLightsSize < 0) this.dirLightsSize = 0;
 
-    // this.pointLightsLoc = this.loc(this.u_pointLights0color) as number;
-    // this.pointLightsColorOffset = (this.loc(this.u_pointLights0color) as number) - this.pointLightsLoc;
-    // this.pointLightsPositionOffset = (this.loc(this.u_pointLights0position) as number) - this.pointLightsLoc;
-    // this.pointLightsIntensityOffset = this.has(this.u_pointLights0intensity)
-    //   ? (this.loc(this.u_pointLights0intensity) as number) - this.pointLightsLoc
-    //   : -1;
-    // this.pointLightsSize = (this.loc(this.u_pointLights1color) as number) - this.pointLightsLoc;
-    // if (this.pointLightsSize < 0) this.pointLightsSize = 0;
+    this.pointLightsLoc = this.getLightLoc(this.u_pointLights0color);
+    this.pointLightsColorOffset = this.getLightLoc(this.u_pointLights0color) - this.pointLightsLoc;
+    this.pointLightsPositionOffset = this.getLightLoc(this.u_pointLights0position) - this.pointLightsLoc;
+    this.pointLightsIntensityOffset = this.has(this.u_pointLights0intensity)
+      ? this.getLightLoc(this.u_pointLights0intensity) - this.pointLightsLoc
+      : -1;
+    this.pointLightsSize = this.getLightLoc(this.u_pointLights1color) - this.pointLightsLoc;
+    if (this.pointLightsSize < 0) this.pointLightsSize = 0;
 
-    // this.spotLightsLoc = this.loc(this.u_spotLights0color) as number;
-    // this.spotLightsColorOffset = (this.loc(this.u_spotLights0color) as number) - this.spotLightsLoc;
-    // this.spotLightsPositionOffset = (this.loc(this.u_spotLights0position) as number) - this.spotLightsLoc;
-    // this.spotLightsDirectionOffset = (this.loc(this.u_spotLights0direction) as number) - this.spotLightsLoc;
-    // this.spotLightsIntensityOffset = this.has(this.u_spotLights0intensity)
-    //   ? (this.loc(this.u_spotLights0intensity) as number) - this.spotLightsLoc
-    //   : -1;
-    // this.spotLightsCutoffAngleOffset = (this.loc(this.u_spotLights0cutoffAngle) as number) - this.spotLightsLoc;
-    // this.spotLightsExponentOffset = (this.loc(this.u_spotLights0exponent) as number) - this.spotLightsLoc;
-    // this.spotLightsSize = (this.loc(this.u_spotLights1color) as number) - this.spotLightsLoc;
-    // if (this.spotLightsSize < 0) this.spotLightsSize = 0;
+    this.spotLightsLoc = this.getLightLoc(this.u_spotLights0color);
+    this.spotLightsColorOffset = this.getLightLoc(this.u_spotLights0color) - this.spotLightsLoc;
+    this.spotLightsPositionOffset = this.getLightLoc(this.u_spotLights0position) - this.spotLightsLoc;
+    this.spotLightsDirectionOffset = this.getLightLoc(this.u_spotLights0direction) - this.spotLightsLoc;
+    this.spotLightsIntensityOffset = this.has(this.u_spotLights0intensity)
+      ? this.getLightLoc(this.u_spotLights0intensity) - this.spotLightsLoc
+      : -1;
+    this.spotLightsCutoffAngleOffset = this.getLightLoc(this.u_spotLights0cutoffAngle) - this.spotLightsLoc;
+    this.spotLightsExponentOffset = this.getLightLoc(this.u_spotLights0exponent) - this.spotLightsLoc;
+    this.spotLightsSize = this.getLightLoc(this.u_spotLights1color) - this.spotLightsLoc;
+    if (this.spotLightsSize < 0) this.spotLightsSize = 0;
   }
 
   private static and(mask: number, flag: number): boolean {
@@ -1210,11 +1214,9 @@ export class DefaultShader extends BaseShader {
     super.begin(camera, context);
 
     for (const dirLight of this.directionalLights) dirLight.set(0, 0, 0, 0, -1, 0);
-    // for (final PointLight pointLight : pointLights)
-    //     pointLight.set(0, 0, 0, 0, 0, 0, 0);
-    // for (final SpotLight spotLight : spotLights)
-    //     spotLight.set(0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0);
-    // lightsSet = false;
+    for (const pointLight of this.pointLights) pointLight.setFromValue(0, 0, 0, 0, 0, 0, 0);
+    for (const spotLight of this.spotLights) spotLight.setFromValue(0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0);
+    this.lightsSet = false;
 
     // if (has(u_time)) set(u_time, time += Gdx.graphics.getDeltaTime());
   }
@@ -1269,13 +1271,12 @@ export class DefaultShader extends BaseShader {
   private tmpV1: Vector3 = new Vector3();
 
   protected bindLights(renderable: Renderable, attributes: Attributes) {
-    const lights = renderable.environment;
     const dla = attributes.get(DirectionalLightsAttribute.Type) as DirectionalLightsAttribute;
     const dirs = dla === null ? null : dla.lights;
-    // const pla = attributes.get(PointLightsAttribute.class, PointLightsAttribute.Type);
-    // const points = pla === null ? null : pla.lights;
-    // const sla = attributes.get(SpotLightsAttribute.class, SpotLightsAttribute.Type);
-    // const spots = sla === null ? null : sla.lights;
+    const pla = attributes.get(PointLightsAttribute.Type) as PointLightsAttribute;
+    const points = pla === null ? null : pla.lights;
+    const sla = attributes.get(SpotLightsAttribute.Type) as SpotLightsAttribute;
+    const spots = sla === null ? null : sla.lights;
     if (this.dirLightsLoc >= 0) {
       for (let i = 0; i < this.directionalLights.length; i++) {
         if (dirs === null || i >= dirs.length) {
@@ -1287,17 +1288,18 @@ export class DefaultShader extends BaseShader {
           )
             continue;
           this.directionalLights[i].color.set(0, 0, 0, 1);
-        } else if (this.lightsSet && this.directionalLights[i].equals(dirs[i])) continue;
-        else this.directionalLights[i].setFrom(dirs[i].color, dirs[i].direction);
+        } else if (this.lightsSet && this.directionalLights[i].equals(dirs[i])) {
+          continue;
+        } else this.directionalLights[i].setFrom(dirs[i].color, dirs[i].direction);
         const idx = this.dirLightsLoc + i * this.dirLightsSize;
         this.program.setUniform3fWithLocation(
-          idx + this.dirLightsColorOffset,
+          this.lightLocs[idx + this.dirLightsColorOffset],
           this.directionalLights[i].color.r,
           this.directionalLights[i].color.g,
           this.directionalLights[i].color.b
         );
         this.program.setUniform3fWithLocation(
-          idx + this.dirLightsDirectionOffset,
+          this.lightLocs[idx + this.dirLightsDirectionOffset],
           this.directionalLights[i].direction.x,
           this.directionalLights[i].direction.y,
           this.directionalLights[i].direction.z
@@ -1305,44 +1307,76 @@ export class DefaultShader extends BaseShader {
         if (this.dirLightsSize <= 0) break;
       }
     }
-    // if (pointLightsLoc >= 0) {
-    //     for (let i = 0; i < pointLights.length; i++) {
-    //         if (points === null || i >= points.size) {
-    //             if (lightsSet && pointLights[i].intensity === 0) continue;
-    //             pointLights[i].intensity = 0;
-    //         } else if (lightsSet && pointLights[i].equals(points.get(i)))
-    //             continue;
-    //         else
-    //             pointLights[i].set(points.get(i));
-    //         let idx = pointLightsLoc + i * pointLightsSize;
-    //         program.setUniformf(idx + pointLightsColorOffset, pointLights[i].color.r * pointLights[i].intensity,
-    //             pointLights[i].color.g * pointLights[i].intensity, pointLights[i].color.b * pointLights[i].intensity);
-    //         program.setUniformf(idx + pointLightsPositionOffset, pointLights[i].position.x, pointLights[i].position.y,
-    //             pointLights[i].position.z);
-    //         if (pointLightsIntensityOffset >= 0) program.setUniformf(idx + pointLightsIntensityOffset, pointLights[i].intensity);
-    //         if (pointLightsSize <= 0) break;
-    //     }
-    // }
-    // if (spotLightsLoc >= 0) {
-    //     for (let i = 0; i < spotLights.length; i++) {
-    //         if (spots === null || i >= spots.size) {
-    //             if (lightsSet && spotLights[i].intensity === 0) continue;
-    //             spotLights[i].intensity = 0;
-    //         } else if (lightsSet && spotLights[i].equals(spots.get(i)))
-    //             continue;
-    //         else
-    //             spotLights[i].set(spots.get(i));
-    //         let idx = spotLightsLoc + i * spotLightsSize;
-    //         program.setUniformf(idx + spotLightsColorOffset, spotLights[i].color.r * spotLights[i].intensity,
-    //             spotLights[i].color.g * spotLights[i].intensity, spotLights[i].color.b * spotLights[i].intensity);
-    //         program.setUniformf(idx + spotLightsPositionOffset, spotLights[i].position);
-    //         program.setUniformf(idx + spotLightsDirectionOffset, spotLights[i].direction);
-    //         program.setUniformf(idx + spotLightsCutoffAngleOffset, spotLights[i].cutoffAngle);
-    //         program.setUniformf(idx + spotLightsExponentOffset, spotLights[i].exponent);
-    //         if (spotLightsIntensityOffset >= 0) program.setUniformf(idx + spotLightsIntensityOffset, spotLights[i].intensity);
-    //         if (spotLightsSize <= 0) break;
-    //     }
-    // }
+    if (this.pointLightsLoc >= 0) {
+      for (let i = 0; i < this.pointLights.length; i++) {
+        if (points === null || i >= points.length) {
+          if (this.lightsSet && this.pointLights[i].intensity === 0) continue;
+          this.pointLights[i].intensity = 0;
+        } else if (this.lightsSet && this.pointLights[i].equals(points[i])) continue;
+        else this.pointLights[i].setFrom(points[i]);
+        let idx = this.pointLightsLoc + i * this.pointLightsSize;
+        this.program.setUniform3fWithLocation(
+          this.lightLocs[idx + this.pointLightsColorOffset],
+          this.pointLights[i].color.r * this.pointLights[i].intensity,
+          this.pointLights[i].color.g * this.pointLights[i].intensity,
+          this.pointLights[i].color.b * this.pointLights[i].intensity
+        );
+        this.program.setUniform3fWithLocation(
+          this.lightLocs[idx + this.pointLightsPositionOffset],
+          this.pointLights[i].position.x,
+          this.pointLights[i].position.y,
+          this.pointLights[i].position.z
+        );
+        if (this.pointLightsIntensityOffset >= 0)
+          this.program.setUniform1fWithLocation(
+            this.lightLocs[idx + this.pointLightsIntensityOffset],
+            this.pointLights[i].intensity
+          );
+        if (this.pointLightsSize <= 0) break;
+      }
+    }
+    if (this.spotLightsLoc >= 0) {
+      for (let i = 0; i < this.spotLights.length; i++) {
+        if (spots === null || i >= spots.length) {
+          if (this.lightsSet && this.spotLights[i].intensity === 0) continue;
+          this.spotLights[i].intensity = 0;
+        } else if (this.lightsSet && this.spotLights[i].equals(spots[i])) continue;
+        else this.spotLights[i].setFrom(spots[i]);
+        let idx = this.spotLightsLoc + i * this.spotLightsSize;
+        this.program.setUniform3fWithLocation(
+          this.lightLocs[idx + this.spotLightsColorOffset],
+          this.spotLights[i].color.r * this.spotLights[i].intensity,
+          this.spotLights[i].color.g * this.spotLights[i].intensity,
+          this.spotLights[i].color.b * this.spotLights[i].intensity
+        );
+        this.program.setUniform3fWithLocation(
+          this.lightLocs[idx + this.spotLightsPositionOffset],
+          this.spotLights[i].position.x,
+          this.spotLights[i].position.y,
+          this.spotLights[i].position.z
+        );
+        this.program.setUniform3fWithLocation(
+          this.lightLocs[idx + this.spotLightsDirectionOffset],
+          this.spotLights[i].direction.x,
+          this.spotLights[i].direction.y,
+          this.spotLights[i].direction.z
+        );
+        this.program.setUniform1fWithLocation(
+          this.lightLocs[idx + this.spotLightsCutoffAngleOffset],
+          this.spotLights[i].cutoffAngle
+        );
+        this.program.setUniform1fWithLocation(
+          this.lightLocs[idx + this.spotLightsExponentOffset],
+          this.spotLights[i].exponent
+        );
+        if (this.spotLightsIntensityOffset >= 0)
+          this.program.setUniform1fWithLocation(
+            this.lightLocs[idx + this.spotLightsIntensityOffset],
+            this.spotLights[i].intensity
+          );
+        if (this.spotLightsSize <= 0) break;
+      }
+    }
     // if (attributes.has(ColorAttribute.Fog)) {
     //     set(u_fogColor, (attributes.get(ColorAttribute.Fog) as ColorAttribute).color);
     // }
@@ -1352,6 +1386,18 @@ export class DefaultShader extends BaseShader {
     //     set(u_shadowPCFOffset, 1 / (2 * lights.shadowMap.getDepthMap().texture.getWidth()));
     // }
     this.lightsSet = true;
+  }
+
+  public getLightLoc(inputID: number): number {
+    const loc = this.loc(inputID);
+    const index = this.lightLocs.indexOf(loc);
+    if (loc === null) return -1;
+    if (index < 0) {
+      this.lightLocs.push(loc);
+      return this.lightLocs.length - 1;
+    } else {
+      return index;
+    }
   }
 
   public dispose() {

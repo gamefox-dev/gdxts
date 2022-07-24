@@ -6,14 +6,14 @@ export class DirectionalLightsAttribute extends Attribute {
   public static Type = this.register(DirectionalLightsAttribute.Alias);
 
   public static is(mask: number): boolean {
-    return (mask & DirectionalLightsAttribute.Type) == mask;
+    return (mask & DirectionalLightsAttribute.Type) === mask;
   }
 
   public lights: DirectionalLight[];
   constructor() {
     super();
     this.Attribute(DirectionalLightsAttribute.Type);
-    this.lights = new Array<DirectionalLight>(1);
+    this.lights = new Array<DirectionalLight>();
   }
 
   public set(copyFrom: DirectionalLightsAttribute) {
@@ -30,6 +30,6 @@ export class DirectionalLightsAttribute extends Attribute {
 
   public compareTo(other: Attribute): number {
     if (this.type !== other.type) return this.type < other.type ? -1 : 1;
-    return 0; // FIXME implement comparing
+    return 0;
   }
 }
