@@ -1,5 +1,6 @@
 import { Matrix4 } from '../Matrix4';
 import { Vector3 } from '../Vector3';
+import { Frustum } from './math/Fustrum';
 
 export class PerspectiveCamera {
   far = 100;
@@ -14,6 +15,7 @@ export class PerspectiveCamera {
   combined = new Matrix4();
   projection = new Matrix4();
   invProjectionView = new Matrix4();
+  frustum = new Frustum();
 
   constructor(fieldOfViewY: number, viewportWidth: number, viewportHeight: number) {
     this.fieldOfView = fieldOfViewY;
@@ -23,7 +25,7 @@ export class PerspectiveCamera {
   }
 
   tmp: Vector3 = new Vector3();
-  public update() {
+  public update(updateFrustum: boolean = true) {
     const aspect = this.viewportWidth / this.viewportHeight;
     this.projection.projection(Math.abs(this.near), Math.abs(this.far), this.fieldOfView, aspect);
     this.tmp.set(this.position.x, this.position.y, this.position.z);
@@ -32,8 +34,11 @@ export class PerspectiveCamera {
     this.combined.set(this.projection.values);
     this.combined.multiply(this.view);
 
-    this.invProjectionView.set(this.combined.values);
-    this.invProjectionView.invert();
+    if (updateFrustum) {
+      this.invProjectionView.set(this.combined.values);
+      this.invProjectionView.invert();
+      this.frustum.update(this.invProjectionView);
+    }
   }
 
   tmpVec: Vector3 = new Vector3();
@@ -56,5 +61,25 @@ export class PerspectiveCamera {
   public normalizeUp() {
     this.tmpVec.set(this.direction.x, this.direction.y, this.direction.z).cross(this.up);
     this.up.set(this.tmpVec.x, this.tmpVec.y, this.tmpVec.z).cross(this.direction).normalize();
+  }
+
+  public translate(vec: Vector3) {
+    this.position.add(vec);
+  }
+
+  public rotate(axis: Vector3, angle: number) {
+    this.direction.rotate(axis, angle);
+    this.up.rotate(axis, angle);
+  }
+
+  public rotateAround(point: Vector3, axis: Vector3, angle: number) {
+    this.tmpVec.set(point.x, point.y, point.z);
+    this.tmpVec.sub(this.position);
+    this.translate(this.tmpVec);
+    this.rotate(axis, angle);
+    this.tmpVec.rotate(axis, angle);
+    this.translate(new Vector3(-this.tmpVec.x, -this.tmpVec.y, -this.tmpVec.z));
+
+    this.update();
   }
 }

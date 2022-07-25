@@ -45,6 +45,7 @@ export class Matrix4 {
   private static zAxis: Vector3 = null;
   private static tempVec: Vector3 = null;
   private static tmpMatrix = new Matrix4();
+  private static quat = new Quaternion();
 
   constructor() {
     let v = this.values;
@@ -56,6 +57,43 @@ export class Matrix4 {
 
   set(values: ArrayLike<number>): Matrix4 {
     this.values.set(values);
+    return this;
+  }
+
+  setFromQuaternion(quaternion: Quaternion): Matrix4 {
+    const xs = quaternion.x * 2,
+      ys = quaternion.y * 2,
+      zs = quaternion.z * 2;
+    const wx = quaternion.w * xs,
+      wy = quaternion.w * ys,
+      wz = quaternion.w * zs;
+    const xx = quaternion.x * xs,
+      xy = quaternion.x * ys,
+      xz = quaternion.x * zs;
+    const yy = quaternion.y * ys,
+      yz = quaternion.y * zs,
+      zz = quaternion.z * zs;
+
+    const val = this.values;
+    val[M00] = 1 - (yy + zz);
+    val[M01] = xy - wz;
+    val[M02] = xz + wy;
+    val[M03] = 0;
+
+    val[M10] = xy + wz;
+    val[M11] = 1 - (xx + zz);
+    val[M12] = yz - wx;
+    val[M13] = 0;
+
+    val[M20] = xz - wy;
+    val[M21] = yz + wx;
+    val[M22] = 1 - (xx + yy);
+    val[M23] = 0;
+
+    val[M30] = 0;
+    val[M31] = 0;
+    val[M32] = 0;
+    val[M33] = 1;
     return this;
   }
 
@@ -541,9 +579,47 @@ export class Matrix4 {
     return this;
   }
 
+  public setToRotation(axis: Vector3, degrees: number): Matrix4 {
+    if (degrees == 0) {
+      this.idt();
+      return this;
+    }
+
+    const s = Matrix4.quat.setFromAxis(axis.x, axis.y, axis.z, degrees);
+    return this.setFromQuaternion(Matrix4.quat.setFromAxis(axis.x, axis.y, axis.z, degrees));
+  }
+
   static initTemps() {
     if (Matrix4.xAxis === null) Matrix4.xAxis = new Vector3();
     if (Matrix4.yAxis === null) Matrix4.yAxis = new Vector3();
     if (Matrix4.zAxis === null) Matrix4.zAxis = new Vector3();
+  }
+
+  static tmpArrayForVec = [];
+  static matrix4_proj(mat: Float32Array, vec: number[]) {
+    const inv_w = 1.0 / (vec[0] * mat[M30] + vec[1] * mat[M31] + vec[2] * mat[M32] + mat[M33]);
+    const x = (vec[0] * mat[M00] + vec[1] * mat[M01] + vec[2] * mat[M02] + mat[M03]) * inv_w;
+    const y = (vec[0] * mat[M10] + vec[1] * mat[M11] + vec[2] * mat[M12] + mat[M13]) * inv_w;
+    const z = (vec[0] * mat[M20] + vec[1] * mat[M21] + vec[2] * mat[M22] + mat[M23]) * inv_w;
+    vec[0] = x;
+    vec[1] = y;
+    vec[2] = z;
+  }
+
+  static prj(mat: Matrix4, vecs: number[], offset: number, numVecs: number, stride: number) {
+    const vec = Matrix4.tmpArrayForVec;
+    for (let i = 0; i < numVecs; i++) {
+      const start = offset + i * stride;
+      let idx = 0;
+      vec[idx] = vecs[start + idx++];
+      vec[idx] = vecs[start + idx++];
+      vec[idx] = vecs[start + idx++];
+
+      idx = 0;
+      Matrix4.matrix4_proj(mat.values, vec);
+      vecs[i * stride + idx] = vec[idx++];
+      vecs[i * stride + idx] = vec[idx++];
+      vecs[i * stride + idx] = vec[idx++];
+    }
   }
 }

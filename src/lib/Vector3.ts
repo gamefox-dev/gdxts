@@ -6,6 +6,12 @@ export class Vector3 {
   y = 0;
   z = 0;
 
+  public static X = new Vector3(1, 0, 0);
+  public static Y = new Vector3(0, 1, 0);
+  public static Z = new Vector3(0, 0, 1);
+  public static Zero = new Vector3(0, 0, 0);
+  static tmpMat = new Matrix4();
+
   constructor(x: number = 0, y: number = 0, z: number = 0) {
     this.x = x;
     this.y = y;
@@ -119,6 +125,15 @@ export class Vector3 {
 
   dot(v: Vector3): number {
     return this.x * v.x + this.y * v.y + this.z * v.z;
+  }
+
+  dotWithValue(x: number, y: number, z: number) {
+    return this.x * x + this.y * y + this.z * z;
+  }
+
+  rotate(axis: Vector3, degrees: number) {
+    Vector3.tmpMat.setToRotation(axis, degrees);
+    return this.multiply(Vector3.tmpMat);
   }
 
   length(): number {

@@ -25,7 +25,7 @@ export class VertexBufferObject {
   }
 
   public getNumVertices(): number {
-    return this.verticesLength;
+    return this.buffer.length / this.attributes.vertexSize;
   }
 
   public getNumMaxVertices(): number {
@@ -54,7 +54,9 @@ export class VertexBufferObject {
   public setVertices(vertices: number[], offset: number, count: number) {
     this.isDirty = true;
     this.buffer.set(vertices.slice(offset, offset + count), 0);
-    this.verticesLength = count;
+    if (this.verticesLength < count) {
+      this.verticesLength = count;
+    }
     this.bufferChanged();
   }
 

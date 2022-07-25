@@ -31,10 +31,10 @@ export class ModelBatch implements Disposable {
     return new Renderable();
   });
   protected renderables: Renderable[] = [];
-  protected context: RenderContext;
+  protected context: RenderContext = null;
   private ownContext: boolean;
-  protected shaderProvider: DefaultShaderProvider;
-  protected sorter: DefaultRenderableSorter;
+  protected shaderProvider: DefaultShaderProvider = null;
+  protected sorter: DefaultRenderableSorter = null;
 
   public constructor(gl: WebGLRenderingContext, context: RenderContext = null, sorter: DefaultRenderableSorter = null) {
     this.sorter = sorter == null ? new DefaultRenderableSorter() : sorter;

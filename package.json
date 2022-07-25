@@ -2,7 +2,8 @@
   "name": "gdxts",
   "version": "0.1.10",
   "dependencies": {
-    "events": "^3.3.0"
+    "events": "^3.3.0",
+    "stats.js": "^0.17.0"
   },
   "main": "./dist/lib/index.js",
   "typings": "./dist/lib/index.d.ts",
