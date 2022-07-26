@@ -327,7 +327,7 @@ export class DefaultShader extends BaseShader {
   #endif // normalFlag
 
   #ifdef textureFlag
-  attribute vec2 a_texCoord0;
+  attribute vec2 a_texCoords0;
   #endif // textureFlag
 
   #ifdef diffuseTextureFlag
@@ -493,15 +493,15 @@ export class DefaultShader extends BaseShader {
 
   void main() {
     #ifdef diffuseTextureFlag
-      v_diffuseUV = u_diffuseUVTransform.xy + a_texCoord0 * u_diffuseUVTransform.zw;
+      v_diffuseUV = u_diffuseUVTransform.xy + a_texCoords0 * u_diffuseUVTransform.zw;
     #endif //diffuseTextureFlag
     
     #ifdef emissiveTextureFlag
-      v_emissiveUV = u_emissiveUVTransform.xy + a_texCoord0 * u_emissiveUVTransform.zw;
+      v_emissiveUV = u_emissiveUVTransform.xy + a_texCoords0 * u_emissiveUVTransform.zw;
     #endif //emissiveTextureFlag
 
     #ifdef specularTextureFlag
-      v_specularUV = u_specularUVTransform.xy + a_texCoord0 * u_specularUVTransform.zw;
+      v_specularUV = u_specularUVTransform.xy + a_texCoords0 * u_specularUVTransform.zw;
     #endif //specularTextureFlag
     
     #if defined(colorFlag)

@@ -1,4 +1,4 @@
-import { VertexAttribute } from '../attributes/VertexAttribute';
+import { VertexAttribute } from '../../attributes/VertexAttribute';
 import { ModelMeshPart } from './ModelMeshPart';
 
 export class ModelMesh {

@@ -1,6 +1,6 @@
 import { FlushablePool } from '../../Utils';
 import { Vector3 } from '../../Vector3';
-import { VertexInfo } from '../data/VertexInfo';
+import { VertexInfo } from './VertexInfo';
 import { GL20 } from '../GL20';
 import { Usage } from '../attributes/VertexAttribute';
 import { MeshBuilder } from './MeshBuilder';

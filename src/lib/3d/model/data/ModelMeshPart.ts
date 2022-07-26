@@ -1,5 +1,5 @@
 export class ModelMeshPart {
-  public id: number;
+  public id: string;
   public indices: number[];
-  public primitiveType: number[];
+  public primitiveType: number;
 }

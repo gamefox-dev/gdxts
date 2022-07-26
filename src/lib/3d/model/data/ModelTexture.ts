@@ -1,4 +1,4 @@
-import { Vector2 } from "../../Vector2";
+import { Vector2 } from '../../../Vector2';
 
 export class ModelTexture {
   public static USAGE_UNKNOWN = 0;

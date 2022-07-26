@@ -2,7 +2,6 @@ import {
   createStage,
   createViewport,
   createGameLoop,
-  Game,
   Color,
   Vector3,
   ViewportInputHandler,
@@ -21,6 +20,8 @@ import { DirectionalLight } from './lib/3d/environment/DirectionalLight';
 import { PointLight } from './lib/3d/environment/PointLight';
 import { SpotLight } from './lib/3d/environment/SpotLight';
 import { BoundingBox } from './lib/3d/BoundingBox';
+import { ObjLoader } from './lib/3d/loader/ObjLoader';
+import { Model } from './lib/3d/model/Model';
 
 const init = async () => {
   const stage = createStage();
@@ -41,12 +42,12 @@ const init = async () => {
   const modelBatch = new ModelBatch(gl);
   const modelBuilder = new ModelBuilder(gl);
   const material = new Material();
-  material.setAttribute(ColorAttribute.createDiffuse(Color.GREEN));
+  material.setAttribute(ColorAttribute.createDiffuse(Color.WHITE));
   const model = modelBuilder.createBox(2, 2, 2, material, Usage.Position | Usage.Normal);
 
   const environment = new Environment();
-  environment.set(new ColorAttribute(ColorAttribute.AmbientLight, new Color(0.4, 0.4, 0.4, 1)));
-  const directionalLight = new DirectionalLight().set(0.8, 0.8, 0.8, -1, -0.8, -0.2);
+  environment.set(new ColorAttribute(ColorAttribute.AmbientLight, new Color(0.4, 0.4, 0.8, 1)));
+  const directionalLight = new DirectionalLight().set(0, 1, 0.8, -1, -0.8, -0.2);
 
   environment.addDirectionalLight(directionalLight);
   //environment.addPointLight(new PointLight().set(new Color(0, 1, 1), new Vector3(10, 0, 10), 100));
@@ -60,6 +61,15 @@ const init = async () => {
     instance.transform.translate(Math.random() * 100 - 50, Math.random() * 100 - 50, Math.random() * 100 - 50);
     instances.push(instance);
   }
+
+  // const loader = new ObjLoader();
+  // const shipData = await loader.loadModelData('ship.obj');
+  // const shipModel = new Model(gl);
+  // await shipModel.load(shipData);
+
+  // shipModel.materials = [material];
+  // const shipInstance = new ModelInstance(shipModel);
+  // instances.push(shipInstance);
 
   // culling
   const bounds = new BoundingBox();
@@ -111,7 +121,7 @@ const init = async () => {
     modelBatch.begin(cam);
     lightDirection.rotateRad(ROTATION_SPEED * delta);
     directionalLight.direction.set(lightDirection.x, 0, lightDirection.y);
-    for (let i = 0; i < COUNT; i++) {
+    for (let i = 0; i < instances.length; i++) {
       if (isVisible(cam, instances[i])) {
         modelBatch.render(instances[i], environment);
       }

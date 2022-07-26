@@ -1,4 +1,4 @@
-import { Texture } from '../Texture';
+import { Texture, TextureFilter, TextureWrap } from '../Texture';
 
 export class DefaultTextureBinder {
   static ROUNDROBIN: number = 0;
@@ -61,6 +61,9 @@ export class DefaultTextureBinder {
       if (rebind) texture.bind(result);
       else DefaultTextureBinder.gl.activeTexture(DefaultTextureBinder.gl.TEXTURE0 + result);
     } else this.bindCount++;
+
+    texture.setWraps(TextureWrap.Repeat, TextureWrap.Repeat);
+    texture.setFilters(TextureFilter.Linear, TextureFilter.Linear);
     return result;
   }
 

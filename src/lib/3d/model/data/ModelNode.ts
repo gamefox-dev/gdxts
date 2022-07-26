@@ -1,5 +1,5 @@
-import { Vector3 } from '../../Vector3';
-import { Quaternion } from '../../Quaternion';
+import { Quaternion } from '../../../Quaternion';
+import { Vector3 } from '../../../Vector3';
 import { ModelNodePart } from './ModelNodePart';
 
 export class ModelNode {

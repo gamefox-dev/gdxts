@@ -2,22 +2,23 @@ import { Matrix4 } from '../../Matrix4';
 import { Mesh } from '../Mesh';
 import { Node } from './Node';
 import { Disposable } from '../../Utils';
-import { ModelData } from '../data/ModelData';
-import { ModelNode } from '../data/ModelNode';
+import { ModelData } from './data/ModelData';
+import { ModelNode } from './data/ModelNode';
 import { Material } from '../Material';
 import { MeshPart } from './MeshPart';
 import { FileTextureProvider } from '../utils/TextureProvider';
-import { ModelMesh } from '../data/ModelMesh';
-import { ModelMaterial } from '../data/ModelMaterial';
+import { ModelMesh } from './data/ModelMesh';
+import { ModelMaterial } from './data/ModelMaterial';
 import { ColorAttribute } from '../attributes/ColorAttribute';
 import { FloatAttribute } from '../attributes/FloatAttribute';
 import { BlendingAttribute } from '../attributes/BlendingAttribute';
 import { GL20 } from '../GL20';
 import { Texture } from '../../Texture';
-import { ModelTexture } from '../data/ModelTexture';
+import { ModelTexture } from './data/ModelTexture';
 import { TextureAttribute } from '../attributes/TextureAttribute';
 import { BoundingBox } from '../BoundingBox';
 import { NodePart } from './NodePart';
+import { VertexAttributes } from '../attributes/VertexAttributes';
 
 export class Model implements Disposable {
   public materials: Material[] = [];
@@ -26,22 +27,12 @@ export class Model implements Disposable {
   public meshes: Mesh[] = [];
   public meshParts: MeshPart[] = [];
   protected disposables: Disposable[] = [];
-  protected gl: WebGLRenderingContext;
 
-  constructor(gl, modelData: ModelData = null) {
-    this.gl = gl;
-    if (modelData) {
-      this.Model(modelData, new FileTextureProvider());
-    }
-  }
+  constructor(private gl: WebGLRenderingContext) {}
 
-  public Model(modelData: ModelData, textureProvider: FileTextureProvider) {
-    this.load(modelData, textureProvider);
-  }
-
-  protected load(modelData: ModelData, textureProvider: FileTextureProvider) {
+  public async load(modelData: ModelData, textureProvider: FileTextureProvider = new FileTextureProvider()) {
     this.loadMeshes(modelData.meshes);
-    this.loadMaterials(modelData.materials, textureProvider);
+    await this.loadMaterials(modelData.materials, textureProvider);
     this.loadNodes(modelData.nodes);
     //this.loadAnimations(modelData.animations);
     this.calculateTransforms();
@@ -170,36 +161,42 @@ export class Model implements Disposable {
     }
   }
 
-  protected convertMesh(modelMesh: ModelMesh) {
-    //  let numIndices = 0;
-    //  for (const part of modelMesh.parts) {
-    //      numIndices += part.indices.length;
-    //  }
-    //  const hasIndices = numIndices > 0;
-    //  const attributes = new VertexAttributes(modelMesh.attributes);
-    //  const numVertices = modelMesh.vertices.length / (attributes.vertexSize / 4);
-    //  const mesh = new Mesh(true, numVertices, numIndices, attributes);
-    //  meshes.add(mesh);
-    //  disposables.add(mesh);
-    //  BufferUtils.copy(modelMesh.vertices, mesh.getVerticesBuffer(), modelMesh.vertices.length, 0);
-    //  int offset = 0;
-    //  ((Buffer)mesh.getIndicesBuffer()).clear();
-    //  for (ModelMeshPart part : modelMesh.parts) {
-    //      MeshPart meshPart = new MeshPart();
-    //      meshPart.id = part.id;
-    //      meshPart.primitiveType = part.primitiveType;
-    //      meshPart.offset = offset;
-    //      meshPart.size = hasIndices ? part.indices.length : numVertices;
-    //      meshPart.mesh = mesh;
-    //      if (hasIndices) {
-    //          mesh.getIndicesBuffer().put(part.indices);
-    //      }
-    //      offset += meshPart.size;
-    //      meshParts.add(meshPart);
-    //  }
-    //  ((Buffer)mesh.getIndicesBuffer()).position(0);
-    //  for (MeshPart part : meshParts)
-    //      part.update();
+  protected;
+  convertMesh(modelMesh: ModelMesh) {
+    let numIndices = 0;
+    for (const part of modelMesh.parts) {
+      numIndices += part.indices.length;
+    }
+    const hasIndices = numIndices > 0;
+    const attributes = new VertexAttributes(modelMesh.attributes);
+    const numVertices = modelMesh.vertices.length / (attributes.vertexSize / 4);
+    const mesh = new Mesh(this.gl, true, true, numVertices, numIndices, attributes);
+    this.meshes.push(mesh);
+    this.disposables.push(mesh);
+
+    const verticesBuffer = mesh.getVerticesBuffer();
+    verticesBuffer.set(modelMesh.vertices.slice(0, modelMesh.vertices.length), 0);
+    //BufferUtils.copy(modelMesh.vertices, mesh.getVerticesBuffer(), modelMesh.vertices.length, 0);
+
+    let offset = 0;
+    //((Buffer)mesh.getIndicesBuffer()).clear();
+
+    for (const part of modelMesh.parts) {
+      const meshPart = new MeshPart();
+      meshPart.id = part.id;
+      meshPart.primitiveType = part.primitiveType;
+      meshPart.offset = offset;
+      meshPart.size = hasIndices ? part.indices.length : numVertices;
+      meshPart.mesh = mesh;
+      if (hasIndices) {
+        mesh.getIndicesBuffer().set(part.indices.slice(0, part.indices.length), 0);
+        //mesh.getIndicesBuffer().put(part.indices);
+      }
+      offset += meshPart.size;
+      this.meshParts.push(meshPart);
+    }
+    //((Buffer)mesh.getIndicesBuffer()).position(0);
+    for (const part of this.meshParts) part.update();
   }
 
   protected async loadMaterials(modelMaterials: ModelMaterial[], textureProvider: FileTextureProvider) {
@@ -247,25 +244,25 @@ export class Model implements Disposable {
         let ta: TextureAttribute;
         switch (tex.usage) {
           case ModelTexture.USAGE_DIFFUSE:
-            ta = new TextureAttribute(TextureAttribute.Diffuse);
+            ta = new TextureAttribute(TextureAttribute.Diffuse, offsetU, offsetV, scaleU, scaleV);
             break;
           case ModelTexture.USAGE_SPECULAR:
-            ta = new TextureAttribute(TextureAttribute.Specular);
+            ta = new TextureAttribute(TextureAttribute.Specular, offsetU, offsetV, scaleU, scaleV);
             break;
           case ModelTexture.USAGE_BUMP:
-            ta = new TextureAttribute(TextureAttribute.Bump);
+            ta = new TextureAttribute(TextureAttribute.Bump, offsetU, offsetV, scaleU, scaleV);
             break;
           case ModelTexture.USAGE_NORMAL:
-            ta = new TextureAttribute(TextureAttribute.Normal);
+            ta = new TextureAttribute(TextureAttribute.Normal, offsetU, offsetV, scaleU, scaleV);
             break;
           case ModelTexture.USAGE_AMBIENT:
-            ta = new TextureAttribute(TextureAttribute.Ambient);
+            ta = new TextureAttribute(TextureAttribute.Ambient, offsetU, offsetV, scaleU, scaleV);
             break;
           case ModelTexture.USAGE_EMISSIVE:
-            ta = new TextureAttribute(TextureAttribute.Emissive);
+            ta = new TextureAttribute(TextureAttribute.Emissive, offsetU, offsetV, scaleU, scaleV);
             break;
           case ModelTexture.USAGE_REFLECTION:
-            ta = new TextureAttribute(TextureAttribute.Reflection);
+            ta = new TextureAttribute(TextureAttribute.Reflection, offsetU, offsetV, scaleU, scaleV);
             break;
         }
 

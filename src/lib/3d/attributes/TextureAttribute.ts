@@ -74,8 +74,12 @@ export class TextureAttribute extends Attribute {
   public scaleV = 1;
   public uvIndex = 0;
 
-  constructor(type: number) {
+  constructor(type: number, offsetU: number = 0, offsetV: number = 0, scaleU: number = 1, scaleV: number = 1) {
     super();
+    this.offsetU = offsetU;
+    this.offsetV = offsetV;
+    this.scaleU = scaleU;
+    this.scaleV = scaleV;
     this.Attribute(type);
   }
 
@@ -108,6 +112,7 @@ export class TextureAttribute extends Attribute {
     att.scaleU = this.scaleU;
     att.scaleV = this.scaleV;
     att.uvIndex = this.uvIndex;
+    att.texture = this.texture;
     return att;
   }
 }

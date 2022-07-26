@@ -6,7 +6,7 @@ import { Color, MathUtils, Utils } from '../../Utils';
 import { Vector2 } from '../../Vector2';
 import { Vector3 } from '../../Vector3';
 import { BoundingBox } from '../BoundingBox';
-import { VertexInfo } from '../data/VertexInfo';
+import { VertexInfo } from './VertexInfo';
 import { GL20 } from '../GL20';
 import { Matrix3 } from '../../Matrix3';
 import { Mesh } from '../Mesh';

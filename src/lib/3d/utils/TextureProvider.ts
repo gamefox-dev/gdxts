@@ -1,4 +1,4 @@
-import { Texture, TextureFilter, TextureWrap } from "../../Texture";
+import { Texture, TextureFilter, TextureWrap } from '../../Texture';
 
 export class FileTextureProvider {
   private minFilter: TextureFilter;
@@ -21,11 +21,8 @@ export class FileTextureProvider {
     this.useMipMaps = useMipMaps;
   }
 
-  public async load(
-    gl: WebGLRenderingContext,
-    fileName: string
-  ): Promise<Texture> {
-    const result = await Texture.load(gl, "test.jpg");
+  public async load(gl: WebGLRenderingContext, fileName: string): Promise<Texture> {
+    const result = await Texture.load(gl, fileName);
     result.setFilters(this.minFilter, this.magFilter);
     result.setWraps(this.uWrap, this.vWrap);
     return result;

@@ -1,9 +1,9 @@
-import { Color } from "../../Utils";
-import { ModelTexture } from "./ModelTexture";
+import { Color } from '../../../Utils';
+import { ModelTexture } from './ModelTexture';
 
 export enum MaterialType {
   Lambert,
-  Phong,
+  Phong
 }
 
 export class ModelMaterial {

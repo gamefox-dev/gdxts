@@ -4,9 +4,13 @@ export class Material extends Attributes {
   private static counter: number = 0;
   id: string;
 
-  constructor() {
+  constructor(id: string = null) {
     super();
-    this.id = 'mtl' + ++Material.counter;
+    if (id === null) {
+      this.id = 'mtl' + ++Material.counter;
+    } else {
+      this.id = id;
+    }
   }
 
   public equals(other: Material): boolean {
