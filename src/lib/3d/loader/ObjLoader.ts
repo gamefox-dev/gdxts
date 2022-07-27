@@ -196,6 +196,13 @@ export class ObjLoader {
   private uvs: number[] = [];
   private groups: Group[] = [];
 
+  public async load(gl: WebGLRenderingContext, fileName: string): Promise<Model> {
+    const shipData = await this.loadModelData('ship.obj');
+    const shipModel = new Model(gl);
+    await shipModel.load(shipData);
+    return shipModel;
+  }
+
   public async loadModelData(fileName: string, flipV: boolean = false): Promise<ModelData> {
     if (ObjLoader.logWarning)
       throw Error('Wavefront (OBJ) is not fully supported, consult the documentation for more information');

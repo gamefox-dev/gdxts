@@ -1151,33 +1151,33 @@ export class DefaultShader extends BaseShader {
     for (let i = 0; i < n; i++) {
       const attr = renderable.meshPart.mesh.getVertexAttributes().get(i);
       if (attr.usage === Usage.BoneWeight) prefix += '#define boneWeight' + attr.unit + 'Flag\n';
-      else if (attr.usage === Usage.TextureCoordinates) prefix += '#define texCoord' + attr.unit + 'Flag\n';
+      else if (attr.usage === Usage.TextureCoordinates) prefix += '#define texCoords' + attr.unit + 'Flag\n';
     }
     if ((attributesMask & BlendingAttribute.Type) === BlendingAttribute.Type)
       prefix += '#define ' + BlendingAttribute.Alias + 'Flag\n';
     if ((attributesMask & TextureAttribute.Diffuse) === TextureAttribute.Diffuse) {
       prefix += '#define ' + TextureAttribute.DiffuseAlias + 'Flag\n';
-      prefix += '#define ' + TextureAttribute.DiffuseAlias + 'Coord texCoord0\n'; // FIXME implement UV mapping
+      prefix += '#define ' + TextureAttribute.DiffuseAlias + 'Coord texCoords0\n'; // FIXME implement UV mapping
     }
     if ((attributesMask & TextureAttribute.Specular) === TextureAttribute.Specular) {
       prefix += '#define ' + TextureAttribute.SpecularAlias + 'Flag\n';
-      prefix += '#define ' + TextureAttribute.SpecularAlias + 'Coord texCoord0\n'; // FIXME implement UV mapping
+      prefix += '#define ' + TextureAttribute.SpecularAlias + 'Coord texCoords0\n'; // FIXME implement UV mapping
     }
     if ((attributesMask & TextureAttribute.Normal) === TextureAttribute.Normal) {
       prefix += '#define ' + TextureAttribute.NormalAlias + 'Flag\n';
-      prefix += '#define ' + TextureAttribute.NormalAlias + 'Coord texCoord0\n'; // FIXME implement UV mapping
+      prefix += '#define ' + TextureAttribute.NormalAlias + 'Coord texCoords0\n'; // FIXME implement UV mapping
     }
     if ((attributesMask & TextureAttribute.Emissive) === TextureAttribute.Emissive) {
       prefix += '#define ' + TextureAttribute.EmissiveAlias + 'Flag\n';
-      prefix += '#define ' + TextureAttribute.EmissiveAlias + 'Coord texCoord0\n'; // FIXME implement UV mapping
+      prefix += '#define ' + TextureAttribute.EmissiveAlias + 'Coord texCoords0\n'; // FIXME implement UV mapping
     }
     if ((attributesMask & TextureAttribute.Reflection) === TextureAttribute.Reflection) {
       prefix += '#define ' + TextureAttribute.ReflectionAlias + 'Flag\n';
-      prefix += '#define ' + TextureAttribute.ReflectionAlias + 'Coord texCoord0\n'; // FIXME implement UV mapping
+      prefix += '#define ' + TextureAttribute.ReflectionAlias + 'Coord texCoords0\n'; // FIXME implement UV mapping
     }
     if ((attributesMask & TextureAttribute.Ambient) === TextureAttribute.Ambient) {
       prefix += '#define ' + TextureAttribute.AmbientAlias + 'Flag\n';
-      prefix += '#define ' + TextureAttribute.AmbientAlias + 'Coord texCoord0\n'; // FIXME implement UV mapping
+      prefix += '#define ' + TextureAttribute.AmbientAlias + 'Coord texCoords0\n'; // FIXME implement UV mapping
     }
     if ((attributesMask & ColorAttribute.Diffuse) === ColorAttribute.Diffuse)
       prefix += '#define ' + ColorAttribute.DiffuseAlias + 'Flag\n';

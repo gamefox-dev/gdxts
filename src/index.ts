@@ -62,14 +62,10 @@ const init = async () => {
     instances.push(instance);
   }
 
-  // const loader = new ObjLoader();
-  // const shipData = await loader.loadModelData('ship.obj');
-  // const shipModel = new Model(gl);
-  // await shipModel.load(shipData);
-
-  // shipModel.materials = [material];
-  // const shipInstance = new ModelInstance(shipModel);
-  // instances.push(shipInstance);
+  const loader = new ObjLoader();
+  const shipModel = await loader.load(gl, 'ship.obj');
+  const shipInstance = new ModelInstance(shipModel);
+  instances.push(shipInstance);
 
   // culling
   const bounds = new BoundingBox();

@@ -64,7 +64,7 @@ export class MeshBuilder {
   constructor(private gl: WebGLRenderingContext) {}
 
   public static createAttributes(usage: number): VertexAttributes {
-    const attrs = new Array<VertexAttribute>();
+    const attrs: VertexAttribute[] = [];
 
     if ((usage & Usage.Position) === Usage.Position)
       attrs.push(new VertexAttribute(Usage.Position, 3, GL20.GL_FLOAT, false, Shader.POSITION));
@@ -76,9 +76,9 @@ export class MeshBuilder {
       attrs.push(new VertexAttribute(Usage.Normal, 3, GL20.GL_FLOAT, false, Shader.NORMAL));
     if ((usage & Usage.TextureCoordinates) === Usage.TextureCoordinates)
       attrs.push(new VertexAttribute(Usage.TextureCoordinates, 2, GL20.GL_FLOAT, false, Shader.TEXCOORDS + '0'));
-    const attributes = new Array<VertexAttribute>(attrs.length);
-    for (let i = 0; i < attributes.length; i++) attributes[i] = attrs[i];
-    return new VertexAttributes(attributes);
+    // const attributes = new Array<VertexAttribute>(attrs.length);
+    // for (let i = 0; i < attributes.length; i++) attributes[i] = attrs[i];
+    return new VertexAttributes(attrs);
   }
 
   public begin(attributes: VertexAttributes, primitiveType: number = -1) {

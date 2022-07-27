@@ -174,12 +174,8 @@ export class Model implements Disposable {
     this.meshes.push(mesh);
     this.disposables.push(mesh);
 
-    const verticesBuffer = mesh.getVerticesBuffer();
-    verticesBuffer.set(modelMesh.vertices.slice(0, modelMesh.vertices.length), 0);
-    //BufferUtils.copy(modelMesh.vertices, mesh.getVerticesBuffer(), modelMesh.vertices.length, 0);
-
+    mesh.vertices.updateVertices(0, modelMesh.vertices, 0, modelMesh.vertices.length);
     let offset = 0;
-    //((Buffer)mesh.getIndicesBuffer()).clear();
 
     for (const part of modelMesh.parts) {
       const meshPart = new MeshPart();
@@ -190,12 +186,10 @@ export class Model implements Disposable {
       meshPart.mesh = mesh;
       if (hasIndices) {
         mesh.getIndicesBuffer().set(part.indices.slice(0, part.indices.length), 0);
-        //mesh.getIndicesBuffer().put(part.indices);
       }
       offset += meshPart.size;
       this.meshParts.push(meshPart);
     }
-    //((Buffer)mesh.getIndicesBuffer()).position(0);
     for (const part of this.meshParts) part.update();
   }
 
