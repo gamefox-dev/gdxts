@@ -245,7 +245,7 @@ const init = async () => {
   });
   const gl = viewport.getContext();
 
-  Game.shared.setScreen(await createTestSpriteScreen(viewport));
+  Game.shared.setScreen(await createMainScreen(viewport));
 
   gl.clearColor(0, 0, 0, 1);
   createGameLoop((delta: number) => {

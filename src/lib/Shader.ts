@@ -1,5 +1,4 @@
 import { Disposable, Restorable } from './Utils';
-import { ManagedWebGLRenderingContext } from './WebGL';
 
 export class Shader implements Disposable, Restorable {
   public static MVP_MATRIX = 'u_projTrans';
@@ -9,7 +8,7 @@ export class Shader implements Disposable, Restorable {
   public static TEXCOORDS = 'a_texCoords';
   public static SAMPLER = 'u_texture';
 
-  private context: ManagedWebGLRenderingContext;
+  private context: WebGLRenderingContext;
   private vs: WebGLShader = null;
   private vsSource: string;
   private fs: WebGLShader = null;
@@ -35,21 +34,15 @@ export class Shader implements Disposable, Restorable {
     return this.fsSource;
   }
 
-  constructor(
-    context: ManagedWebGLRenderingContext | WebGLRenderingContext,
-    private vertexShader: string,
-    private fragmentShader: string
-  ) {
+  constructor(context: WebGLRenderingContext, private vertexShader: string, private fragmentShader: string) {
     this.vsSource = vertexShader;
     this.fsSource = fragmentShader;
-    this.context =
-      context instanceof ManagedWebGLRenderingContext ? context : new ManagedWebGLRenderingContext(context);
-    this.context.addRestorable(this);
+    this.context = context;
     this.compile();
   }
 
   private compile() {
-    let gl = this.context.gl;
+    let gl = this.context;
     try {
       this.vs = this.compileShader(gl.VERTEX_SHADER, this.vertexShader);
       this.fs = this.compileShader(gl.FRAGMENT_SHADER, this.fragmentShader);
@@ -61,7 +54,7 @@ export class Shader implements Disposable, Restorable {
   }
 
   private compileShader(type: number, source: string) {
-    let gl = this.context.gl;
+    let gl = this.context;
     let shader = gl.createShader(type);
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
@@ -74,7 +67,7 @@ export class Shader implements Disposable, Restorable {
   }
 
   private compileProgram(vs: WebGLShader, fs: WebGLShader) {
-    let gl = this.context.gl;
+    let gl = this.context;
     let program = gl.createProgram();
     gl.attachShader(program, vs);
     gl.attachShader(program, fs);
@@ -93,69 +86,67 @@ export class Shader implements Disposable, Restorable {
   }
 
   public bind() {
-    this.context.gl.useProgram(this.program);
+    this.context.useProgram(this.program);
   }
 
   public unbind() {
-    this.context.gl.useProgram(null);
+    this.context.useProgram(null);
   }
 
   public setUniformi(uniform: string, value: number) {
-    this.context.gl.uniform1i(this.getUniformLocation(uniform), value);
+    this.context.uniform1i(this.getUniformLocation(uniform), value);
   }
 
   public setUniformf(uniform: string, value: number) {
-    this.context.gl.uniform1f(this.getUniformLocation(uniform), value);
+    this.context.uniform1f(this.getUniformLocation(uniform), value);
   }
 
   public setUniform2f(uniform: string, value: number, value2: number) {
-    this.context.gl.uniform2f(this.getUniformLocation(uniform), value, value2);
+    this.context.uniform2f(this.getUniformLocation(uniform), value, value2);
   }
 
   public setUniform3f(uniform: string, value: number, value2: number, value3: number) {
-    this.context.gl.uniform3f(this.getUniformLocation(uniform), value, value2, value3);
+    this.context.uniform3f(this.getUniformLocation(uniform), value, value2, value3);
   }
 
   public setUniform4f(uniform: string, value: number, value2: number, value3: number, value4: number) {
-    this.context.gl.uniform4f(this.getUniformLocation(uniform), value, value2, value3, value4);
+    this.context.uniform4f(this.getUniformLocation(uniform), value, value2, value3, value4);
   }
 
   public setUniform2x2f(uniform: string, value: ArrayLike<number>) {
-    let gl = this.context.gl;
+    let gl = this.context;
     this.tmp2x2.set(value);
     gl.uniformMatrix2fv(this.getUniformLocation(uniform), false, this.tmp2x2);
   }
 
   public setUniform3x3f(uniform: string, value: ArrayLike<number>) {
-    let gl = this.context.gl;
+    let gl = this.context;
     this.tmp3x3.set(value);
     gl.uniformMatrix3fv(this.getUniformLocation(uniform), false, this.tmp3x3);
   }
 
   public setUniform4x4f(uniform: string, value: ArrayLike<number>) {
-    let gl = this.context.gl;
+    let gl = this.context;
     this.tmp4x4.set(value);
     gl.uniformMatrix4fv(this.getUniformLocation(uniform), false, this.tmp4x4);
   }
 
   public getUniformLocation(uniform: string): WebGLUniformLocation {
-    let gl = this.context.gl;
+    let gl = this.context;
     let location = gl.getUniformLocation(this.program, uniform);
     if (!location && !gl.isContextLost()) throw new Error(`Couldn't find location for uniform ${uniform}`);
     return location;
   }
 
   public getAttributeLocation(attribute: string): number {
-    let gl = this.context.gl;
+    let gl = this.context;
     let location = gl.getAttribLocation(this.program, attribute);
     if (location === -1 && !gl.isContextLost()) throw new Error(`Couldn't find location for attribute ${attribute}`);
     return location;
   }
 
   public dispose() {
-    this.context.removeRestorable(this);
-
-    let gl = this.context.gl;
+    let gl = this.context;
     if (this.vs) {
       gl.deleteShader(this.vs);
       this.vs = null;
@@ -172,7 +163,7 @@ export class Shader implements Disposable, Restorable {
     }
   }
 
-  public static newColoredTextured(context: ManagedWebGLRenderingContext | WebGLRenderingContext): Shader {
+  public static newColoredTextured(context: WebGLRenderingContext): Shader {
     let vs = `
          attribute vec4 ${Shader.POSITION};
          attribute vec4 ${Shader.COLOR};
@@ -207,7 +198,7 @@ export class Shader implements Disposable, Restorable {
     return new Shader(context, vs, fs);
   }
 
-  public static newTwoColoredTextured(context: ManagedWebGLRenderingContext | WebGLRenderingContext): Shader {
+  public static newTwoColoredTextured(context: WebGLRenderingContext): Shader {
     let vs = `
          attribute vec4 ${Shader.POSITION};
          attribute vec4 ${Shader.COLOR};
@@ -248,7 +239,7 @@ export class Shader implements Disposable, Restorable {
     return new Shader(context, vs, fs);
   }
 
-  public static newColored(context: ManagedWebGLRenderingContext | WebGLRenderingContext): Shader {
+  public static newColored(context: WebGLRenderingContext): Shader {
     let vs = `
          attribute vec4 ${Shader.POSITION};
          attribute vec4 ${Shader.COLOR};

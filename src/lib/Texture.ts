@@ -1,5 +1,3 @@
-import { ManagedWebGLRenderingContext } from './WebGL';
-
 export enum TextureFilter {
   Nearest = 9728, // WebGLRenderingContext.NEAREST
   Linear = 9729, // WebGLRenderingContext.LINEAR
@@ -33,7 +31,7 @@ export class Texture {
     });
   }
 
-  context: ManagedWebGLRenderingContext;
+  context: WebGLRenderingContext;
   private texture: WebGLTexture = null;
   private boundUnit = 0;
   private useMipMaps = false;
@@ -43,24 +41,18 @@ export class Texture {
 
   public static DISABLE_UNPACK_PREMULTIPLIED_ALPHA_WEBGL = false;
 
-  constructor(
-    context: ManagedWebGLRenderingContext | WebGLRenderingContext,
-    image: HTMLImageElement | ImageBitmap,
-    useMipMaps: boolean = false
-  ) {
+  constructor(context: WebGLRenderingContext, image: HTMLImageElement | ImageBitmap, useMipMaps: boolean = false) {
     this._image = image;
-    this.context =
-      context instanceof ManagedWebGLRenderingContext ? context : new ManagedWebGLRenderingContext(context);
+    this.context = context;
     this.useMipMaps = useMipMaps;
     this.restore();
-    this.context.addRestorable(this);
 
     this.width = image.width;
     this.height = image.height;
   }
 
   setFilters(minFilter: TextureFilter, magFilter: TextureFilter) {
-    let gl = this.context.gl;
+    let gl = this.context;
     this.bind();
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, Texture.validateMagFilter(magFilter));
@@ -80,15 +72,15 @@ export class Texture {
   }
 
   setWraps(uWrap: TextureWrap, vWrap: TextureWrap) {
-    let gl = this.context.gl;
+    let gl = this.context;
     this.bind();
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, uWrap);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, vWrap);
   }
 
   update(useMipMaps: boolean) {
-    let gl = this.context.gl;
-    if (!this.texture) this.texture = this.context.gl.createTexture();
+    let gl = this.context;
+    if (!this.texture) this.texture = this.context.createTexture();
     this.bind();
     if (Texture.DISABLE_UNPACK_PREMULTIPLIED_ALPHA_WEBGL) gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
@@ -105,21 +97,20 @@ export class Texture {
   }
 
   bind(unit: number = 0) {
-    let gl = this.context.gl;
+    let gl = this.context;
     this.boundUnit = unit;
     gl.activeTexture(gl.TEXTURE0 + unit);
     gl.bindTexture(gl.TEXTURE_2D, this.texture);
   }
 
   unbind() {
-    let gl = this.context.gl;
+    let gl = this.context;
     gl.activeTexture(gl.TEXTURE0 + this.boundUnit);
     gl.bindTexture(gl.TEXTURE_2D, null);
   }
 
   dispose() {
-    this.context.removeRestorable(this);
-    let gl = this.context.gl;
+    let gl = this.context;
     gl.deleteTexture(this.texture);
   }
 }

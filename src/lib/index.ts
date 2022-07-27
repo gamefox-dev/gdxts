@@ -24,4 +24,3 @@ export * from './Vector2';
 export * from './Vector3';
 export * from './Viewport';
 export * from './ViewportInputHandler';
-export * from './WebGL';

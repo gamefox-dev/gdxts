@@ -1,9 +1,8 @@
 import { Disposable, Restorable } from './Utils';
 import { Shader } from './Shader';
-import { ManagedWebGLRenderingContext } from './WebGL';
 
 export class Mesh implements Disposable, Restorable {
-  private context: ManagedWebGLRenderingContext;
+  private context: WebGLRenderingContext;
   private vertices: Float32Array;
   private verticesBuffer: WebGLBuffer;
   private verticesLength = 0;
@@ -56,20 +55,18 @@ export class Mesh implements Disposable, Restorable {
   }
 
   constructor(
-    context: ManagedWebGLRenderingContext | WebGLRenderingContext,
+    context: WebGLRenderingContext,
     private attributes: VertexAttribute[],
     maxVertices: number,
     maxIndices: number
   ) {
-    this.context =
-      context instanceof ManagedWebGLRenderingContext ? context : new ManagedWebGLRenderingContext(context);
+    this.context = context;
     this.elementsPerVertex = 0;
     for (let i = 0; i < attributes.length; i++) {
       this.elementsPerVertex += attributes[i].numElements;
     }
     this.vertices = new Float32Array(maxVertices * this.elementsPerVertex);
     this.indices = new Uint16Array(maxIndices);
-    this.context.addRestorable(this);
   }
 
   setVertices(vertices: Array<number>) {
@@ -98,7 +95,7 @@ export class Mesh implements Disposable, Restorable {
   }
 
   drawWithOffset(shader: Shader, primitiveType: number, offset: number, count: number) {
-    let gl = this.context.gl;
+    let gl = this.context;
     if (this.dirtyVertices || this.dirtyIndices) this.update();
     this.bind(shader);
     if (this.indicesLength > 0) {
@@ -110,7 +107,7 @@ export class Mesh implements Disposable, Restorable {
   }
 
   bind(shader: Shader) {
-    let gl = this.context.gl;
+    let gl = this.context;
     gl.bindBuffer(gl.ARRAY_BUFFER, this.verticesBuffer);
     let offset = 0;
     for (let i = 0; i < this.attributes.length; i++) {
@@ -124,7 +121,7 @@ export class Mesh implements Disposable, Restorable {
   }
 
   unbind(shader: Shader) {
-    let gl = this.context.gl;
+    let gl = this.context;
     for (let i = 0; i < this.attributes.length; i++) {
       let attrib = this.attributes[i];
       let location = shader.getAttributeLocation(attrib.name);
@@ -135,7 +132,7 @@ export class Mesh implements Disposable, Restorable {
   }
 
   private update() {
-    let gl = this.context.gl;
+    let gl = this.context;
     if (this.dirtyVertices) {
       if (!this.verticesBuffer) {
         this.verticesBuffer = gl.createBuffer();
@@ -162,8 +159,7 @@ export class Mesh implements Disposable, Restorable {
   }
 
   dispose() {
-    this.context.removeRestorable(this);
-    let gl = this.context.gl;
+    let gl = this.context;
     gl.deleteBuffer(this.verticesBuffer);
     gl.deleteBuffer(this.indicesBuffer);
   }
