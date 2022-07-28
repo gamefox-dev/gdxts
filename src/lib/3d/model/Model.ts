@@ -185,7 +185,7 @@ export class Model implements Disposable {
       meshPart.size = hasIndices ? part.indices.length : numVertices;
       meshPart.mesh = mesh;
       if (hasIndices) {
-        mesh.getIndicesBuffer().set(part.indices.slice(0, part.indices.length), 0);
+        mesh.indices.updateIndices(0, part.indices, 0, part.indices.length);
       }
       offset += meshPart.size;
       this.meshParts.push(meshPart);

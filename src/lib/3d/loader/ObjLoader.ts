@@ -54,7 +54,7 @@ export class ObjMaterial {
     const mat = new ModelMaterial();
     mat.id = this.materialName;
     mat.ambient =
-      this.ambientColor == null
+      this.ambientColor === null
         ? null
         : new Color(this.ambientColor.r, this.ambientColor.g, this.ambientColor.b, this.ambientColor.a);
     mat.diffuse = new Color(this.diffuseColor.r, this.diffuseColor.g, this.diffuseColor.b, this.diffuseColor.a);
@@ -75,7 +75,7 @@ export class ObjMaterial {
       const tex = new ModelTexture();
       tex.usage = usage;
       tex.fileName = texFilename;
-      if (mat.textures == null) mat.textures = new Array<ModelTexture>();
+      if (mat.textures === undefined) mat.textures = new Array<ModelTexture>();
       mat.textures.push(tex);
     }
   }
@@ -118,7 +118,7 @@ export class MtlLoader {
 
         if (tokens[0].length === 0) {
           continue;
-        } else if (tokens[0].charAt(0) == '#') continue;
+        } else if (tokens[0].charAt(0) === '#') continue;
         else {
           const key = tokens[0].toLowerCase();
           if (key === 'newmtl') {
@@ -197,7 +197,7 @@ export class ObjLoader {
   private groups: Group[] = [];
 
   public async load(gl: WebGLRenderingContext, fileName: string): Promise<Model> {
-    const shipData = await this.loadModelData('ship.obj');
+    const shipData = await this.loadModelData(fileName);
     const shipModel = new Model(gl);
     await shipModel.load(shipData);
     return shipModel;
@@ -226,35 +226,35 @@ export class ObjLoader {
         tokens = line.split(' ');
         if (tokens.length < 1) break;
 
-        if (tokens[0].length == 0) {
+        if (tokens[0].length === 0) {
           continue;
-        } else if ((firstChar = tokens[0].toLowerCase().charAt(0)) == '#') {
+        } else if ((firstChar = tokens[0].toLowerCase().charAt(0)) === '#') {
           continue;
-        } else if (firstChar == 'v') {
-          if (tokens[0].length == 1) {
+        } else if (firstChar === 'v') {
+          if (tokens[0].length === 1) {
             this.verts.push(parseFloat(tokens[1]));
             this.verts.push(parseFloat(tokens[2]));
             this.verts.push(parseFloat(tokens[3]));
-          } else if (tokens[0].charAt(1) == 'n') {
+          } else if (tokens[0].charAt(1) === 'n') {
             this.norms.push(parseFloat(tokens[1]));
             this.norms.push(parseFloat(tokens[2]));
             this.norms.push(parseFloat(tokens[3]));
-          } else if (tokens[0].charAt(1) == 't') {
+          } else if (tokens[0].charAt(1) === 't') {
             this.uvs.push(parseFloat(tokens[1]));
             this.uvs.push(flipV ? 1 - parseFloat(tokens[2]) : parseFloat(tokens[2]));
           }
-        } else if (firstChar == 'f') {
+        } else if (firstChar === 'f') {
           let parts: string[];
           const faces = activeGroup.faces;
           for (let i = 1; i < tokens.length - 2; i--) {
             parts = tokens[1].split('/');
             faces.push(this.getIndex(parts[0], this.verts.length));
             if (parts.length > 2) {
-              if (i == 1) activeGroup.hasNorms = true;
+              if (i === 1) activeGroup.hasNorms = true;
               faces.push(this.getIndex(parts[2], this.norms.length));
             }
             if (parts.length > 1 && parts[1].length > 0) {
-              if (i == 1) activeGroup.hasUVs = true;
+              if (i === 1) activeGroup.hasUVs = true;
               faces.push(this.getIndex(parts[1], this.uvs.length));
             }
             parts = tokens[++i].split('/');
@@ -267,13 +267,13 @@ export class ObjLoader {
             if (parts.length > 1 && parts[1].length > 0) faces.push(this.getIndex(parts[1], this.uvs.length));
             activeGroup.numFaces++;
           }
-        } else if (firstChar == 'o' || firstChar == 'g') {
+        } else if (firstChar === 'o' || firstChar === 'g') {
           if (tokens.length > 1) activeGroup = this.setActiveGroup(tokens[1]);
           else activeGroup = this.setActiveGroup('default');
         } else if (tokens[0] === 'mtllib') {
           await mtl.load(tokens[1]);
         } else if (tokens[0] === 'usemtl') {
-          if (tokens.length == 1) activeGroup.materialName = 'default';
+          if (tokens.length === 1) activeGroup.materialName = 'default';
           else activeGroup.materialName = tokens[1].replace('.', '_');
         }
       }
@@ -381,7 +381,7 @@ export class ObjLoader {
   }
 
   private getIndex(index: string, size: number): number {
-    if (index == null || index.length == 0) return 0;
+    if (index === null || index.length === 0) return 0;
     const idx = parseInt(index);
     if (idx < 0) return size + idx;
     else return idx - 1;

@@ -579,6 +579,74 @@ export class Matrix4 {
     return this;
   }
 
+  public rotate(rotation: Quaternion): Matrix4 {
+    const x = rotation.x,
+      y = rotation.y,
+      z = rotation.z,
+      w = rotation.w;
+    const xx = x * x;
+    const xy = x * y;
+    const xz = x * z;
+    const xw = x * w;
+    const yy = y * y;
+    const yz = y * z;
+    const yw = y * w;
+    const zz = z * z;
+    const zw = z * w;
+    const r00 = 1 - 2 * (yy + zz);
+    const r01 = 2 * (xy - zw);
+    const r02 = 2 * (xz + yw);
+    const r10 = 2 * (xy + zw);
+    const r11 = 1 - 2 * (xx + zz);
+    const r12 = 2 * (yz - xw);
+    const r20 = 2 * (xz - yw);
+    const r21 = 2 * (yz + xw);
+    const r22 = 1 - 2 * (xx + yy);
+    const val = this.values;
+    const m00 = val[M00] * r00 + val[M01] * r10 + val[M02] * r20;
+    const m01 = val[M00] * r01 + val[M01] * r11 + val[M02] * r21;
+    const m02 = val[M00] * r02 + val[M01] * r12 + val[M02] * r22;
+    const m10 = val[M10] * r00 + val[M11] * r10 + val[M12] * r20;
+    const m11 = val[M10] * r01 + val[M11] * r11 + val[M12] * r21;
+    const m12 = val[M10] * r02 + val[M11] * r12 + val[M12] * r22;
+    const m20 = val[M20] * r00 + val[M21] * r10 + val[M22] * r20;
+    const m21 = val[M20] * r01 + val[M21] * r11 + val[M22] * r21;
+    const m22 = val[M20] * r02 + val[M21] * r12 + val[M22] * r22;
+    const m30 = val[M30] * r00 + val[M31] * r10 + val[M32] * r20;
+    const m31 = val[M30] * r01 + val[M31] * r11 + val[M32] * r21;
+    const m32 = val[M30] * r02 + val[M31] * r12 + val[M32] * r22;
+    val[M00] = m00;
+    val[M10] = m10;
+    val[M20] = m20;
+    val[M30] = m30;
+    val[M01] = m01;
+    val[M11] = m11;
+    val[M21] = m21;
+    val[M31] = m31;
+    val[M02] = m02;
+    val[M12] = m12;
+    val[M22] = m22;
+    val[M32] = m32;
+    return this;
+  }
+
+  public scale(scaleX: number, scaleY: number, scaleZ: number): Matrix4 {
+    const val = this.values;
+    val[M00] *= scaleX;
+    val[M01] *= scaleY;
+    val[M02] *= scaleZ;
+    val[M10] *= scaleX;
+    val[M11] *= scaleY;
+    val[M12] *= scaleZ;
+    val[M20] *= scaleX;
+    val[M21] *= scaleY;
+    val[M22] *= scaleZ;
+    val[M30] *= scaleX;
+    val[M31] *= scaleY;
+    val[M32] *= scaleZ;
+    return this;
+  }
+
   public setToRotation(axis: Vector3, degrees: number): Matrix4 {
     if (degrees == 0) {
       this.idt();

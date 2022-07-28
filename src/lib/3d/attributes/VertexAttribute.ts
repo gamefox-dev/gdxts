@@ -64,6 +64,18 @@ export class VertexAttribute {
     return new VertexAttribute(Usage.ColorUnpacked, 4, GL20.GL_FLOAT, false, Shader.COLOR);
   }
 
+  public static Tangent(): VertexAttribute {
+    return new VertexAttribute(Usage.Tangent, 3, GL20.GL_FLOAT, false, Shader.TANGENT);
+  }
+
+  public static Binormal(): VertexAttribute {
+    return new VertexAttribute(Usage.BiNormal, 3, GL20.GL_FLOAT, false, Shader.BINORMAL);
+  }
+
+  public static BoneWeight(unit: number): VertexAttribute {
+    return new VertexAttribute(Usage.BoneWeight, 2, GL20.GL_FLOAT, false, Shader.BONEWEIGHT + unit, unit);
+  }
+
   public getKey(): number {
     return (this.usageIndex << 8) + (this.unit & 0xff);
   }

@@ -22,6 +22,8 @@ import { SpotLight } from './lib/3d/environment/SpotLight';
 import { BoundingBox } from './lib/3d/BoundingBox';
 import { ObjLoader } from './lib/3d/loader/ObjLoader';
 import { Model } from './lib/3d/model/Model';
+import { UBJsonReader } from './lib/3d/loader/UBJsonReader';
+import { G3dModelLoader } from './lib/3d/loader/G3dModelLoader';
 
 const init = async () => {
   const stage = createStage();
@@ -62,10 +64,18 @@ const init = async () => {
     instances.push(instance);
   }
 
-  const loader = new ObjLoader();
-  const shipModel = await loader.load(gl, 'ship.obj');
+  // Obj loader
+  const objLoader = new ObjLoader();
+  const shipModel = await objLoader.load(gl, 'ship.obj');
   const shipInstance = new ModelInstance(shipModel);
+  shipInstance.transform.translate(5, 0, 0);
   instances.push(shipInstance);
+
+  // g3d loader
+  const g3dLoader = new G3dModelLoader();
+  const shipModel2 = await g3dLoader.load(gl, 'ship.g3db');
+  const shipInstance2 = new ModelInstance(shipModel2);
+  instances.push(shipInstance2);
 
   // culling
   const bounds = new BoundingBox();

@@ -9,6 +9,9 @@ export class Shader implements Disposable, Restorable {
   public static TEXCOORDS = 'a_texCoords';
   public static SAMPLER = 'u_texture';
   public static NORMAL = 'a_normal';
+  public static TANGENT = 'a_tangent';
+  public static BINORMAL = 'a_binormal';
+  public static BONEWEIGHT = 'a_boneWeight';
 
   private context: ManagedWebGLRenderingContext;
   private vs: WebGLShader = null;
