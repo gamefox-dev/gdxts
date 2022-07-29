@@ -42,15 +42,15 @@ export class DefaultTextureBinder {
   }
 
   public bindTexture(texture: Texture, rebind: boolean = false): number {
-    let idx: number, result: number;
+    let result: number;
     let reused = false;
 
     switch (this.method) {
       case DefaultTextureBinder.ROUNDROBIN:
-        result = this.offset + (idx = this.bindTextureRoundRobin(texture));
+        result = this.offset + this.bindTextureRoundRobin(texture);
         break;
       case DefaultTextureBinder.LRU:
-        result = this.offset + (idx = this.bindTextureLRU(texture));
+        result = this.offset + this.bindTextureLRU(texture);
         break;
       default:
         return -1;

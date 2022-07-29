@@ -648,12 +648,10 @@ export class Matrix4 {
   }
 
   public setToRotation(axis: Vector3, degrees: number): Matrix4 {
-    if (degrees == 0) {
+    if (degrees === 0) {
       this.idt();
       return this;
     }
-
-    const s = Matrix4.quat.setFromAxis(axis.x, axis.y, axis.z, degrees);
     return this.setFromQuaternion(Matrix4.quat.setFromAxis(axis.x, axis.y, axis.z, degrees));
   }
 

@@ -8,7 +8,7 @@ export class NodePart {
   public meshPart: MeshPart;
   public material: Material;
   public invBoneBindTransforms: Map<Node, Matrix4> = null;
-  public bones: Matrix4[];
+  public bones: Matrix4[] = null;
   public enabled = true;
 
   constructor(meshPart: MeshPart = null, material = null) {
@@ -46,10 +46,10 @@ export class NodePart {
       });
 
       if (this.bones === null || this.bones.length !== this.invBoneBindTransforms.size)
-        this.bones = new Array<Matrix4>(this.invBoneBindTransforms.size);
+        this.bones = new Array<Matrix4>();
 
-      for (let i = 0; i < this.bones.length; i++) {
-        if (this.bones[i] === null) this.bones[i] = new Matrix4();
+      for (let i = 0; i < this.invBoneBindTransforms.size; i++) {
+        if (this.bones[i] === undefined) this.bones[i] = new Matrix4();
       }
     }
     return this;

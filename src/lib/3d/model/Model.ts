@@ -19,11 +19,17 @@ import { TextureAttribute } from '../attributes/TextureAttribute';
 import { BoundingBox } from '../BoundingBox';
 import { NodePart } from './NodePart';
 import { VertexAttributes } from '../attributes/VertexAttributes';
+import { ModelAnimation } from './data/ModelAnimation';
+import { NodeAnimation } from './NodeAnimation';
+import { Animation } from './Animation';
+import { NodeKeyframe } from './NodeKeyframe';
+import { Vector3 } from '../../Vector3';
+import { Quaternion } from '../../Quaternion';
 
 export class Model implements Disposable {
   public materials: Material[] = [];
   public nodes: Node[] = [];
-  //public final Array<Animation> animations = new Array();
+  public animations: Animation[] = [];
   public meshes: Mesh[] = [];
   public meshParts: MeshPart[] = [];
   protected disposables: Disposable[] = [];
@@ -34,57 +40,66 @@ export class Model implements Disposable {
     this.loadMeshes(modelData.meshes);
     await this.loadMaterials(modelData.materials, textureProvider);
     this.loadNodes(modelData.nodes);
-    //this.loadAnimations(modelData.animations);
+    this.loadAnimations(modelData.animations);
     this.calculateTransforms();
   }
 
-  //  protected void loadAnimations (Iterable<ModelAnimation> modelAnimations) {
-  //      for (final ModelAnimation anim : modelAnimations) {
-  //          Animation animation = new Animation();
-  //          animation.id = anim.id;
-  //          for (ModelNodeAnimation nanim : anim.nodeAnimations) {
-  //              final Node node = getNode(nanim.nodeId);
-  //              if (node == null) continue;
-  //              NodeAnimation nodeAnim = new NodeAnimation();
-  //              nodeAnim.node = node;
+  protected loadAnimations(modelAnimations: ModelAnimation[]) {
+    for (const anim of modelAnimations) {
+      const animation = new Animation();
+      animation.id = anim.id;
+      for (const nanim of anim.nodeAnimations) {
+        const node = this.getNode(nanim.nodeId);
+        if (node == null) continue;
+        const nodeAnim = new NodeAnimation();
+        nodeAnim.node = node;
 
-  //              if (nanim.translation != null) {
-  //                  nodeAnim.translation = new Array<NodeKeyframe<Vector3>>();
-  //                  nodeAnim.translation.ensureCapacity(nanim.translation.size);
-  //                  for (ModelNodeKeyframe<Vector3> kf : nanim.translation) {
-  //                      if (kf.keytime > animation.duration) animation.duration = kf.keytime;
-  //                      nodeAnim.translation
-  //                          .add(new NodeKeyframe<Vector3>(kf.keytime, new Vector3(kf.value == null ? node.translation : kf.value)));
-  //                  }
-  //              }
+        if (nanim.translation != null) {
+          nodeAnim.translation = new Array<NodeKeyframe<Vector3>>();
+          for (const kf of nanim.translation) {
+            if (kf.keytime > animation.duration) animation.duration = kf.keytime;
+            nodeAnim.translation.push(
+              new NodeKeyframe<Vector3>(
+                kf.keytime,
+                new Vector3().setFrom(kf.value == null ? node.translation : kf.value)
+              )
+            );
+          }
+        }
 
-  //              if (nanim.rotation != null) {
-  //                  nodeAnim.rotation = new Array<NodeKeyframe<Quaternion>>();
-  //                  nodeAnim.rotation.ensureCapacity(nanim.rotation.size);
-  //                  for (ModelNodeKeyframe<Quaternion> kf : nanim.rotation) {
-  //                      if (kf.keytime > animation.duration) animation.duration = kf.keytime;
-  //                      nodeAnim.rotation
-  //                          .add(new NodeKeyframe<Quaternion>(kf.keytime, new Quaternion(kf.value == null ? node.rotation : kf.value)));
-  //                  }
-  //              }
+        if (nanim.rotation != null) {
+          nodeAnim.rotation = new Array<NodeKeyframe<Quaternion>>();
+          for (const kf of nanim.rotation) {
+            if (kf.keytime > animation.duration) animation.duration = kf.keytime;
+            nodeAnim.rotation.push(
+              new NodeKeyframe<Quaternion>(
+                kf.keytime,
+                new Quaternion().setFrom(kf.value == null ? node.rotation : kf.value)
+              )
+            );
+          }
+        }
 
-  //              if (nanim.scaling != null) {
-  //                  nodeAnim.scaling = new Array<NodeKeyframe<Vector3>>();
-  //                  nodeAnim.scaling.ensureCapacity(nanim.scaling.size);
-  //                  for (ModelNodeKeyframe<Vector3> kf : nanim.scaling) {
-  //                      if (kf.keytime > animation.duration) animation.duration = kf.keytime;
-  //                      nodeAnim.scaling
-  //                          .add(new NodeKeyframe<Vector3>(kf.keytime, new Vector3(kf.value == null ? node.scale : kf.value)));
-  //                  }
-  //              }
+        if (nanim.scaling != null) {
+          nodeAnim.scaling = new Array<NodeKeyframe<Vector3>>();
+          for (const kf of nanim.scaling) {
+            if (kf.keytime > animation.duration) animation.duration = kf.keytime;
+            nodeAnim.scaling.push(
+              new NodeKeyframe<Vector3>(kf.keytime, new Vector3().setFrom(kf.value == null ? node.scale : kf.value))
+            );
+          }
+        }
 
-  //              if ((nodeAnim.translation != null && nodeAnim.translation.size > 0)
-  //                  || (nodeAnim.rotation != null && nodeAnim.rotation.size > 0)
-  //                  || (nodeAnim.scaling != null && nodeAnim.scaling.size > 0)) animation.nodeAnimations.add(nodeAnim);
-  //          }
-  //          if (animation.nodeAnimations.size > 0) animations.add(animation);
-  //      }
-  //  }
+        if (
+          (nodeAnim.translation != null && nodeAnim.translation.length > 0) ||
+          (nodeAnim.rotation != null && nodeAnim.rotation.length > 0) ||
+          (nodeAnim.scaling != null && nodeAnim.scaling.length > 0)
+        )
+          animation.nodeAnimations.push(nodeAnim);
+      }
+      if (animation.nodeAnimations.length > 0) this.animations.push(animation);
+    }
+  }
 
   private nodePartBones: Map<NodePart, Map<String, Matrix4>> = new Map<NodePart, Map<String, Matrix4>>();
   protected loadNodes(modelNodes: ModelNode[]) {
@@ -176,7 +191,7 @@ export class Model implements Disposable {
 
     mesh.vertices.updateVertices(0, modelMesh.vertices, 0, modelMesh.vertices.length);
     let offset = 0;
-
+    let indicesOffset = 0;
     for (const part of modelMesh.parts) {
       const meshPart = new MeshPart();
       meshPart.id = part.id;
@@ -185,7 +200,8 @@ export class Model implements Disposable {
       meshPart.size = hasIndices ? part.indices.length : numVertices;
       meshPart.mesh = mesh;
       if (hasIndices) {
-        mesh.indices.updateIndices(0, part.indices, 0, part.indices.length);
+        mesh.indices.updateIndices(indicesOffset, part.indices, 0, part.indices.length);
+        indicesOffset += part.indices.length;
       }
       offset += meshPart.size;
       this.meshParts.push(meshPart);

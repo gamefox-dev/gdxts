@@ -1,7 +1,6 @@
 import { Matrix4 } from '../../Matrix4';
 import { Utils } from '../../Utils';
 import { Vector3 } from '../../Vector3';
-import { BoundingBox } from '../BoundingBox';
 import { Plane, PlaneSide } from './Plane';
 
 export class Frustum {

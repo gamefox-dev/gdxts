@@ -6,11 +6,17 @@ import { Model } from './model/Model';
 import { Node } from './model/Node';
 import { NodePart } from './model/NodePart';
 import { Renderable } from './Renderable';
+import { Animation } from './model/Animation';
+import { NodeAnimation } from './model/NodeAnimation';
+import { Vector3 } from '../Vector3';
+import { NodeKeyframe } from './model/NodeKeyframe';
+import { Quaternion } from '../Quaternion';
 
 export class ModelInstance {
   public static defaultShareKeyframes = true;
   public materials: Material[] = [];
   public nodes: Node[] = [];
+  public animations: Animation[] = [];
   public model: Model;
   public transform: Matrix4;
 
@@ -23,7 +29,7 @@ export class ModelInstance {
     this.transform = transform == null ? new Matrix4() : transform;
     if (rootNodeIds == null) this.copyNodes(model.nodes);
     else this.copyNodes(model.nodes, rootNodeIds);
-    //copyAnimations(model.animations, defaultShareKeyframes);
+    this.copyAnimations(model.animations, ModelInstance.defaultShareKeyframes);
     this.calculateTransforms();
   }
 
@@ -49,9 +55,9 @@ export class ModelInstance {
       const part = node.parts[i];
       const bindPose = part.invBoneBindTransforms;
       if (bindPose != null) {
-        for (let j = 0; j < bindPose.size; ++j) {
-          bindPose.keys[j] = this.getNode(bindPose.keys[j].id);
-        }
+        bindPose.forEach((value: Matrix4, key: Node) => {
+          key = this.getNode(key.id);
+        });
       }
       if (!this.materials.includes(part.material)) {
         const midx = this.materials.findIndex(m => m.id === part.material.id);
@@ -72,6 +78,46 @@ export class ModelInstance {
     for (let i = 0, n = this.nodes.length; i < n; ++i) {
       this.invalidateNode(this.nodes[i]);
     }
+  }
+
+  public copyAnimations(source: Animation[], shareKeyframes: boolean) {
+    for (const anim of source) {
+      this.copyAnimation(anim, shareKeyframes);
+    }
+  }
+
+  public copyAnimation(sourceAnim: Animation, shareKeyframes: boolean) {
+    const animation = new Animation();
+    animation.id = sourceAnim.id;
+    animation.duration = sourceAnim.duration;
+    for (const nanim of sourceAnim.nodeAnimations) {
+      const node = this.getNode(nanim.node.id);
+      if (node == null) continue;
+      const nodeAnim = new NodeAnimation();
+      nodeAnim.node = node;
+      if (shareKeyframes) {
+        nodeAnim.translation = nanim.translation;
+        nodeAnim.rotation = nanim.rotation;
+        nodeAnim.scaling = nanim.scaling;
+      } else {
+        if (nanim.translation != null) {
+          nodeAnim.translation = new Array<NodeKeyframe<Vector3>>();
+          for (const kf of nanim.translation)
+            nodeAnim.translation.push(new NodeKeyframe<Vector3>(kf.keytime, kf.value));
+        }
+        if (nanim.rotation != null) {
+          nodeAnim.rotation = new Array<NodeKeyframe<Quaternion>>();
+          for (const kf of nanim.rotation) nodeAnim.rotation.push(new NodeKeyframe<Quaternion>(kf.keytime, kf.value));
+        }
+        if (nanim.scaling != null) {
+          nodeAnim.scaling = new Array<NodeKeyframe<Vector3>>();
+          for (const kf of nanim.scaling) nodeAnim.scaling.push(new NodeKeyframe<Vector3>(kf.keytime, kf.value));
+        }
+      }
+      if (nodeAnim.translation != null || nodeAnim.rotation != null || nodeAnim.scaling != null)
+        animation.nodeAnimations.push(nodeAnim);
+    }
+    if (animation.nodeAnimations.length > 0) this.animations.push(animation);
   }
 
   public getRenderable(out: Renderable, node: Node, nodePart: NodePart): Renderable {
@@ -121,6 +167,18 @@ export class ModelInstance {
     const n = this.nodes.length;
     for (let i = 0; i < n; i++) this.nodes[i].extendBoundingBox(out);
     return out;
+  }
+
+  public getAnimation(id: string, ignoreCase: boolean = false): Animation {
+    const n = this.animations.length;
+    let animation: Animation;
+    if (ignoreCase) {
+      for (let i = 0; i < n; i++)
+        if ((animation = this.animations[i]).id.toUpperCase() === id.toUpperCase()) return animation;
+    } else {
+      for (let i = 0; i < n; i++) if ((animation = this.animations[i]).id === id) return animation;
+    }
+    return null;
   }
 
   public getMaterial(id: string, ignoreCase: boolean = true) {

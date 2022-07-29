@@ -50,11 +50,11 @@ export class Node {
         part.invBoneBindTransforms.size !== part.bones.length
       )
         continue;
-      const n = part.invBoneBindTransforms.size;
-      for (let i = 0; i < n; i++)
-        part.bones[i]
-          .set(part.invBoneBindTransforms.keys[i].globalTransform)
-          .multiply(part.invBoneBindTransforms.values[i]);
+      let i = 0;
+      part.invBoneBindTransforms.forEach((value: Matrix4, key: Node) => {
+        part.bones[i].set(key.globalTransform.values).multiply(value);
+        i++;
+      });
     }
     if (recursive) {
       for (const child of this.children) {

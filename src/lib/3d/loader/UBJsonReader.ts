@@ -161,10 +161,10 @@ export class BinaryInput {
   }
 
   readInt(optimizePositive: boolean) {
-    const ch1 = this.readByte();
-    const ch2 = this.readByte();
-    const ch3 = this.readByte();
-    const ch4 = this.readByte();
+    const ch1 = this.readUnsignedByte();
+    const ch2 = this.readUnsignedByte();
+    const ch3 = this.readUnsignedByte();
+    const ch4 = this.readUnsignedByte();
     const result = (ch1 << 24) + (ch2 << 16) + (ch3 << 8) + (ch4 << 0);
     return optimizePositive ? result : (result >>> 1) ^ -(result & 1);
   }
@@ -212,7 +212,6 @@ export class BinaryInput {
     }
     byteCount--;
     let chars = '';
-    let charCount = 0;
     for (let i = 0; i < byteCount; ) {
       let b = this.readUnsignedByte();
       switch (b >> 4) {

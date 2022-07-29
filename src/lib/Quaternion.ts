@@ -24,6 +24,10 @@ export class Quaternion {
     return this;
   }
 
+  public setFrom(quaternion: Quaternion): Quaternion {
+    return this.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+  }
+
   public static len(x: number, y: number, z: number, w: number): number {
     return Math.sqrt(x * x + y * y + z * z + w * w);
   }

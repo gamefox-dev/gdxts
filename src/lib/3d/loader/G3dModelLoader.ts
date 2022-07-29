@@ -5,11 +5,14 @@ import { Vector2 } from '../../Vector2';
 import { Vector3 } from '../../Vector3';
 import { VertexAttribute } from '../attributes/VertexAttribute';
 import { GL20 } from '../GL20';
+import { ModelAnimation } from '../model/data/ModelAnimation';
 import { ModelData } from '../model/data/ModelData';
 import { ModelMaterial } from '../model/data/ModelMaterial';
 import { ModelMesh } from '../model/data/ModelMesh';
 import { ModelMeshPart } from '../model/data/ModelMeshPart';
 import { ModelNode } from '../model/data/ModelNode';
+import { ModelNodeAnimation } from '../model/data/ModelNodeAnimation';
+import { ModelNodeKeyframe } from '../model/data/ModelNodeKeyframe';
 import { ModelNodePart } from '../model/data/ModelNodePart';
 import { ModelTexture } from '../model/data/ModelTexture';
 import { Model } from '../model/Model';
@@ -220,8 +223,6 @@ export class G3dModelLoader {
     }
 
     return model.nodes;
-
-    return null;
   }
 
   protected tempQ = new Quaternion();
@@ -303,99 +304,92 @@ export class G3dModelLoader {
     }
 
     return jsonNode;
-
-    return null;
   }
 
   protected parseAnimations(model: ModelData, json: any) {
-    //  JsonValue animations = json["animations");
-    //  if (animations === null) return;
-    //  model.animations.ensureCapacity(animations.length);
-    //  for (JsonValue anim = animations.child; anim !==null; anim = anim.next) {
-    //      JsonValue nodes = anim["bones");
-    //      if (nodes === null) continue;
-    //      ModelAnimation animation = new ModelAnimation();
-    //      model.animations.add(animation);
-    //      animation.nodeAnimations.ensureCapacity(nodes.length);
-    //      animation.id = anim.getString("id");
-    //      for (JsonValue node = nodes.child; node !==null; node = node.next) {
-    //          ModelNodeAnimation nodeAnim = new ModelNodeAnimation();
-    //          animation.nodeAnimations.add(nodeAnim);
-    //          nodeAnim.nodeId = node.getString("boneId");
-    //          // For backwards compatibility (version 0.1):
-    //          JsonValue keyframes = node["keyframes");
-    //          if (keyframes !==null && keyframes.isArray()) {
-    //              for (JsonValue keyframe = keyframes.child; keyframe !==null; keyframe = keyframe.next) {
-    //                  final float keytime = keyframe.getFloat("keytime", 0f) / 1000.f;
-    //                  JsonValue translation = keyframe["translation");
-    //                  if (translation !==null && translation.length === 3) {
-    //                      if (nodeAnim.translation === null) nodeAnim.translation = new Array<ModelNodeKeyframe<Vector3>>();
-    //                      ModelNodeKeyframe<Vector3> tkf = new ModelNodeKeyframe<Vector3>();
-    //                      tkf.keytime = keytime;
-    //                      tkf.value = new Vector3(translation.getFloat(0), translation.getFloat(1), translation.getFloat(2));
-    //                      nodeAnim.translation.add(tkf);
-    //                  }
-    //                  JsonValue rotation = keyframe["rotation");
-    //                  if (rotation !==null && rotation.length === 4) {
-    //                      if (nodeAnim.rotation === null) nodeAnim.rotation = new Array<ModelNodeKeyframe<Quaternion>>();
-    //                      ModelNodeKeyframe<Quaternion> rkf = new ModelNodeKeyframe<Quaternion>();
-    //                      rkf.keytime = keytime;
-    //                      rkf.value = new Quaternion(rotation.getFloat(0), rotation.getFloat(1), rotation.getFloat(2),
-    //                          rotation.getFloat(3));
-    //                      nodeAnim.rotation.add(rkf);
-    //                  }
-    //                  JsonValue scale = keyframe["scale");
-    //                  if (scale !==null && scale.length === 3) {
-    //                      if (nodeAnim.scaling === null) nodeAnim.scaling = new Array<ModelNodeKeyframe<Vector3>>();
-    //                      ModelNodeKeyframe<Vector3> skf = new ModelNodeKeyframe();
-    //                      skf.keytime = keytime;
-    //                      skf.value = new Vector3(scale.getFloat(0), scale.getFloat(1), scale.getFloat(2));
-    //                      nodeAnim.scaling.add(skf);
-    //                  }
-    //              }
-    //          } else { // Version 0.2:
-    //              JsonValue translationKF = node["translation");
-    //              if (translationKF !==null && translationKF.isArray()) {
-    //                  nodeAnim.translation = new Array<ModelNodeKeyframe<Vector3>>();
-    //                  nodeAnim.translation.ensureCapacity(translationKF.length);
-    //                  for (JsonValue keyframe = translationKF.child; keyframe !==null; keyframe = keyframe.next) {
-    //                      ModelNodeKeyframe<Vector3> kf = new ModelNodeKeyframe<Vector3>();
-    //                      nodeAnim.translation.add(kf);
-    //                      kf.keytime = keyframe.getFloat("keytime", 0f) / 1000.f;
-    //                      JsonValue translation = keyframe["value");
-    //                      if (translation !==null && translation.length >= 3)
-    //                          kf.value = new Vector3(translation.getFloat(0), translation.getFloat(1), translation.getFloat(2));
-    //                  }
-    //              }
-    //              JsonValue rotationKF = node["rotation");
-    //              if (rotationKF !==null && rotationKF.isArray()) {
-    //                  nodeAnim.rotation = new Array<ModelNodeKeyframe<Quaternion>>();
-    //                  nodeAnim.rotation.ensureCapacity(rotationKF.length);
-    //                  for (JsonValue keyframe = rotationKF.child; keyframe !==null; keyframe = keyframe.next) {
-    //                      ModelNodeKeyframe<Quaternion> kf = new ModelNodeKeyframe<Quaternion>();
-    //                      nodeAnim.rotation.add(kf);
-    //                      kf.keytime = keyframe.getFloat("keytime", 0f) / 1000.f;
-    //                      JsonValue rotation = keyframe["value");
-    //                      if (rotation !==null && rotation.length >= 4) kf.value = new Quaternion(rotation.getFloat(0),
-    //                          rotation.getFloat(1), rotation.getFloat(2), rotation.getFloat(3));
-    //                  }
-    //              }
-    //              JsonValue scalingKF = node["scaling");
-    //              if (scalingKF !==null && scalingKF.isArray()) {
-    //                  nodeAnim.scaling = new Array<ModelNodeKeyframe<Vector3>>();
-    //                  nodeAnim.scaling.ensureCapacity(scalingKF.length);
-    //                  for (JsonValue keyframe = scalingKF.child; keyframe !==null; keyframe = keyframe.next) {
-    //                      ModelNodeKeyframe<Vector3> kf = new ModelNodeKeyframe<Vector3>();
-    //                      nodeAnim.scaling.add(kf);
-    //                      kf.keytime = keyframe.getFloat("keytime", 0f) / 1000.f;
-    //                      JsonValue scaling = keyframe["value");
-    //                      if (scaling !==null && scaling.length >= 3)
-    //                          kf.value = new Vector3(scaling.getFloat(0), scaling.getFloat(1), scaling.getFloat(2));
-    //                  }
-    //              }
-    //          }
-    //      }
-    //  }
+    const animations = json['animations'];
+    if (animations === null) return;
+    for (const anim of animations) {
+      const nodes = anim['bones'];
+      if (nodes === undefined) continue;
+      const animation = new ModelAnimation();
+      model.animations.push(animation);
+      animation.id = anim['id'];
+      for (const node of nodes) {
+        const nodeAnim = new ModelNodeAnimation();
+        animation.nodeAnimations.push(nodeAnim);
+        nodeAnim.nodeId = node['boneId'];
+        // For backwards compatibility (version 0.1):
+        const keyframes = node['keyframes'];
+        if (keyframes !== undefined && Array.isArray(keyframes)) {
+          for (const keyframe of keyframes) {
+            const keytime = this.getFloat(keyframe['keytime'], 0) / 1000;
+            const translation = keyframe['translation'];
+            if (translation !== undefined && translation.length === 3) {
+              if (nodeAnim.translation === undefined) nodeAnim.translation = new Array<ModelNodeKeyframe<Vector3>>();
+              const tkf = new ModelNodeKeyframe<Vector3>();
+              tkf.keytime = keytime;
+              tkf.value = new Vector3(translation[0], translation[1], translation[2]);
+              nodeAnim.translation.push(tkf);
+            }
+            const rotation = keyframe['rotation'];
+            if (rotation !== undefined && rotation.length === 4) {
+              if (nodeAnim.rotation === undefined) nodeAnim.rotation = new Array<ModelNodeKeyframe<Quaternion>>();
+              const rkf = new ModelNodeKeyframe<Quaternion>();
+              rkf.keytime = keytime;
+              rkf.value = new Quaternion(rotation[0], rotation[1], rotation[2], rotation[2]);
+              nodeAnim.rotation.push(rkf);
+            }
+            const scale = keyframe['scale'];
+            if (scale !== undefined && scale.length === 3) {
+              if (nodeAnim.scaling === undefined) nodeAnim.scaling = new Array<ModelNodeKeyframe<Vector3>>();
+              const skf = new ModelNodeKeyframe<Vector3>();
+              skf.keytime = keytime;
+              skf.value = new Vector3(scale[0], scale[1], scale[2]);
+              nodeAnim.scaling.push(skf);
+            }
+          }
+        } else {
+          // Version 0.2:
+          const translationKF = node['translation'];
+          if (translationKF !== undefined && Array.isArray(translationKF)) {
+            nodeAnim.translation = new Array<ModelNodeKeyframe<Vector3>>();
+            for (const keyframe of translationKF) {
+              const kf = new ModelNodeKeyframe<Vector3>();
+              nodeAnim.translation.push(kf);
+              kf.keytime = this.getFloat(keyframe['keytime'], 0) / 1000;
+              const translation = keyframe['value'];
+              if (translation !== undefined && translation.length >= 3)
+                kf.value = new Vector3(translation[0], translation[1], translation[2]);
+            }
+          }
+          const rotationKF = node['rotation'];
+          if (rotationKF !== null && Array.isArray(rotationKF)) {
+            nodeAnim.rotation = new Array<ModelNodeKeyframe<Quaternion>>();
+            for (const keyframe of rotationKF) {
+              const kf = new ModelNodeKeyframe<Quaternion>();
+              nodeAnim.rotation.push(kf);
+              kf.keytime = this.getFloat(keyframe['keytime'], 0) / 1000;
+              const rotation = keyframe['value'];
+              if (rotation !== undefined && rotation.length >= 4)
+                kf.value = new Quaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
+            }
+          }
+          const scalingKF = node['scaling'];
+          if (scalingKF !== null && Array.isArray(scalingKF)) {
+            nodeAnim.scaling = new Array<ModelNodeKeyframe<Vector3>>();
+            for (const keyframe of scalingKF) {
+              const kf = new ModelNodeKeyframe<Vector3>();
+              nodeAnim.scaling.push(kf);
+              kf.keytime = this.getFloat(keyframe['keytime'], 0) / 1000;
+              const scaling = keyframe['value'];
+              if (scaling !== undefined && scaling.length >= 3)
+                kf.value = new Vector3(scaling[0], scaling[1], scaling[2]);
+            }
+          }
+        }
+      }
+    }
   }
 
   private getString(object: any, defValue: string): string {

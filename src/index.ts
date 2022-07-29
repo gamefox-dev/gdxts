@@ -21,8 +21,6 @@ import { PointLight } from './lib/3d/environment/PointLight';
 import { SpotLight } from './lib/3d/environment/SpotLight';
 import { BoundingBox } from './lib/3d/BoundingBox';
 import { ObjLoader } from './lib/3d/loader/ObjLoader';
-import { Model } from './lib/3d/model/Model';
-import { UBJsonReader } from './lib/3d/loader/UBJsonReader';
 import { G3dModelLoader } from './lib/3d/loader/G3dModelLoader';
 
 const init = async () => {
@@ -127,6 +125,7 @@ const init = async () => {
     modelBatch.begin(cam);
     lightDirection.rotateRad(ROTATION_SPEED * delta);
     directionalLight.direction.set(lightDirection.x, 0, lightDirection.y);
+
     for (let i = 0; i < instances.length; i++) {
       if (isVisible(cam, instances[i])) {
         modelBatch.render(instances[i], environment);

@@ -37,7 +37,7 @@ export class Plane {
   public testPoint(x: number, y: number, z: number): PlaneSide {
     const dist = this.normal.dotWithValue(x, y, z) + this.d;
 
-    if (dist == 0) return PlaneSide.OnPlane;
+    if (dist === 0) return PlaneSide.OnPlane;
     else if (dist < 0) return PlaneSide.Back;
     else return PlaneSide.Front;
   }
