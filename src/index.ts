@@ -22,6 +22,7 @@ import { SpotLight } from './lib/3d/environment/SpotLight';
 import { BoundingBox } from './lib/3d/BoundingBox';
 import { ObjLoader } from './lib/3d/loader/ObjLoader';
 import { G3dModelLoader } from './lib/3d/loader/G3dModelLoader';
+import { AnimationController } from './lib/3d/utils/AminationController';
 
 const init = async () => {
   const stage = createStage();
@@ -62,7 +63,7 @@ const init = async () => {
     instances.push(instance);
   }
 
-  // Obj loader
+  //Obj loader
   const objLoader = new ObjLoader();
   const shipModel = await objLoader.load(gl, 'ship.obj');
   const shipInstance = new ModelInstance(shipModel);
@@ -71,9 +72,13 @@ const init = async () => {
 
   // g3d loader
   const g3dLoader = new G3dModelLoader();
-  const shipModel2 = await g3dLoader.load(gl, 'ship.g3db');
-  const shipInstance2 = new ModelInstance(shipModel2);
-  instances.push(shipInstance2);
+  const soldierModel = await g3dLoader.load(gl, 'soldier.g3db');
+  const soldierInstance = new ModelInstance(soldierModel);
+  soldierInstance.transform.scale(0.02, 0.02, 0.02);
+  instances.push(soldierInstance);
+
+  //const animationController = new AnimationController(soldierInstance);
+  //animationController.setAnimation('Attack', -1);
 
   // culling
   const bounds = new BoundingBox();
@@ -125,6 +130,8 @@ const init = async () => {
     modelBatch.begin(cam);
     lightDirection.rotateRad(ROTATION_SPEED * delta);
     directionalLight.direction.set(lightDirection.x, 0, lightDirection.y);
+
+    //animationController.update(delta);
 
     for (let i = 0; i < instances.length; i++) {
       if (isVisible(cam, instances[i])) {

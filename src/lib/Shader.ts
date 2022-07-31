@@ -150,6 +150,11 @@ export class Shader implements Disposable, Restorable {
     gl.uniformMatrix4fv(this.getUniformLocation(uniform), false, this.tmp4x4);
   }
 
+  public setUniform4x4fWithLocation(location: WebGLUniformLocation, value: number[]) {
+    let gl = this.context.gl;
+    gl.uniformMatrix4fv(location, false, value);
+  }
+
   public setUniform3fv(uniform: string, value: number[]) {
     let gl = this.context.gl;
     gl.uniform3fv(this.getUniformLocation(uniform), value);

@@ -28,16 +28,25 @@ export class G3dModelLoader {
   }
 
   public async load(gl: WebGLRenderingContext, fileName: string): Promise<Model> {
-    const shipData = await this.parseModel(fileName);
+    const fileExtension = fileName.split('.').pop();
+    const binaryFomat = fileExtension === 'g3db' ? true : false;
+    const shipData = await this.parseModel(fileName, binaryFomat);
     const shipModel = new Model(gl);
     await shipModel.load(shipData);
     return shipModel;
   }
 
-  public async parseModel(fileName: string): Promise<ModelData> {
+  public async parseModel(fileName: string, binaryFomat: boolean = true): Promise<ModelData> {
     var path = fileName.substring(0, fileName.lastIndexOf('/'));
-    const buffer = await fetch(fileName).then(res => res.arrayBuffer());
-    const json = this.reader.parse(buffer);
+
+    let json: any;
+    if (binaryFomat) {
+      const buffer = await fetch(fileName).then(res => res.arrayBuffer());
+      json = this.reader.parse(buffer);
+    } else {
+      const string = await fetch(fileName).then(res => res.text());
+      json = JSON.parse(string);
+    }
 
     const model = new ModelData();
     const version = json['version'];

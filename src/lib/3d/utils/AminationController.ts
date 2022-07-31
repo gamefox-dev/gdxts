@@ -54,13 +54,13 @@ export class AnimationController extends BaseAnimationController {
 
   public current: AnimationDesc = null;
   public queued: AnimationDesc = null;
-  public queuedTransitionTime: number;
+  public queuedTransitionTime: number = 0;
   public previous: AnimationDesc = null;
-  public transitionCurrentTime: number;
-  public transitionTargetTime: number;
-  public inAction: boolean;
-  public paused: boolean;
-  public allowSameAnimation: boolean;
+  public transitionCurrentTime: number = 0;
+  public transitionTargetTime: number = 0;
+  public inAction: boolean = false;
+  public paused: boolean = false;
+  public allowSameAnimation: boolean = false;
   private justChangedAnimation = false;
 
   private obtainAnimation(

@@ -321,22 +321,16 @@ export class Model implements Disposable {
     return out;
   }
 
-  //  public Animation getAnimation (final String id) {
-  //      return getAnimation(id, true);
-  //  }
-
-  //  public Animation getAnimation (final String id, boolean ignoreCase) {
-  //      final int n = animations.size;
-  //      Animation animation;
-  //      if (ignoreCase) {
-  //          for (int i = 0; i < n; i++)
-  //              if ((animation = animations.get(i)).id.equalsIgnoreCase(id)) return animation;
-  //      } else {
-  //          for (int i = 0; i < n; i++)
-  //              if ((animation = animations.get(i)).id.equals(id)) return animation;
-  //      }
-  //      return null;
-  //  }
+  public getAnimation(id: string, ignoreCase: boolean = false): Animation {
+    const n = this.animations.length;
+    if (ignoreCase) {
+      for (let i = 0; i < n; i++)
+        if (this.animations[i].id.toUpperCase() === id.toUpperCase()) return this.animations[i];
+    } else {
+      for (let i = 0; i < n; i++) if (this.animations[i].id === id) return this.animations[i];
+    }
+    return null;
+  }
 
   public getMaterial(id: string, ignoreCase: boolean = true): Material {
     const n = this.materials.length;

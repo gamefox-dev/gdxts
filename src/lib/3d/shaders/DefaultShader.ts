@@ -21,6 +21,7 @@ import { PointLight } from '../environment/PointLight';
 import { SpotLight } from '../environment/SpotLight';
 import { PointLightsAttribute } from '../attributes/PointLightAttribute';
 import { SpotLightsAttribute } from '../attributes/SpotLightAttribute';
+import { Utils } from '../../Utils';
 
 export class Config {
   vertexShader: string = null;
@@ -77,6 +78,26 @@ export class ACubemap extends LocalSetter {
       this.cacheAmbientCubemap.clamp();
       shader.program.setUniform3fv(shader.getUniformAlias(inputID), this.cacheAmbientCubemap.data);
     }
+  }
+}
+
+export class Bones extends LocalSetter {
+  private static idtMatrix = new Matrix4();
+  public bones: number[];
+
+  constructor(numBones: number) {
+    super();
+    this.bones = new Array<number>(numBones * 16);
+  }
+
+  public set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+    for (let i = 0; i < this.bones.length; i += 16) {
+      const idx = i / 16;
+      if (renderable.bones == null || idx >= renderable.bones.length || renderable.bones[idx] == null)
+        Utils.arrayCopy(Bones.idtMatrix.values, 0, this.bones, i, 16);
+      else Utils.arrayCopy(renderable.bones[idx].values, 0, this.bones, i, 16);
+    }
+    shader.program.setUniform4x4fWithLocation(shader.loc(inputID), this.bones);
   }
 }
 
@@ -996,7 +1017,7 @@ export class DefaultShader extends BaseShader {
 
     this.renderable = renderable;
     this.attributesMask = attributes.getMask() | DefaultShader.optionalAttributes;
-    // this.vertexMask = renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked();
+    this.vertexMask = renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked();
 
     this.directionalLights = new Array<DirectionalLight>(
       this.lighting && config.numDirectionalLights > 0 ? config.numDirectionalLights : 0
@@ -1010,12 +1031,12 @@ export class DefaultShader extends BaseShader {
     this.spotLights = new Array<SpotLight>(this.lighting && config.numSpotLights > 0 ? config.numSpotLights : 0);
     for (let i = 0; i < this.spotLights.length; i++) this.spotLights[i] = new SpotLight();
 
-    // if (!config.ignoreUnimplemented && (implementedFlags & attributesMask) != attributesMask)
-    //     throw new Error("Some attributes not implemented yet (" + attributesMask + ")");
+    if (!config.ignoreUnimplemented && (DefaultShader.implementedFlags & this.attributesMask) != this.attributesMask)
+      throw new Error('Some attributes not implemented yet (' + this.attributesMask + ')');
 
-    // if (renderable.bones != null && renderable.bones.length > config.numBones) {
-    //     throw new Error("too many bones: " + renderable.bones.length + ", max configured: " + config.numBones);
-    // }
+    if (renderable.bones != null && renderable.bones.length > config.numBones) {
+      throw new Error('too many bones: ' + renderable.bones.length + ', max configured: ' + config.numBones);
+    }
 
     // Global uniforms
     this.u_projTrans = this.register(Inputs.projTrans.alias, null, Setters.projTrans);
@@ -1032,8 +1053,10 @@ export class DefaultShader extends BaseShader {
     this.u_viewWorldTrans = this.register(Inputs.viewWorldTrans.alias, null, Setters.viewWorldTrans);
     this.u_projViewWorldTrans = this.register(Inputs.projViewWorldTrans.alias, null, Setters.projViewWorldTrans);
     this.u_normalMatrix = this.register(Inputs.normalMatrix.alias, null, Setters.normalMatrix);
-    // u_bones = (renderable.bones != null && config.numBones > 0) ? register(Inputs.bones, new Setters.Bones(config.numBones))
-    //     : -1;
+    this.u_bones =
+      renderable.bones != null && config.numBones > 0
+        ? this.register(Inputs.bones.alias, null, new Bones(config.numBones))
+        : -1;
 
     this.u_shininess = this.register(Inputs.shininess.alias, null, Setters.shininess);
     this.u_opacity = this.register(Inputs.opacity.alias);
@@ -1200,9 +1223,9 @@ export class DefaultShader extends BaseShader {
     const renderableMask = DefaultShader.combineAttributeMasks(renderable);
 
     return (
-      this.attributesMask === (renderableMask | DefaultShader.optionalAttributes)
-      // && this.vertexMask == renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked() &&
-      // (renderable.environment != null) == this.lighting
+      this.attributesMask === (renderableMask | DefaultShader.optionalAttributes) &&
+      this.vertexMask == renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked() &&
+      (renderable.environment != null) == this.lighting
     );
   }
 
