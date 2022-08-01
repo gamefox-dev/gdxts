@@ -101,7 +101,7 @@ export class Model implements Disposable {
     }
   }
 
-  private nodePartBones: Map<NodePart, Map<String, Matrix4>> = new Map<NodePart, Map<String, Matrix4>>();
+  private nodePartBones: Map<NodePart, Map<string, Matrix4>> = new Map<NodePart, Map<string, Matrix4>>();
   protected loadNodes(modelNodes: ModelNode[]) {
     this.nodePartBones.clear();
     for (const node of modelNodes) {
@@ -218,18 +218,18 @@ export class Model implements Disposable {
   protected async convertMaterial(mtl: ModelMaterial, textureProvider: FileTextureProvider): Promise<Material> {
     const result = new Material();
     result.id = mtl.id;
-    if (mtl.ambient != null) result.set(new ColorAttribute(ColorAttribute.Ambient, mtl.ambient));
-    if (mtl.diffuse != null) result.set(new ColorAttribute(ColorAttribute.Diffuse, mtl.diffuse));
-    if (mtl.specular != null) result.set(new ColorAttribute(ColorAttribute.Specular, mtl.specular));
-    if (mtl.emissive != null) result.set(new ColorAttribute(ColorAttribute.Emissive, mtl.emissive));
-    if (mtl.reflection != null) result.set(new ColorAttribute(ColorAttribute.Reflection, mtl.reflection));
+    if (mtl.ambient != undefined) result.set(new ColorAttribute(ColorAttribute.Ambient, mtl.ambient));
+    if (mtl.diffuse != undefined) result.set(new ColorAttribute(ColorAttribute.Diffuse, mtl.diffuse));
+    if (mtl.specular != undefined) result.set(new ColorAttribute(ColorAttribute.Specular, mtl.specular));
+    if (mtl.emissive != undefined) result.set(new ColorAttribute(ColorAttribute.Emissive, mtl.emissive));
+    if (mtl.reflection != undefined) result.set(new ColorAttribute(ColorAttribute.Reflection, mtl.reflection));
     if (mtl.shininess > 0) result.set(new FloatAttribute(FloatAttribute.Shininess, mtl.shininess));
     if (mtl.opacity !== 1)
       result.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, true, mtl.opacity));
 
     const textures = new Map<string, Texture>();
 
-    if (mtl.textures != null) {
+    if (mtl.textures != undefined) {
       for (const tex of mtl.textures) {
         let texture: Texture;
         if (textures.has(tex.fileName)) {

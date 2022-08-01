@@ -18,13 +18,13 @@ export class UBJsonReader {
     else if (type === 'i'.charCodeAt(0)) return this.oldFormat ? input.readShort() : input.readByte();
     else if (type === 'I'.charCodeAt(0)) return this.oldFormat ? input.readInt(true) : input.readShort();
     else if (type === 'l'.charCodeAt(0)) return input.readInt(true);
-    else if (type === 'L'.charCodeAt(0)) return input.readInt32();
+    else if (type === 'L'.charCodeAt(0)) return input.readLong();
     else if (type === 'd'.charCodeAt(0)) return input.readFloat();
     else if (type === 'D'.charCodeAt(0)) return input.readFloat();
     else if (type === 's'.charCodeAt(0) || type === 'S'.charCodeAt(0)) return this.parseString(input, type);
     else if (type === 'a'.charCodeAt(0) || type === 'A'.charCodeAt(0)) return this.parseData(input, type);
     else if (type === 'C'.charCodeAt(0)) return input.readString();
-    else throw new Error('Unrecognized data type');
+    else throw new Error('Unrecognized data type: ' + type);
   }
 
   parseObject(input: BinaryInput) {
@@ -38,7 +38,7 @@ export class UBJsonReader {
     let size = -1;
     if (type === '#'.charCodeAt(0)) {
       size = this.parseSize(input, input.readByte(), false, -1);
-      if (size < 0) throw new Error('Unrecognized data type');
+      if (size < 0) throw new Error('Unrecognized data type: ' + type);
       if (size === 0) return result;
       type = input.readByte();
     }
@@ -57,7 +57,7 @@ export class UBJsonReader {
     if (type === 'i'.charCodeAt(0)) return this.readUChar(input);
     if (type === 'I'.charCodeAt(0)) return this.readUShort(input);
     if (type === 'l'.charCodeAt(0)) return this.readUInt(input);
-    if (type === 'L'.charCodeAt(0)) return input.readInt32();
+    if (type === 'L'.charCodeAt(0)) return input.readLong();
     if (useIntOnError) {
       let result = (type & 0xff) << 24;
       result |= (input.readByte() & 0xff) << 16;
@@ -79,7 +79,7 @@ export class UBJsonReader {
     let size = -1;
     if (type === '#'.charCodeAt(0)) {
       size = this.parseSize(input, input.readByte(), false, -1);
-      if (size < 0) throw new Error('Unrecognized data type');
+      if (size < 0) throw new Error('Unrecognized data type ' + type);
       if (size === 0) return result;
       type = valueType === 0 ? input.readByte() : valueType;
     }
@@ -115,7 +115,7 @@ export class UBJsonReader {
       size = this.parseSize(input, input.readByte(), true, -1);
     } else if (type === 's'.charCodeAt(0)) size = this.readUChar(input);
     else if (sOptional) size = this.parseSize(input, type, false, -1);
-    if (size < 0) throw new Error('Unrecognized data type, string expected');
+    if (size < 0) throw new Error(`Unrecognized data type: ${type}, string expected`);
     return size > 0 ? this.readString(input, size) : '';
   }
 
@@ -160,6 +160,12 @@ export class BinaryInput {
     return value;
   }
 
+  readLong(): number {
+    let value = this.buffer.getInt32(this.index);
+    this.index += 8;
+    return value;
+  }
+
   readInt(optimizePositive: boolean) {
     const ch1 = this.readUnsignedByte();
     const ch2 = this.readUnsignedByte();
@@ -187,11 +193,13 @@ export class BinaryInput {
       switch (b >> 4) {
         case 12:
         case 13:
-          chars += String.fromCharCode(((b & 0x1f) << 6) | (this.readByte() & 0x3f));
+          chars += String.fromCharCode(((b & 0x1f) << 6) | (this.readUnsignedByte() & 0x3f));
           i += 2;
           break;
         case 14:
-          chars += String.fromCharCode(((b & 0x0f) << 12) | ((this.readByte() & 0x3f) << 6) | (this.readByte() & 0x3f));
+          chars += String.fromCharCode(
+            ((b & 0x0f) << 12) | ((this.readUnsignedByte() & 0x3f) << 6) | (this.readUnsignedByte() & 0x3f)
+          );
           i += 3;
           break;
         default:
@@ -217,11 +225,13 @@ export class BinaryInput {
       switch (b >> 4) {
         case 12:
         case 13:
-          chars += String.fromCharCode(((b & 0x1f) << 6) | (this.readByte() & 0x3f));
+          chars += String.fromCharCode(((b & 0x1f) << 6) | (this.readUnsignedByte() & 0x3f));
           i += 2;
           break;
         case 14:
-          chars += String.fromCharCode(((b & 0x0f) << 12) | ((this.readByte() & 0x3f) << 6) | (this.readByte() & 0x3f));
+          chars += String.fromCharCode(
+            ((b & 0x0f) << 12) | ((this.readUnsignedByte() & 0x3f) << 6) | (this.readUnsignedByte() & 0x3f)
+          );
           i += 3;
           break;
         default:

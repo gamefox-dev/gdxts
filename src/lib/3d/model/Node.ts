@@ -7,7 +7,7 @@ import { Quaternion } from '../../Quaternion';
 export class Node {
   public id: string;
   public inheritTransform = true;
-  public isAnimated: boolean;
+  public isAnimated: boolean = false;
   public translation: Vector3 = new Vector3();
   public rotation = new Quaternion(0, 0, 0, 1);
   public scale = new Vector3(1, 1, 1);
@@ -16,7 +16,7 @@ export class Node {
 
   public parts = new Array<NodePart>(0);
 
-  protected parent: Node;
+  protected parent: Node = null;
   private children = new Array<Node>(0);
 
   public calculateLocalTransform(): Matrix4 {
@@ -25,9 +25,11 @@ export class Node {
   }
 
   public calculateWorldTransform(): Matrix4 {
-    if (this.inheritTransform && this.parent != null)
+    if (this.inheritTransform && this.parent != null) {
       this.globalTransform.set(this.parent.globalTransform.values).multiply(this.localTransform);
-    else this.globalTransform.set(this.localTransform.values);
+    } else {
+      this.globalTransform.set(this.localTransform.values);
+    }
     return this.globalTransform;
   }
 
@@ -51,6 +53,7 @@ export class Node {
       )
         continue;
       let i = 0;
+
       part.invBoneBindTransforms.forEach((value: Matrix4, key: Node) => {
         part.bones[i].set(key.globalTransform.values).multiply(value);
         i++;

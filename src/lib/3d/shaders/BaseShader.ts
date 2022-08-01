@@ -53,8 +53,7 @@ export class Uniform implements Validator {
 
   validate(shader: BaseShader, inputID: number, renderable: Renderable): boolean {
     const matFlags = renderable != null && renderable.material != null ? renderable.material.getMask() : 0;
-    //const envFlags = (renderable != null && renderable.environment != null) ? renderable.environment.getMask() : 0;
-    const envFlags = 0;
+    const envFlags = renderable != null && renderable.environment != null ? renderable.environment.getMask() : 0;
     return (
       (matFlags & this.materialMask) === this.materialMask &&
       (envFlags & this.environmentMask) === this.environmentMask &&
@@ -74,8 +73,8 @@ export class BaseShader implements Shader3D {
   private validators: Validator[] = [];
   private setters: Setter[] = [];
   private locations: WebGLUniformLocation[];
-  private globalUniforms: WebGLUniformLocation[] = [];
-  private localUniforms: WebGLUniformLocation[] = [];
+  private globalUniforms: number[] = [];
+  private localUniforms: number[] = [];
   private attributes: Map<number, number> = new Map<number, number>();
 
   program: Shader;
@@ -149,7 +148,7 @@ export class BaseShader implements Shader3D {
     this.program.bind();
     this.currentMesh = null;
     for (let i = 0; i < this.globalUniforms.length; ++i) {
-      const u = this.globalUniforms[i] as number;
+      const u = this.globalUniforms[i];
       if (this.setters[u] != null) {
         this.setters[u].set(this, u, null, null);
       }
@@ -167,8 +166,8 @@ export class BaseShader implements Shader3D {
   }
 
   renderWithCombinedAttributes(renderable: Renderable, combinedAttributes: Attributes) {
-    for (let u, i = 0; i < this.localUniforms.length; ++i)
-      if (this.setters[(u = this.localUniforms[i] as number)] != null) {
+    for (let u: number, i = 0; i < this.localUniforms.length; ++i)
+      if (this.setters[(u = this.localUniforms[i])] != null) {
         this.setters[u].set(this, u, renderable, combinedAttributes);
       }
     if (this.currentMesh !== renderable.meshPart.mesh) {

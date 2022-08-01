@@ -52,7 +52,6 @@ export class BoxShapeBuilder {
     corner101: VertexInfo,
     corner111: VertexInfo
   ) {
-    builder.ensureVertices(8);
     const i000 = builder.vertex(corner000);
     const i100 = builder.vertex(corner100);
     const i110 = builder.vertex(corner110);
@@ -64,17 +63,14 @@ export class BoxShapeBuilder {
 
     const primitiveType = builder.getPrimitiveType();
     if (primitiveType === GL20.GL_LINES) {
-      builder.ensureIndices(24);
       builder.rect(i000, i100, i110, i010);
       builder.rect(i101, i001, i011, i111);
       builder.index8Values(i000, i001, i010, i011, i110, i111, i100, i101);
     } else if (primitiveType === GL20.GL_POINTS) {
-      builder.ensureRectangleIndices(2);
       builder.rect(i000, i100, i110, i010);
       builder.rect(i101, i001, i011, i111);
     } else {
       // GL20.GL_TRIANGLES
-      builder.ensureRectangleIndices(6);
       builder.rect(i000, i100, i110, i010);
       builder.rect(i101, i001, i011, i111);
       builder.rect(i000, i010, i011, i001);
@@ -112,8 +108,6 @@ export class BoxShapeBuilder {
         this.vertTmp8.set(corner111, null, null, null)
       );
     } else {
-      builder.ensureVertices(24);
-      builder.ensureRectangleIndices(6);
       let nor = this.tmpV1
         .set(corner000.x, corner000.y, corner000.z)
         .lerp(corner110, 0.5)

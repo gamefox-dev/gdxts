@@ -123,7 +123,7 @@ export class BaseAnimationController {
     let maxIndex = lastIndex;
 
     while (minIndex < maxIndex) {
-      let i = (minIndex + maxIndex) / 2;
+      let i = Math.floor((minIndex + maxIndex) / 2);
       if (time > arr[i + 1].keytime) {
         minIndex = i + 1;
       } else if (time < arr[i].keytime) {

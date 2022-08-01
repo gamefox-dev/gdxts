@@ -66,18 +66,12 @@ export class MeshBuilder {
   public static createAttributes(usage: number): VertexAttributes {
     const attrs: VertexAttribute[] = [];
 
-    if ((usage & Usage.Position) === Usage.Position)
-      attrs.push(new VertexAttribute(Usage.Position, 3, GL20.GL_FLOAT, false, Shader.POSITION));
-    if ((usage & Usage.ColorUnpacked) === Usage.ColorUnpacked)
-      attrs.push(new VertexAttribute(Usage.ColorUnpacked, 4, GL20.GL_FLOAT, false, Shader.COLOR));
-    if ((usage & Usage.ColorPacked) === Usage.ColorPacked)
-      attrs.push(new VertexAttribute(Usage.ColorPacked, 4, GL20.GL_UNSIGNED_INT, true, Shader.COLOR));
-    if ((usage & Usage.Normal) === Usage.Normal)
-      attrs.push(new VertexAttribute(Usage.Normal, 3, GL20.GL_FLOAT, false, Shader.NORMAL));
+    if ((usage & Usage.Position) === Usage.Position) attrs.push(VertexAttribute.Position());
+    if ((usage & Usage.ColorUnpacked) === Usage.ColorUnpacked) attrs.push(VertexAttribute.ColorUnpacked());
+    if ((usage & Usage.ColorPacked) === Usage.ColorPacked) attrs.push(VertexAttribute.ColorPacked());
+    if ((usage & Usage.Normal) === Usage.Normal) attrs.push(VertexAttribute.Normal());
     if ((usage & Usage.TextureCoordinates) === Usage.TextureCoordinates)
       attrs.push(new VertexAttribute(Usage.TextureCoordinates, 2, GL20.GL_FLOAT, false, Shader.TEXCOORDS + '0'));
-    // const attributes = new Array<VertexAttribute>(attrs.length);
-    // for (let i = 0; i < attributes.length; i++) attributes[i] = attrs[i];
     return new VertexAttributes(attrs);
   }
 
@@ -244,33 +238,6 @@ export class MeshBuilder {
       this.positionTransform.idt();
       this.normalTransform.idt();
     }
-  }
-
-  public ensureVertices(numVertices: number) {
-    //this.vertices.ensureCapacity(this.stride * numVertices);
-  }
-
-  public ensureIndices(numIndices: number) {
-    //this.indices.ensureCapacity(numIndices);
-  }
-
-  public ensureTriangleIndices(numTriangles: number) {
-    if (this.primitiveType === GL20.GL_LINES) this.ensureIndices(6 * numTriangles);
-    else if (this.primitiveType === GL20.GL_TRIANGLES || this.primitiveType === GL20.GL_POINTS)
-      this.ensureIndices(3 * numTriangles);
-    else throw new Error('Incorrect primtive type');
-  }
-
-  public ensureRectangleIndices(numRectangles: number) {
-    if (this.primitiveType === GL20.GL_POINTS) this.ensureIndices(4 * numRectangles);
-    else if (this.primitiveType === GL20.GL_LINES) this.ensureIndices(8 * numRectangles);
-    // GL_TRIANGLES
-    else this.ensureIndices(6 * numRectangles);
-  }
-
-  public ensureRectangles(numVertices: number, numRectangles: number) {
-    this.ensureVertices(numVertices);
-    this.ensureRectangleIndices(numRectangles);
   }
 
   private static vTmp: Vector3 = new Vector3();
@@ -456,20 +423,17 @@ export class MeshBuilder {
   }
 
   public index2Values(value1: number, value2: number, value3: number) {
-    this.ensureIndices(2);
     this.indices.push(value1);
     this.indices.push(value2);
   }
 
   public index3Values(value1: number, value2: number, value3: number) {
-    this.ensureIndices(3);
     this.indices.push(value1);
     this.indices.push(value2);
     this.indices.push(value3);
   }
 
   public index4Values(value1: number, value2: number, value3: number, value4: number) {
-    this.ensureIndices(4);
     this.indices.push(value1);
     this.indices.push(value2);
     this.indices.push(value3);
@@ -477,7 +441,6 @@ export class MeshBuilder {
   }
 
   public index6Values(value1: number, value2: number, value3: number, value4: number, value5: number, value6: number) {
-    this.ensureIndices(6);
     this.indices.push(value1);
     this.indices.push(value2);
     this.indices.push(value3);
@@ -496,7 +459,6 @@ export class MeshBuilder {
     value7: number,
     value8: number
   ) {
-    this.ensureIndices(8);
     this.indices.push(value1);
     this.indices.push(value2);
     this.indices.push(value3);
@@ -518,7 +480,6 @@ export class MeshBuilder {
   }
 
   public rectWithVertexInfo(corner00: VertexInfo, corner10: VertexInfo, corner11: VertexInfo, corner01: VertexInfo) {
-    this.ensureVertices(4);
     this.rect(this.vertex(corner00), this.vertex(corner10), this.vertex(corner11), this.vertex(corner01));
   }
 

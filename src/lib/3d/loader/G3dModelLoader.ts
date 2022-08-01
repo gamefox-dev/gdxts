@@ -276,7 +276,7 @@ export class G3dModelLoader {
 
         const bones = material['bones'];
         if (bones !== undefined) {
-          nodePart.bones = new Map<String, Matrix4>();
+          nodePart.bones = new Map<string, Matrix4>();
           for (const bone of bones) {
             const nodeId = this.getString(bone['node'], null);
             if (nodeId === null) throw new Error('Bone node ID missing');

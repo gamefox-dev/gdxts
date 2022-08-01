@@ -56,29 +56,29 @@ const init = async () => {
   const COUNT = 1800;
   const instances: ModelInstance[] = [];
   const COLORS = [Color.GREEN, Color.RED, Color.BLUE, Color.MAGENTA, Color.WHITE];
-  for (let i = 0; i < COUNT; i++) {
-    const instance = new ModelInstance(model);
-    instance.getMaterial(material.id).setAttribute(ColorAttribute.createDiffuse(COLORS[Math.floor(Math.random() * 5)]));
-    instance.transform.translate(Math.random() * 100 - 50, Math.random() * 100 - 50, Math.random() * 100 - 50);
-    instances.push(instance);
-  }
+  // for (let i = 0; i < COUNT; i++) {
+  //   const instance = new ModelInstance(model);
+  //   instance.getMaterial(material.id).setAttribute(ColorAttribute.createDiffuse(COLORS[Math.floor(Math.random() * 5)]));
+  //   instance.transform.translate(Math.random() * 100 - 50, Math.random() * 100 - 50, Math.random() * 100 - 50);
+  //   instances.push(instance);
+  // }
 
   //Obj loader
-  const objLoader = new ObjLoader();
-  const shipModel = await objLoader.load(gl, 'ship.obj');
-  const shipInstance = new ModelInstance(shipModel);
-  shipInstance.transform.translate(5, 0, 0);
-  instances.push(shipInstance);
+  // const objLoader = new ObjLoader();
+  // const shipModel = await objLoader.load(gl, 'ship.obj');
+  // const shipInstance = new ModelInstance(shipModel);
+  // shipInstance.transform.translate(5, 0, 0);
+  // instances.push(shipInstance);
 
   // g3d loader
   const g3dLoader = new G3dModelLoader();
-  const soldierModel = await g3dLoader.load(gl, 'soldier.g3db');
+  const soldierModel = await g3dLoader.load(gl, 'knight.g3dj');
   const soldierInstance = new ModelInstance(soldierModel);
-  soldierInstance.transform.scale(0.02, 0.02, 0.02);
+  // soldierInstance.transform.scale(0.02, 0.02, 0.02);
   instances.push(soldierInstance);
 
-  //const animationController = new AnimationController(soldierInstance);
-  //animationController.setAnimation('Attack', -1);
+  const animationController = new AnimationController(soldierInstance);
+  animationController.setAnimation('Attack', -1);
 
   // culling
   const bounds = new BoundingBox();
@@ -131,7 +131,7 @@ const init = async () => {
     lightDirection.rotateRad(ROTATION_SPEED * delta);
     directionalLight.direction.set(lightDirection.x, 0, lightDirection.y);
 
-    //animationController.update(delta);
+    animationController.update(0.167);
 
     for (let i = 0; i < instances.length; i++) {
       if (isVisible(cam, instances[i])) {

@@ -1134,14 +1134,14 @@ export class DefaultShader extends BaseShader {
 
   private static combineAttributes(renderable: Renderable): Attributes {
     this.tmpAttributes.clear();
-    // if (renderable.environment != null) tmpAttributes.set(renderable.environment);
+    if (renderable.environment != null) this.tmpAttributes.setAttributes(renderable.environment.getAttributes());
     if (renderable.material != null) this.tmpAttributes.setAttributes(renderable.material.getAttributes());
     return this.tmpAttributes;
   }
 
   private static combineAttributeMasks(renderable: Renderable): number {
     let mask = 0;
-    //if (renderable.environment != null) mask |= renderable.environment.getMask();
+    if (renderable.environment != null) mask |= renderable.environment.getMask();
     if (renderable.material != null) mask |= renderable.material.getMask();
     return mask;
   }

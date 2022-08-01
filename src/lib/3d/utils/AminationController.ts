@@ -5,11 +5,11 @@ import { BaseAnimationController } from './BaseAnimationController';
 export class AnimationDesc {
   public listener: AnimationListener = null;
   public animation: Animation = null;
-  public speed: number;
-  public time: number;
-  public offset: number;
-  public duration: number;
-  public loopCount: number;
+  public speed: number = 0;
+  public time: number = 0;
+  public offset: number = 0;
+  public duration: number = 0;
+  public loopCount: number = 0;
 
   public update(delta: number): number {
     if (this.loopCount !== 0 && this.animation !== null) {

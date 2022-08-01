@@ -170,7 +170,7 @@ export class Shader implements Disposable, Restorable {
   public getAttributeLocation(attribute: string): number {
     let gl = this.context.gl;
     let location = gl.getAttribLocation(this.program, attribute);
-    if (location === -1 && !gl.isContextLost()) throw new Error(`Couldn't find location for attribute ${attribute}`);
+    //if (location === -1 && !gl.isContextLost()) throw new Error(`Couldn't find location for attribute ${attribute}`);
     return location;
   }
 
