@@ -43,7 +43,7 @@ export class DefaultTextureBinder {
 
   public bindTexture(texture: Texture, rebind: boolean = false): number {
     let result: number;
-    let reused = false;
+    this.reused = false;
 
     switch (this.method) {
       case DefaultTextureBinder.ROUNDROBIN:
@@ -56,7 +56,7 @@ export class DefaultTextureBinder {
         return -1;
     }
 
-    if (reused) {
+    if (this.reused) {
       this.reuseCount++;
       if (rebind) texture.bind(result);
       else DefaultTextureBinder.gl.activeTexture(DefaultTextureBinder.gl.TEXTURE0 + result);

@@ -74,7 +74,6 @@ const init = async () => {
   const g3dLoader = new G3dModelLoader();
   const soldierModel = await g3dLoader.load(gl, 'knight.g3dj');
   const soldierInstance = new ModelInstance(soldierModel);
-  // soldierInstance.transform.scale(0.02, 0.02, 0.02);
   instances.push(soldierInstance);
 
   const animationController = new AnimationController(soldierInstance);
@@ -131,7 +130,7 @@ const init = async () => {
     lightDirection.rotateRad(ROTATION_SPEED * delta);
     directionalLight.direction.set(lightDirection.x, 0, lightDirection.y);
 
-    animationController.update(0.167);
+    animationController.update(0.0167);
 
     for (let i = 0; i < instances.length; i++) {
       if (isVisible(cam, instances[i])) {

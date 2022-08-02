@@ -14,10 +14,10 @@ export class Node {
   public localTransform = new Matrix4();
   public globalTransform = new Matrix4();
 
-  public parts = new Array<NodePart>(0);
+  public parts = new Array<NodePart>();
 
   protected parent: Node = null;
-  private children = new Array<Node>(0);
+  private children = new Array<Node>();
 
   public calculateLocalTransform(): Matrix4 {
     if (!this.isAnimated) this.localTransform.setFromTranslationRotation(this.translation, this.rotation, this.scale);

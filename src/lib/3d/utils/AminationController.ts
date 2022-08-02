@@ -19,11 +19,11 @@ export class AnimationDesc {
         this.time += diff;
         if (this.speed < 0) {
           let invTime = this.duration - this.time;
-          loops = Math.abs(invTime / this.duration);
+          loops = Math.floor(Math.abs(invTime / this.duration));
           invTime = Math.abs(invTime % this.duration);
           this.time = this.duration - invTime;
         } else {
-          loops = Math.abs(this.time / this.duration);
+          loops = Math.floor(Math.abs(this.time / this.duration));
           this.time = Math.abs(this.time % this.duration);
         }
       } else loops = 1;

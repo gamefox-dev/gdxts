@@ -133,7 +133,8 @@ export class G3dModelLoader {
       } else if (attr === 'COLOR') {
         vertexAttributes.push(VertexAttribute.ColorUnpacked());
       } else if (attr === 'COLORPACKED') {
-        vertexAttributes.push(VertexAttribute.ColorPacked());
+        //vertexAttributes.push(VertexAttribute.ColorPacked());
+        throw Error('ColorPacked currently not supported');
       } else if (attr === 'TANGENT') {
         vertexAttributes.push(VertexAttribute.Tangent());
       } else if (attr === 'BINORMAL') {
@@ -335,7 +336,7 @@ export class G3dModelLoader {
             const keytime = this.getFloat(keyframe['keytime'], 0) / 1000;
             const translation = keyframe['translation'];
             if (translation !== undefined && translation.length === 3) {
-              if (nodeAnim.translation === undefined) nodeAnim.translation = new Array<ModelNodeKeyframe<Vector3>>();
+              if (nodeAnim.translation === null) nodeAnim.translation = new Array<ModelNodeKeyframe<Vector3>>();
               const tkf = new ModelNodeKeyframe<Vector3>();
               tkf.keytime = keytime;
               tkf.value = new Vector3(translation[0], translation[1], translation[2]);
@@ -343,7 +344,7 @@ export class G3dModelLoader {
             }
             const rotation = keyframe['rotation'];
             if (rotation !== undefined && rotation.length === 4) {
-              if (nodeAnim.rotation === undefined) nodeAnim.rotation = new Array<ModelNodeKeyframe<Quaternion>>();
+              if (nodeAnim.rotation === null) nodeAnim.rotation = new Array<ModelNodeKeyframe<Quaternion>>();
               const rkf = new ModelNodeKeyframe<Quaternion>();
               rkf.keytime = keytime;
               rkf.value = new Quaternion(rotation[0], rotation[1], rotation[2], rotation[2]);
@@ -351,7 +352,7 @@ export class G3dModelLoader {
             }
             const scale = keyframe['scale'];
             if (scale !== undefined && scale.length === 3) {
-              if (nodeAnim.scaling === undefined) nodeAnim.scaling = new Array<ModelNodeKeyframe<Vector3>>();
+              if (nodeAnim.scaling === null) nodeAnim.scaling = new Array<ModelNodeKeyframe<Vector3>>();
               const skf = new ModelNodeKeyframe<Vector3>();
               skf.keytime = keytime;
               skf.value = new Vector3(scale[0], scale[1], scale[2]);

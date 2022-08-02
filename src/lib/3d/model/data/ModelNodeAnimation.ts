@@ -4,7 +4,7 @@ import { ModelNodeKeyframe } from './ModelNodeKeyframe';
 
 export class ModelNodeAnimation {
   public nodeId: string;
-  public translation: ModelNodeKeyframe<Vector3>[];
-  public rotation: ModelNodeKeyframe<Quaternion>[];
-  public scaling: ModelNodeKeyframe<Vector3>[];
+  public translation: ModelNodeKeyframe<Vector3>[] = null;
+  public rotation: ModelNodeKeyframe<Quaternion>[] = null;
+  public scaling: ModelNodeKeyframe<Vector3>[] = null;
 }
