@@ -376,6 +376,14 @@ export class Matrix4 {
     return this;
   }
 
+  setTranslation(x: number, y: number, z: number): Matrix4 {
+    let v = this.values;
+    v[M03] = x;
+    v[M13] = y;
+    v[M23] = z;
+    return this;
+  }
+
   getTranslation(position: Vector3): Vector3 {
     let v = this.values;
     position.x = v[M03];

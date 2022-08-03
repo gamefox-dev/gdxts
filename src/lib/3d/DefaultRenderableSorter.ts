@@ -11,7 +11,7 @@ export class DefaultRenderableSorter {
 
   public sort(camera: PerspectiveCamera, renderables: Renderable[]) {
     this.camera = camera;
-    renderables.sort(this.compare.bind(this));
+    //renderables.sort(this.compare.bind(this));
   }
 
   private getTranslation(worldTransform: Matrix4, center: Vector3, output: Vector3): Vector3 {
