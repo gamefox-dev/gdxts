@@ -35,8 +35,8 @@ export class PolygonBatch implements Disposable {
     if (maxVertices > 10920) throw new Error("Can't have more than 10920 triangles per batch: " + maxVertices);
     this.context = context;
     let attributes = twoColorTint
-      ? [new Position2Attribute(), new ColorPackedAttribute(), new TexCoordAttribute(), new ColorPacked2Attribute()]
-      : [new Position2Attribute(), new ColorPackedAttribute(), new TexCoordAttribute()];
+      ? [new Position2Attribute(), new TexCoordAttribute()]
+      : [new Position2Attribute(), new TexCoordAttribute()];
     this.mesh = new Mesh(context, attributes, maxVertices, maxVertices * 3);
     this.shader = Shader.newTwoColoredTextured(context);
     let gl = this.context;
@@ -278,42 +278,42 @@ export class PolygonBatch implements Disposable {
       }
     }
 
-    const color1 = NumberUtil.colorToFloat(color.r, color.g, color.b, color.a);
-    const color2 = NumberUtil.colorToFloat(0, 0, 0, 0);
+    // const color1 = NumberUtil.colorToFloat(color.r, color.g, color.b, color.a);
+    // const color2 = NumberUtil.colorToFloat(0, 0, 0, 0);
 
     var i = 0;
     quad[i++] = x1;
     quad[i++] = y1;
-    quad[i++] = color1;
+    // quad[i++] = color1;
     quad[i++] = u1;
     quad[i++] = v1;
-    if (this.twoColorTint) {
-      quad[i++] = color2;
-    }
+    // if (this.twoColorTint) {
+    //   quad[i++] = color2;
+    // }
     quad[i++] = x2;
     quad[i++] = y2;
-    quad[i++] = color1;
+    // quad[i++] = color1;
     quad[i++] = u3;
     quad[i++] = v3;
-    if (this.twoColorTint) {
-      quad[i++] = color2;
-    }
+    // if (this.twoColorTint) {
+    //   quad[i++] = color2;
+    // }
     quad[i++] = x3;
     quad[i++] = y3;
-    quad[i++] = color1;
+    // quad[i++] = color1;
     quad[i++] = u2;
     quad[i++] = v2;
-    if (this.twoColorTint) {
-      quad[i++] = color2;
-    }
+    // if (this.twoColorTint) {
+    //   quad[i++] = color2;
+    // }
     quad[i++] = x4;
     quad[i++] = y4;
-    quad[i++] = color1;
+    // quad[i++] = color1;
     quad[i++] = u4;
     quad[i++] = v4;
-    if (this.twoColorTint) {
-      quad[i] = color2;
-    }
+    // if (this.twoColorTint) {
+    //   quad[i] = color2;
+    // }
     this.drawVertices(texture, quad, PolygonBatch.QUAD_TRIANGLES);
   }
 }

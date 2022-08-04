@@ -75,12 +75,12 @@ const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
     update(delta, game) {
       stateTime += delta;
 
-      shapeRenderer.setProjection(camera.projectionView.values);
-      shapeRenderer.begin();
-      shapeRenderer.rect(true, 0, 0, 500, 1000, Color.BLUE);
-      shapeRenderer.rect(true, 300, 100, 75, 100, Color.RED);
-      shapeRenderer.rect(true, 400, 100, 75, 100, Color.RED);
-      shapeRenderer.end();
+      // shapeRenderer.setProjection(camera.projectionView.values);
+      // shapeRenderer.begin();
+      // shapeRenderer.rect(true, 0, 0, 500, 1000, Color.BLUE);
+      // shapeRenderer.rect(true, 300, 100, 75, 100, Color.RED);
+      // shapeRenderer.rect(true, 400, 100, 75, 100, Color.RED);
+      // shapeRenderer.end();
 
       batch.setProjection(camera.projectionView.values);
       batch.begin();

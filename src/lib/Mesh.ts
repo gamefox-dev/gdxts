@@ -11,6 +11,7 @@ export class VertexAttribute {
     public name: string,
     public type: VertexAttributeType,
     public numElements: number,
+    public normalize = false,
     public offsetCount = numElements
   ) {}
 }
@@ -41,13 +42,13 @@ export class ColorAttribute extends VertexAttribute {
 
 export class ColorPackedAttribute extends VertexAttribute {
   constructor() {
-    super(Shader.COLOR, VertexAttributeType.UnsignedByte, 4, 1);
+    super(Shader.COLOR, VertexAttributeType.UnsignedByte, 4, true, 1);
   }
 }
 
 export class ColorPacked2Attribute extends VertexAttribute {
   constructor() {
-    super(Shader.COLOR2, VertexAttributeType.UnsignedByte, 4, 1);
+    super(Shader.COLOR2, VertexAttributeType.UnsignedByte, 4, true, 1);
   }
 }
 
@@ -119,8 +120,7 @@ export class Mesh implements Disposable, Restorable {
     this.context = context;
     this.elementsPerVertex = 0;
     for (let i = 0; i < attributes.length; i++) {
-      this.elementsPerVertex +=
-        attributes[i].type === VertexAttributeType.Float ? attributes[i].numElements : attributes[i].numElements / 4;
+      this.elementsPerVertex += attributes[i].offsetCount;
     }
     this.vertices = new Float32Array(maxVertices * this.elementsPerVertex);
     this.indices = new Uint16Array(maxIndices);
@@ -171,8 +171,11 @@ export class Mesh implements Disposable, Restorable {
       let attrib = this.attributes[i];
       let location = shader.getAttributeLocation(attrib.name);
       gl.enableVertexAttribArray(location);
-      const type = attrib.type === VertexAttributeType.Float ? gl.FLOAT : gl.UNSIGNED_BYTE;
-      gl.vertexAttribPointer(location, attrib.numElements, type, false, this.elementsPerVertex * 4, offset);
+      let type = gl.FLOAT;
+      if (attrib.type === VertexAttributeType.UnsignedByte) {
+        type = gl.UNSIGNED_BYTE;
+      }
+      gl.vertexAttribPointer(location, attrib.numElements, type, attrib.normalize, this.elementsPerVertex * 4, offset);
       offset += attrib.offsetCount * 4;
     }
     if (this.indicesLength > 0) gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer);
