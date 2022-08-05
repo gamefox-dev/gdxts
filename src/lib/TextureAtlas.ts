@@ -71,7 +71,7 @@ export class TextureAtlas implements Disposable {
 
     let pageImage;
 
-    const lines = packFileContent.split('\n');
+    const lines = packFileContent.split('\r\n');
 
     let i = 0;
     let tuple;

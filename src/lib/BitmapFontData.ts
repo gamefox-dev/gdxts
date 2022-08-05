@@ -123,7 +123,7 @@ export class BitmapFontData {
 
     fileContent = await res.text();
 
-    const lines = fileContent.split('\n').map((s: string) => s.trim());
+    const lines = fileContent.split('\r\n').map((s: string) => s.trim());
 
     try {
       let line: string = lines[i];

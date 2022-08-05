@@ -18,10 +18,63 @@ import {
   BitmapFont,
   Sprite,
   MathUtils,
-  Vector2
+  Vector2,
+  GameLoop
 } from './lib';
 
 const YDOWN = true;
+
+const createBunnyScreen = async (viewport: Viewport, loop: GameLoop): Promise<Screen> => {
+  const gl = viewport.getContext();
+  const camera = viewport.getCamera();
+
+  camera.setYDown(YDOWN);
+
+  const atlas = await TextureAtlas.load(gl, './gem.atlas');
+  const font = await BitmapFont.load(gl, './number.fnt', YDOWN);
+
+  const batch = new PolygonBatch(gl);
+
+  batch.setYDown(YDOWN);
+
+  const gems: any[] = [];
+  const moreBunnies = n => {
+    for (let i = 0; i < n; i++) {
+      gems.push({
+        x: Math.random() * 500,
+        y: Math.random() * 1000,
+        type: Math.floor(Math.random() * 4)
+      });
+    }
+  };
+
+  moreBunnies(11000);
+
+  let fps = 'FPS: 0';
+
+  const iid = setInterval(() => {
+    fps = 'FPS: ' + loop.getFps();
+  }, 1000);
+
+  return {
+    update(delta) {
+      batch.setProjection(camera.projectionView.values);
+      batch.begin();
+      for (let gem of gems) {
+        atlas.findRegion(`gem_0${gem.type + 1}`, 1).draw(batch, gem.x - 25, gem.y - 25, 50, 50);
+      }
+      font.draw(batch, fps, 20, 20, 500);
+      batch.end();
+    },
+    dispose() {
+      batch.dispose();
+      atlas.dispose();
+      font.dispose();
+      clearInterval(iid);
+    }
+  };
+};
+
 const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
   const camera = viewport.getCamera();
@@ -241,17 +294,20 @@ const init = async () => {
   const canvas = stage.getCanvas();
 
   const viewport = createViewport(canvas, 500, 1000, {
-    crop: false
+    crop: false,
+    contextOption: {
+      antialias: false
+    }
   });
   const gl = viewport.getContext();
 
-  Game.shared.setScreen(await createMainScreen(viewport));
-
   gl.clearColor(0, 0, 0, 1);
-  createGameLoop((delta: number) => {
+  const loop = createGameLoop((delta: number) => {
     gl.clear(gl.COLOR_BUFFER_BIT);
     Game.shared.update(delta);
   });
+
+  Game.shared.setScreen(await createBunnyScreen(viewport, loop));
 };
 
 init();
