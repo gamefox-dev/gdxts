@@ -19,7 +19,9 @@ import {
   Sprite,
   MathUtils,
   Vector2,
-  GameLoop
+  GameLoop,
+  TextureRegion,
+  TextureFilter
 } from './lib';
 
 const YDOWN = true;
@@ -30,12 +32,16 @@ const createBunnyScreen = async (viewport: Viewport, loop: GameLoop): Promise<Sc
 
   camera.setYDown(YDOWN);
 
-  const atlas = await TextureAtlas.load(gl, './gem.atlas');
+  const texture = await Texture.load(gl, './bunnys.png');
+  texture.setFilters(TextureFilter.Linear, TextureFilter.Linear);
+  const regions = TextureRegion.splitTexture(texture, 1, 5);
   const font = await BitmapFont.load(gl, './number.fnt', YDOWN);
 
   const batch = new PolygonBatch(gl);
 
   batch.setYDown(YDOWN);
+
+  const SPEED = 1000;
 
   const gems: any[] = [];
   const moreBunnies = n => {
@@ -43,12 +49,14 @@ const createBunnyScreen = async (viewport: Viewport, loop: GameLoop): Promise<Sc
       gems.push({
         x: Math.random() * 500,
         y: Math.random() * 1000,
-        type: Math.floor(Math.random() * 4)
+        speedX: Math.random() * SPEED - SPEED / 2,
+        speedY: Math.random() * SPEED - SPEED / 2,
+        type: Math.floor(Math.random() * 5)
       });
     }
   };
 
-  moreBunnies(11000);
+  moreBunnies(6000);
 
   let fps = 'FPS: 0';
 
@@ -56,19 +64,36 @@ const createBunnyScreen = async (viewport: Viewport, loop: GameLoop): Promise<Sc
     fps = 'FPS: ' + loop.getFps();
   }, 1000);
 
+  const DRAW_WIDTH = 30;
+  const DRAW_HEIGHT = (DRAW_WIDTH * regions[0].height) / regions[0].width;
+
   return {
     update(delta) {
+      for (let gem of gems) {
+        gem.x += gem.speedX * delta;
+        gem.y += gem.speedY * delta;
+
+        if (gem.x < 0 || gem.x > 500) {
+          gem.x = MathUtils.clamp(gem.x, 0, 500);
+          gem.speedX *= -1;
+        }
+
+        if (gem.y < 0 || gem.y > 1000) {
+          gem.y = MathUtils.clamp(gem.y, 0, 1000);
+          gem.speedY *= -1;
+        }
+      }
       batch.setProjection(camera.projectionView.values);
       batch.begin();
       for (let gem of gems) {
-        atlas.findRegion(`gem_0${gem.type + 1}`, 1).draw(batch, gem.x - 25, gem.y - 25, 50, 50);
+        regions[gem.type].draw(batch, gem.x - DRAW_WIDTH / 2, gem.y - DRAW_HEIGHT / 2, DRAW_WIDTH, DRAW_HEIGHT);
       }
       font.draw(batch, fps, 20, 20, 500);
       batch.end();
     },
     dispose() {
       batch.dispose();
-      atlas.dispose();
+      texture.dispose();
       font.dispose();
       clearInterval(iid);
     }
