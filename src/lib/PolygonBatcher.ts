@@ -50,6 +50,7 @@ export class PolygonBatch implements Disposable {
   }
 
   setShader(shader: Shader) {
+    this.shader.dispose();
     this.shader = shader;
   }
 
