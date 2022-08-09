@@ -231,6 +231,11 @@ export const createTestOutlineScreen = async (viewport: Viewport): Promise<Scree
         atlas.findRegion(`gem_0${gem.type + 1}`, 1).draw(batch, gem.x, gem.y, 50, 50, 25, 25, angle + gem.offsetAngle);
       }
       batch.end();
+    },
+    dispose() {
+      batch.dispose();
+      atlas.dispose();
+      inputHandler.cleanup();
     }
   };
 };
