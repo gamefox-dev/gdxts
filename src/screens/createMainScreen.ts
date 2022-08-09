@@ -58,14 +58,14 @@ export const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
         });
       }
 
-      shapeRenderer.setProjection(camera.projectionView.values);
+      shapeRenderer.setProjection(camera.combined);
       shapeRenderer.begin();
       shapeRenderer.rect(true, 0, 0, 500, 1000, Color.BLUE);
       shapeRenderer.rect(true, 300, 100, 75, 100, Color.RED);
       shapeRenderer.rect(true, 400, 100, 75, 100, Color.RED);
       shapeRenderer.end();
 
-      batch.setProjection(camera.projectionView.values);
+      batch.setProjection(camera.combined);
       batch.begin();
       for (let gem of gems) {
         atlas.findRegion(`gem_0${gem.type + 1}`, 1).draw(batch, gem.x, gem.y, 50, 50);

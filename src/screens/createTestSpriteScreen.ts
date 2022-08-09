@@ -35,7 +35,7 @@ export const createTestSpriteScreen = async (viewport: Viewport): Promise<Screen
 
   return {
     update(delta: number, game: Game) {
-      shapeRenderer.setProjection(camera.projectionView.values);
+      shapeRenderer.setProjection(camera.combined);
       shapeRenderer.begin();
       shapeRenderer.rect(true, 0, 0, 500, 1000, Color.RED);
       shapeRenderer.end();
@@ -56,7 +56,7 @@ export const createTestSpriteScreen = async (viewport: Viewport): Promise<Screen
       sprite.rotate(Math.PI * delta);
 
       sprite.setCenter(position.x, position.y);
-      batch.setProjection(camera.projectionView.values);
+      batch.setProjection(camera.combined);
       batch.begin();
       sprite.draw(batch);
       batch.end();

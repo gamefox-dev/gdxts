@@ -51,7 +51,7 @@ export const createBunnyScreen = async (viewport: Viewport): Promise<Screen> => 
           gem.speedY *= -1;
         }
       }
-      batch.setProjection(camera.projectionView.values);
+      batch.setProjection(camera.combined);
       batch.begin();
       for (let gem of gems) {
         regions[gem.type].draw(batch, gem.x - DRAW_WIDTH / 2, gem.y - DRAW_HEIGHT / 2, DRAW_WIDTH, DRAW_HEIGHT);

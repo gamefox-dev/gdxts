@@ -13,7 +13,7 @@ export const createTestScreen = async (viewport: Viewport): Promise<Screen> => {
 
   return {
     update(delta: number, game: Game) {
-      batch.setProjection(camera.projectionView.values);
+      batch.setProjection(camera.combined);
       batch.begin();
       batch.draw(texture, 0, 0, 500, 600);
       batch.end();

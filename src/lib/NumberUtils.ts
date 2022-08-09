@@ -1,6 +1,6 @@
-var int8 = new Int8Array(4);
-var int32 = new Int32Array(int8.buffer, 0, 1);
-var float32 = new Float32Array(int8.buffer, 0, 1);
+const int8 = new Int8Array(4);
+const int32 = new Int32Array(int8.buffer, 0, 1);
+const float32 = new Float32Array(int8.buffer, 0, 1);
 
 export class NumberUtil {
   static intBitsToFloat(i: number): number {
@@ -15,7 +15,7 @@ export class NumberUtil {
     return NumberUtil.intBitsToFloat(value & 0xfeffffff);
   }
   static colorToFloat(r: number, g: number, b: number, a: number): number {
-    var bits = (a << 24) | (b << 16) | (g << 8) | r;
+    const bits = (r << 24) | (g << 16) | (b << 8) | a;
     return NumberUtil.intToFloatColor(bits);
   }
   static isPowerOfTwo(n: number): boolean {

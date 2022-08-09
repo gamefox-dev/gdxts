@@ -113,6 +113,13 @@ export class Color {
 
   constructor(public r: number = 0, public g: number = 0, public b: number = 0, public a: number = 0) {}
 
+  unsafeSet(r: number, g: number, b: number, a: number) {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
+  }
+
   set(r: number, g: number, b: number, a: number) {
     this.r = r;
     this.g = g;

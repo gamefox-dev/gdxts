@@ -23,12 +23,12 @@ export const createTestBitmapFontScreen = async (viewport: Viewport): Promise<Sc
 
   return {
     update(delta: number, game: Game) {
-      shapeRenderer.setProjection(camera.projectionView.values);
+      shapeRenderer.setProjection(camera.combined);
       shapeRenderer.begin();
       shapeRenderer.rect(true, 0, 0, 500, 1000, Color.RED);
       shapeRenderer.end();
 
-      batch.setProjection(camera.projectionView.values);
+      batch.setProjection(camera.combined);
       batch.begin();
       batch.setColor(color);
       strs.map((str, i) => font.draw(batch, str, 0, (i + 1) * 300, 500, [Align.left, Align.center, Align.right][i]));

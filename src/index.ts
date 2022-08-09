@@ -16,17 +16,20 @@ import {
 import { createBunnyScreen } from './screens/createBunnyScreen';
 import { createMainScreen } from './screens/createMainScreen';
 import { createTestBitmapFontScreen } from './screens/createTestBitmapFontScreen';
+import { createTestOutlineScreen } from './screens/createTestOutlineScreen';
 import { createTestScreen } from './screens/createTestScreen';
 import { createTestSpriteScreen } from './screens/createTestSpriteScreen';
 
 export const YDOWN = true;
+const FIRST_TEST_INDEX = 5;
 
 const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Basic rendering 01': createMainScreen,
   'Basic rendering 02': createTestScreen,
   'Sprite rendering': createTestSpriteScreen,
   'Bitmap Font': createTestBitmapFontScreen,
-  'Fun with Bunnymark': createBunnyScreen
+  'Fun with Bunnymark': createBunnyScreen,
+  'Outline shader test': createTestOutlineScreen
 };
 
 const init = async () => {
@@ -67,7 +70,7 @@ const init = async () => {
   };
 
   const inputHandler = new ViewportInputHandler(viewport);
-  inputHandler.addEventListener(InputEvent.TouchStart, async (x, y) => {
+  inputHandler.addEventListener(InputEvent.TouchEnd, async (x, y) => {
     if (transitioning) {
       return;
     }
@@ -87,21 +90,22 @@ const init = async () => {
     }
 
     setTestScreen(currentScreen);
+    transitioning = true;
   });
 
   let fps = 'FPS: 0';
-  setTestScreen(0);
+  await setTestScreen(FIRST_TEST_INDEX);
 
   gl.clearColor(0, 0, 0, 1);
   const loop = createGameLoop((delta: number) => {
     gl.clear(gl.COLOR_BUFFER_BIT);
     Game.shared.update(delta);
-    batch.setProjection(camera.projectionView.values);
+    batch.setProjection(camera.combined);
     batch.begin();
     font.draw(batch, fps, 330, 20, 150);
     font.draw(batch, screenNames[currentScreen], 0, 950, 500, Align.center, false, 0, 22);
     batch.end();
-    shapeRenderer.setProjection(camera.projectionView.values);
+    shapeRenderer.setProjection(camera.combined);
     shapeRenderer.begin();
     shapeRenderer.triangle(true, 30, 960, 60, 935, 60, 985);
     shapeRenderer.triangle(true, 470, 960, 440, 935, 440, 985);

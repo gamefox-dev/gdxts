@@ -15,6 +15,7 @@ export class OrthoCamera {
   inverseProjectionView = new Matrix4();
   projection = new Matrix4();
   view = new Matrix4();
+  combined: Float32Array;
 
   screenWidth: number;
   screenHeight: number;
@@ -68,6 +69,8 @@ export class OrthoCamera {
     projectionView.set(projection.values);
     projectionView.multiply(view);
     inverseProjectionView.set(projectionView.values).invert();
+
+    this.combined = projectionView.values;
   }
 
   screenToWorld(screenCoords: Vector3, screenWidth?: number, screenHeight?: number) {
