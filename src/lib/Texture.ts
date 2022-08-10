@@ -51,6 +51,10 @@ export class Texture {
     this.height = image.height;
   }
 
+  getWebGLTexture() {
+    return this.texture;
+  }
+
   setFilters(minFilter: TextureFilter, magFilter: TextureFilter) {
     let gl = this.context;
     this.bind();
