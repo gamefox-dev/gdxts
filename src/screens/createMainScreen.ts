@@ -81,6 +81,7 @@ export const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
       shapeRenderer.dispose();
       atlas.dispose();
       kitGardenAtlas.dispose();
+      inputHandler.cleanup();
     }
   };
 };
