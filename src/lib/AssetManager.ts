@@ -3,7 +3,7 @@ import { Texture } from './Texture';
 import { TextureAtlas } from './TextureAtlas';
 import { TextureRegion } from './TextureRegion';
 
-export default class AssetManager {
+export class AssetManager {
   gl: WebGLRenderingContext;
   promises: Array<Promise<any>> = [];
   atlases: Map<string, TextureAtlas> = new Map();
@@ -125,3 +125,5 @@ export default class AssetManager {
     });
   }
 }
+
+export default AssetManager;

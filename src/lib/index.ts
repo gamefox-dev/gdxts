@@ -1,4 +1,5 @@
 export * from './Animation';
+export * from './AssetManager';
 export * from './BitmapFont';
 export * from './BitmapFontCache';
 export * from './BitmapFontData';
