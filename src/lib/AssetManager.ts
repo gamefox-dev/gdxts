@@ -67,7 +67,7 @@ export class AssetManager {
   }
   fonts: Map<string, BitmapFont> = new Map();
   loadFont(path: string, name: string, flip = false): Promise<BitmapFont> {
-    const promise = BitmapFont.load(this.gl, path).then(font => {
+    const promise = BitmapFont.load(this.gl, path, flip).then(font => {
       this.fonts.set(name, font);
       this.reportDone();
       return font;
