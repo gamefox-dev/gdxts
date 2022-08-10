@@ -66,7 +66,7 @@ export class AssetManager {
     return this.binaryData.get(name);
   }
   fonts: Map<string, BitmapFont> = new Map();
-  loadFont(path: string, name: string): Promise<BitmapFont> {
+  loadFont(path: string, name: string, flip = false): Promise<BitmapFont> {
     const promise = BitmapFont.load(this.gl, path).then(font => {
       this.fonts.set(name, font);
       this.reportDone();
