@@ -14,6 +14,7 @@ const WHITE = new Color(1, 1, 1, 1);
 
 export class PolygonBatch implements Disposable {
   public static QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
+  public static totalDrawCalls = 0;
 
   private context: WebGLRenderingContext;
   private drawCalls: number;
@@ -139,8 +140,14 @@ export class PolygonBatch implements Disposable {
     this.lastTexture = null;
     this.isDrawing = false;
 
+    PolygonBatch.totalDrawCalls += this.drawCalls;
+
     let gl = this.context;
     gl.disable(gl.BLEND);
+  }
+
+  public static resetTotalDrawCalls() {
+    PolygonBatch.totalDrawCalls = 0;
   }
 
   getDrawCalls() {
