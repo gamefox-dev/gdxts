@@ -19,9 +19,10 @@ import { createTestBitmapFontScreen } from './screens/createTestBitmapFontScreen
 import { createTestOutlineScreen } from './screens/createTestOutlineScreen';
 import { createTestScreen } from './screens/createTestScreen';
 import { createTestSpriteScreen } from './screens/createTestSpriteScreen';
+import { createTestUIScreen } from './screens/createTestUIScreen';
 
 export const YDOWN = true;
-const FIRST_TEST_INDEX = 5;
+const FIRST_TEST_INDEX = 6;
 
 const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Basic rendering 01': createMainScreen,
@@ -29,7 +30,8 @@ const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Sprite rendering': createTestSpriteScreen,
   'Bitmap Font': createTestBitmapFontScreen,
   'Fun with Bunnymark': createBunnyScreen,
-  'Outline shader test': createTestOutlineScreen
+  'Outline shader test': createTestOutlineScreen,
+  'Test UI': createTestUIScreen
 };
 
 const init = async () => {

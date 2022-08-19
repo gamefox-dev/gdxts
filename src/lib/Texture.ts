@@ -21,6 +21,12 @@ export class Texture {
     return this._image;
   }
 
+  static async createWhiteTexture(gl: WebGLRenderingContext): Promise<Texture> {
+    const imageData = new ImageData(new Uint8ClampedArray([255, 255, 255, 255]), 1, 1);
+    const texture = new Texture(gl, await createImageBitmap(imageData));
+    return texture;
+  }
+
   static load(gl: WebGLRenderingContext, url: string, useMipmaps = false): Promise<Texture> {
     return new Promise(resolve => {
       const image = new Image();
