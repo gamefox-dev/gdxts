@@ -1,0 +1,9 @@
+- most style props from [here](https://reactnative.dev/docs/layout-props)
+- (?) background and maybe border
+- [aspect-ratio](https://yogalayout.com/docs/aspect-ratio/)
+- all props will be optional, specified by an interface namely ActorStyle
+- default to {}, will be applied by another style object by `setStyle`
+- `setStyle` trigger recalculation of `YogaNode`
+- `YogaNode` will be private, can only be access from inside Actor
+- react host configuration should be very easy with this kind of `style` implementation
+- generic prop passing for actors from react
