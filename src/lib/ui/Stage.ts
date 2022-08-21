@@ -40,7 +40,7 @@ export class Stage implements Disposable {
 
   draw() {
     if (this.root.isDirty()) {
-      this.root.style.calculateLayout(this.worldSize.x, this.worldSize.y);
+      this.root.yogaNode.calculateLayout(this.worldSize.x, this.worldSize.y);
       this.root.updateLayout();
     }
 

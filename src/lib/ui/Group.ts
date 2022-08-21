@@ -11,7 +11,7 @@ export class Group extends Actor {
       this.children.splice(index, 0, actor);
     }
     index = this.children.indexOf(actor);
-    this.style.insertChild(actor.style, index);
+    this.yogaNode.insertChild(actor.yogaNode, index);
     actor.parent = this;
   }
 

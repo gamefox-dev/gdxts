@@ -3,11 +3,13 @@ import Yoga, { YogaNode } from 'yoga-layout-prebuilt';
 import { Group } from './Group';
 import { Vector2 } from '../Vector2';
 import { Disposable } from '../Utils';
+import { ActorStyle, applyStyleToNode } from './ActorStyle';
 
 export class Actor implements Disposable {
   parent?: Group;
-  style: YogaNode;
+  style: ActorStyle = {};
   dirty = true;
+  yogaNode: YogaNode;
 
   displayPosition: Vector2 = new Vector2(0, 0);
   displaySize: Vector2 = new Vector2(0, 0);
@@ -22,16 +24,28 @@ export class Actor implements Disposable {
     return this;
   }
 
+  setStyle(style: ActorStyle) {
+    for (let propName in style) {
+      if (
+        this.style[propName] === undefined ||
+        (this.style[propName] !== undefined && this.style[propName] !== style[propName])
+      ) {
+        this.dirty = true;
+        this.style[propName] = style[propName];
+        applyStyleToNode(this.yogaNode, propName as keyof ActorStyle, style[propName]);
+      }
+    }
+  }
+
   isDirty(): boolean {
     if (this.dirty) return true;
   }
 
   updateLayout() {
-    if (!this.isDirty()) return;
-    let x = this.style.getComputedLeft();
-    let y = this.style.getComputedTop();
-    const w = this.style.getComputedWidth();
-    const h = this.style.getComputedHeight();
+    let x = this.yogaNode.getComputedLeft();
+    let y = this.yogaNode.getComputedTop();
+    const w = this.yogaNode.getComputedWidth();
+    const h = this.yogaNode.getComputedHeight();
     if (this.parent !== undefined) {
       const { x: pX, y: pY } = this.parent.displayPosition;
       x += pX;
@@ -43,19 +57,7 @@ export class Actor implements Disposable {
   }
 
   constructor() {
-    this.style = new Proxy(Yoga.Node.create(), {
-      get: (target: YogaNode, propKey: string, receiver) => {
-        var propValue = (target as any)[propKey];
-        if (typeof propValue !== 'function' || propKey.startsWith('get')) {
-          return propValue;
-        } else {
-          return (...args: any[]) => {
-            this.dirty = true;
-            return propValue.apply(target, args);
-          };
-        }
-      }
-    });
+    this.yogaNode = Yoga.Node.create();
   }
 
   dispose(): void {}
