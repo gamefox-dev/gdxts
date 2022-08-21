@@ -4,6 +4,7 @@ import { Group } from './Group';
 import { Vector2 } from '../Vector2';
 import { Disposable } from '../Utils';
 import { ActorStyle, applyStyleToNode } from './ActorStyle';
+import { Stage } from './Stage';
 
 export class Actor implements Disposable {
   parent?: Group;
@@ -56,7 +57,7 @@ export class Actor implements Disposable {
     this.dirty = false;
   }
 
-  constructor() {
+  constructor(private stage: Stage) {
     this.yogaNode = Yoga.Node.create();
   }
 

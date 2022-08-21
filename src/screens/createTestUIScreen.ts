@@ -19,14 +19,14 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
     justifyContent: 'flex-start'
   });
 
-  const A = new Group();
+  const A = new Group(stage);
   A.setStyle({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
     flexWrap: 'wrap'
   });
-  const ABackground = new TestActor(texture).setColor(Color.BLUE);
+  const ABackground = new TestActor(stage, texture).setColor(Color.BLUE);
   ABackground.setStyle({
     position: 'absolute',
     inset: 0
@@ -34,7 +34,7 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
   A.addActor(ABackground);
 
   for (let i = 0; i < 20; i++) {
-    const a1 = new TestActor(texture).setColor(Color.MAGENTA);
+    const a1 = new TestActor(stage, texture).setColor(Color.MAGENTA);
     a1.setStyle({
       width: 50,
       aspectRatio: 1.5,
@@ -43,11 +43,11 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
     A.addActor(a1);
   }
 
-  const B = new Group();
+  const B = new Group(stage);
   B.setStyle({
     flex: 1
   });
-  const BBackground = new TestActor(texture).setColor(Color.GREEN);
+  const BBackground = new TestActor(stage, texture).setColor(Color.GREEN);
   BBackground.setStyle({
     flex: 1
   });

@@ -14,7 +14,7 @@ export class Stage implements Disposable {
 
   constructor(private viewport: Viewport, yDown = true) {
     const viewportInfo = viewport.getViewportInfo();
-    this.root = new Group();
+    this.root = new Group(this);
     this.camera = new OrthoCamera(
       viewportInfo.worldWidth,
       viewportInfo.worldHeight,

@@ -1,8 +1,11 @@
 /* eslint-disable no-fallthrough */
 import Yoga from 'yoga-layout-prebuilt';
+import { Color } from '../Utils';
 
 export interface ActorStyle {
   display?: 'none' | 'flex';
+
+  backgroundColor?: Color;
 
   flex?: number;
   flexBasis?: number | string;

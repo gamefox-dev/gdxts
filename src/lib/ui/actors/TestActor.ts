@@ -2,11 +2,12 @@ import { PolygonBatch } from '../../PolygonBatcher';
 import { Texture } from '../../Texture';
 import { Color } from '../../Utils';
 import { Actor } from '../Actor';
+import { Stage } from '../Stage';
 
 export class TestActor extends Actor {
   color: Color;
-  constructor(private texture: Texture) {
-    super();
+  constructor(stage: Stage, private texture: Texture) {
+    super(stage);
   }
 
   setColor(color: Color): TestActor {
