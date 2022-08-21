@@ -9,3 +9,4 @@
 - generic prop passing for actors from react
 - (?) margin/padding horizontal/vertical/start/end
 - actors?
+- (?) transitions/actions api
