@@ -1,5 +1,5 @@
 - ~~most style props from [here](https://reactnative.dev/docs/layout-props)~~
-- (?) background and maybe border
+- (?) ~~background~~ and maybe border
 - ~~[aspect-ratio](https://yogalayout.com/docs/aspect-ratio/)~~
 - ~~all props will be optional, specified by an interface namely ActorStyle~~
 - ~~default to {}, will be applied by another style object by `setStyle`~~

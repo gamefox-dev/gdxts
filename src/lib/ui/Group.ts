@@ -13,6 +13,7 @@ export class Group extends Actor {
     index = this.children.indexOf(actor);
     this.yogaNode.insertChild(actor.yogaNode, index);
     actor.parent = this;
+    this.dirty = true;
   }
 
   updateLayout(): void {
@@ -39,10 +40,12 @@ export class Group extends Actor {
 
   public removeActor(actor: Actor) {
     const index = this.children.indexOf(actor);
+    this.yogaNode.removeChild(actor.yogaNode);
     if (index >= 0) {
       this.children.splice(index, 1);
     }
     actor.parent = undefined;
+    this.dirty = true;
   }
 
   public draw(batch: PolygonBatch): void {
