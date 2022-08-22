@@ -10,7 +10,7 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
   const camera = viewport.getCamera();
   camera.setYDown(YDOWN);
 
-  const texture = await Texture.createWhiteTexture(gl);
+  const texture = Texture.createWhiteTexture(gl);
   const inputHandler = new ViewportInputHandler(viewport);
 
   const stage = new Stage(viewport);
@@ -24,14 +24,9 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
+    backgroundColor: Color.BLUE
   });
-  const ABackground = new TestActor(stage, texture).setColor(Color.BLUE);
-  ABackground.setStyle({
-    position: 'absolute',
-    inset: 0
-  });
-  A.addActor(ABackground);
 
   for (let i = 0; i < 20; i++) {
     const a1 = new TestActor(stage, texture).setColor(Color.MAGENTA);
@@ -45,13 +40,9 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
 
   const B = new Group(stage);
   B.setStyle({
-    flex: 1
+    flex: 1,
+    backgroundColor: Color.GREEN
   });
-  const BBackground = new TestActor(stage, texture).setColor(Color.GREEN);
-  BBackground.setStyle({
-    flex: 1
-  });
-  B.addActor(BBackground);
 
   stage.addActor(A);
   stage.addActor(B);

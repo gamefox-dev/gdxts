@@ -1,9 +1,9 @@
-import { PolygonBatch } from '../PolygonBatcher';
 import Yoga, { YogaNode } from 'yoga-layout-prebuilt';
-import { Group } from './Group';
-import { Vector2 } from '../Vector2';
+import { PolygonBatch } from '../PolygonBatcher';
 import { Disposable } from '../Utils';
+import { Vector2 } from '../Vector2';
 import { ActorStyle, applyStyleToNode } from './ActorStyle';
+import { Group } from './Group';
 import { Stage } from './Stage';
 
 export class Actor implements Disposable {
@@ -62,5 +62,18 @@ export class Actor implements Disposable {
   }
 
   dispose(): void {}
-  public draw(batch: PolygonBatch): void {}
+  public draw(batch: PolygonBatch): void {
+    if (this.style.backgroundColor) {
+      const prevColor = batch.color;
+      batch.setColor(this.style.backgroundColor);
+      batch.draw(
+        this.stage.whiteTexture,
+        this.displayPosition.x,
+        this.displayPosition.y,
+        this.displaySize.x,
+        this.displaySize.y
+      );
+      batch.setColor(prevColor);
+    }
+  }
 }

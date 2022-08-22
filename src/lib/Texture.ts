@@ -15,15 +15,15 @@ export enum TextureWrap {
 }
 
 export class Texture {
-  protected _image: HTMLImageElement | ImageBitmap;
+  protected _image: HTMLImageElement | ImageBitmap | ImageData;
 
-  getImage(): HTMLImageElement | ImageBitmap {
+  getImage(): HTMLImageElement | ImageBitmap | ImageData {
     return this._image;
   }
 
-  static async createWhiteTexture(gl: WebGLRenderingContext): Promise<Texture> {
+  static createWhiteTexture(gl: WebGLRenderingContext): Texture {
     const imageData = new ImageData(new Uint8ClampedArray([255, 255, 255, 255]), 1, 1);
-    const texture = new Texture(gl, await createImageBitmap(imageData));
+    const texture = new Texture(gl, imageData);
     return texture;
   }
 
@@ -47,7 +47,11 @@ export class Texture {
 
   public static DISABLE_UNPACK_PREMULTIPLIED_ALPHA_WEBGL = false;
 
-  constructor(context: WebGLRenderingContext, image: HTMLImageElement | ImageBitmap, useMipMaps: boolean = false) {
+  constructor(
+    context: WebGLRenderingContext,
+    image: HTMLImageElement | ImageBitmap | ImageData,
+    useMipMaps: boolean = false
+  ) {
     this._image = image;
     this.context = context;
     this.useMipMaps = useMipMaps;

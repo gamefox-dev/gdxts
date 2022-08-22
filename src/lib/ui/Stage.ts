@@ -1,5 +1,6 @@
 import { OrthoCamera } from '../Camera';
 import { PolygonBatch } from '../PolygonBatcher';
+import { Texture } from '../Texture';
 import { Disposable } from '../Utils';
 import { Vector2 } from '../Vector2';
 import { Viewport } from '../Viewport';
@@ -11,6 +12,7 @@ export class Stage implements Disposable {
   camera: OrthoCamera;
   batch: PolygonBatch;
   worldSize: Vector2;
+  whiteTexture: Texture;
 
   constructor(private viewport: Viewport, yDown = true) {
     const viewportInfo = viewport.getViewportInfo();
@@ -28,6 +30,8 @@ export class Stage implements Disposable {
 
     this.batch = new PolygonBatch(viewport.getContext());
     this.worldSize = new Vector2(viewportInfo.worldWidth, viewportInfo.worldHeight);
+
+    this.whiteTexture = Texture.createWhiteTexture(viewport.getContext());
   }
 
   addActor(actor: Actor, index?: number) {
@@ -53,5 +57,6 @@ export class Stage implements Disposable {
   dispose() {
     this.root.dispose();
     this.batch.dispose();
+    this.whiteTexture.dispose();
   }
 }

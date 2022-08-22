@@ -46,6 +46,7 @@ export class Group extends Actor {
   }
 
   public draw(batch: PolygonBatch): void {
+    super.draw(batch);
     for (let child of this.children) {
       child.draw(batch);
     }
