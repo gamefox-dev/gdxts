@@ -28,7 +28,8 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
     backgroundColor: Color.BLUE
   });
 
-  for (let i = 0; i < 20; i++) {
+  const children = [];
+  const newChild = () => {
     const a1 = new TestActor(stage, texture).setColor(Color.MAGENTA);
     a1.setStyle({
       width: 50,
@@ -36,6 +37,11 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
       margin: 10
     });
     A.addActor(a1);
+    children.push(a1);
+  };
+
+  for (let i = 0; i < 20; i++) {
+    newChild();
   }
 
   const B = new Group(stage);
@@ -48,15 +54,12 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
   stage.addActor(B);
 
   inputHandler.addEventListener(InputEvent.TouchStart, () => {
-    A.setStyle({
-      flex: 2
-    });
-  });
-
-  inputHandler.addEventListener(InputEvent.TouchEnd, () => {
-    A.setStyle({
-      flex: 1
-    });
+    if (inputHandler.getTouchedWorldCoord().y > 500) {
+      newChild();
+    } else if (children.length > 0) {
+      const a1 = children.pop();
+      A.removeActor(a1);
+    }
   });
 
   return {
