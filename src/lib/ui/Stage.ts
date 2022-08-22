@@ -27,10 +27,11 @@ export class Stage implements Disposable {
     );
     viewport.addCamera(this.camera);
     viewport.update();
-
-    this.camera.setYDown(viewport.getCamera().getYDown());
+    const yDown = viewport.getCamera().getYDown();
+    this.camera.setYDown(yDown);
 
     this.batch = new PolygonBatch(viewport.getContext());
+    this.batch.setYDown(yDown);
     this.worldSize = new Vector2(viewportInfo.worldWidth, viewportInfo.worldHeight);
 
     this.whiteTexture = Texture.createWhiteTexture(viewport.getContext());
@@ -38,10 +39,7 @@ export class Stage implements Disposable {
     if (skin) {
       this.skin = skin;
     } else {
-      this.skin = {
-        fonts: [],
-        atlases: []
-      };
+      this.skin = new Skin();
     }
   }
 

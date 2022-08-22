@@ -25,7 +25,7 @@ export class Actor implements Disposable {
     return this;
   }
 
-  setStyle(style: ActorStyle) {
+  setStyle(style: ActorStyle): Actor {
     for (let propName in style) {
       if (
         this.style[propName] === undefined ||
@@ -36,6 +36,7 @@ export class Actor implements Disposable {
         applyStyleToNode(this.yogaNode, propName as keyof ActorStyle, style[propName]);
       }
     }
+    return this;
   }
 
   isDirty(): boolean {

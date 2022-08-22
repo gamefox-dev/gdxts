@@ -14,3 +14,5 @@
 - ~~background drawing for actor~~
 - ~~store reference to stage from actor~~
 - opacity (multiplied from parent value)
+- calculate bitmapfont's glyph size to expand size (add calculateContentSize to Actor, default to (0, 0), update parent accordingly)
+- (?) inherit style props

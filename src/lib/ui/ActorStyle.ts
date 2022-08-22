@@ -5,7 +5,10 @@ import { Color } from '../Utils';
 export interface ActorStyle {
   display?: 'none' | 'flex';
 
+  color?: Color;
   backgroundColor?: Color;
+  fontScale?: number;
+  verticalAlign?: 'top' | 'bottom' | 'center';
 
   flex?: number;
   flexBasis?: number | string;

@@ -1,7 +1,8 @@
 import { YDOWN } from '..';
 import { Color, Game, InputEvent, Screen, Viewport, ViewportInputHandler } from '../lib';
-import { TestActor } from '../lib/ui/actors/TestActor';
+import { Label } from '../lib/ui/actors/Label';
 import { Group } from '../lib/ui/Group';
+import { Skin } from '../lib/ui/Skin';
 import { Stage } from '../lib/ui/Stage';
 
 export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> => {
@@ -10,7 +11,8 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
 
   const inputHandler = new ViewportInputHandler(viewport);
 
-  const stage = new Stage(viewport);
+  const skin = await Skin.loadSkin(viewport.getContext(), './default.skin.json');
+  const stage = new Stage(viewport, skin);
   stage.root.setStyle({
     flexDirection: 'column',
     justifyContent: 'flex-start'
@@ -27,14 +29,27 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
 
   const children = [];
   const newChild = () => {
-    const a1 = new TestActor(stage).setColor(Color.MAGENTA);
-    a1.setStyle({
+    const group = new Group(stage);
+    group.setStyle({
+      backgroundColor: Color.MAGENTA,
       width: 50,
-      aspectRatio: 1.5,
+      height: 50,
       margin: 10
     });
-    A.addActor(a1);
-    children.push(a1);
+
+    const label = new Label(stage, 'dcm', 'default');
+    label.setStyle({
+      fontScale: 0.5,
+      backgroundColor: Color.RED,
+      verticalAlign: 'bottom',
+      color: Color.WHITE,
+      flex: 1
+    });
+
+    group.addActor(label);
+
+    A.addActor(group);
+    children.push(group);
   };
 
   for (let i = 0; i < 20; i++) {
