@@ -13,3 +13,4 @@
 - shared assetmanager -> whiteTexture, other assets can be accessed by key (atlas-name, region-name)
 - background drawing for actor
 - ~~store reference to stage from actor~~
+- opacity (multiplied from parent value)
