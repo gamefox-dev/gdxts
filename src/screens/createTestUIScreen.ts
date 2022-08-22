@@ -1,5 +1,6 @@
 import { YDOWN } from '..';
 import { Color, Game, InputEvent, Screen, Viewport, ViewportInputHandler } from '../lib';
+import { Image, ImageMode } from '../lib/ui/actors/Image';
 import { Label } from '../lib/ui/actors/Label';
 import { Group } from '../lib/ui/Group';
 import { Skin } from '../lib/ui/Skin';
@@ -59,8 +60,25 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
   const B = new Group(stage);
   B.setStyle({
     flex: 1,
-    backgroundColor: Color.GREEN
+    backgroundColor: Color.GREEN,
+    justifyContent: 'center',
+    alignItems: 'center'
   });
+
+  const image = new Image(stage, 'char_run_full', 'kit-garden');
+  image.setImageMode(ImageMode.Center).setStyle({
+    width: 300,
+    height: 300,
+    backgroundColor: Color.RED,
+    imageTransform: {
+      originX: 0.5,
+      originY: 0.5,
+      rotation: Math.PI / 2,
+      scaleX: 0.5,
+      scaleY: 0.5
+    }
+  });
+  B.addActor(image);
 
   stage.addActor(A);
   stage.addActor(B);

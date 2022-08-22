@@ -2,8 +2,20 @@
 import Yoga from 'yoga-layout-prebuilt';
 import { Color } from '../Utils';
 
+export interface ImageTransform {
+  /** range from 0 to 1, will be multiplied with draw width */
+  originX: number;
+  /** range from 0 to 1, will be multiplied with draw height */
+  originY: number;
+  rotation: number;
+  scaleX: number;
+  scaleY: number;
+}
+
 export interface ActorStyle {
   display?: 'none' | 'flex';
+
+  imageTransform?: ImageTransform;
 
   color?: Color;
   backgroundColor?: Color;
