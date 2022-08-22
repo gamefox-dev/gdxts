@@ -1,0 +1,9 @@
+{
+  "fonts": {
+    "default": "number.fnt"
+  },
+  "atlases": {
+    "gem": "gem.atlas",
+    "kit-garden": "kit-garde.atlas"
+  }
+}

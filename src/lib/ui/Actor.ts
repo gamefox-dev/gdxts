@@ -57,7 +57,7 @@ export class Actor implements Disposable {
     this.dirty = false;
   }
 
-  constructor(private stage: Stage) {
+  constructor(protected stage: Stage) {
     this.yogaNode = Yoga.Node.create();
   }
 

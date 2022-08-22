@@ -6,6 +6,7 @@ import { Vector2 } from '../Vector2';
 import { Viewport } from '../Viewport';
 import { Actor } from './Actor';
 import { Group } from './Group';
+import { Skin } from './Skin';
 
 export class Stage implements Disposable {
   root: Group;
@@ -13,8 +14,9 @@ export class Stage implements Disposable {
   batch: PolygonBatch;
   worldSize: Vector2;
   whiteTexture: Texture;
+  skin: Skin;
 
-  constructor(private viewport: Viewport, yDown = true) {
+  constructor(private viewport: Viewport, skin?: Skin) {
     const viewportInfo = viewport.getViewportInfo();
     this.root = new Group(this);
     this.camera = new OrthoCamera(
@@ -26,12 +28,21 @@ export class Stage implements Disposable {
     viewport.addCamera(this.camera);
     viewport.update();
 
-    this.camera.setYDown(yDown);
+    this.camera.setYDown(viewport.getCamera().getYDown());
 
     this.batch = new PolygonBatch(viewport.getContext());
     this.worldSize = new Vector2(viewportInfo.worldWidth, viewportInfo.worldHeight);
 
     this.whiteTexture = Texture.createWhiteTexture(viewport.getContext());
+
+    if (skin) {
+      this.skin = skin;
+    } else {
+      this.skin = {
+        fonts: [],
+        atlases: []
+      };
+    }
   }
 
   addActor(actor: Actor, index?: number) {

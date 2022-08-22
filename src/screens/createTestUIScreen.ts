@@ -1,16 +1,13 @@
 import { YDOWN } from '..';
-import { Color, Game, InputEvent, Screen, Texture, Viewport, ViewportInputHandler } from '../lib';
+import { Color, Game, InputEvent, Screen, Viewport, ViewportInputHandler } from '../lib';
 import { TestActor } from '../lib/ui/actors/TestActor';
 import { Group } from '../lib/ui/Group';
 import { Stage } from '../lib/ui/Stage';
 
 export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> => {
-  const gl = viewport.getContext();
-
   const camera = viewport.getCamera();
   camera.setYDown(YDOWN);
 
-  const texture = Texture.createWhiteTexture(gl);
   const inputHandler = new ViewportInputHandler(viewport);
 
   const stage = new Stage(viewport);
@@ -30,7 +27,7 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
 
   const children = [];
   const newChild = () => {
-    const a1 = new TestActor(stage, texture).setColor(Color.MAGENTA);
+    const a1 = new TestActor(stage).setColor(Color.MAGENTA);
     a1.setStyle({
       width: 50,
       aspectRatio: 1.5,
@@ -67,7 +64,6 @@ export const createTestUIScreen = async (viewport: Viewport): Promise<Screen> =>
       stage.draw();
     },
     dispose() {
-      texture.dispose();
       stage.dispose();
       inputHandler.cleanup();
     }
