@@ -20,14 +20,10 @@ export class ModelInstance {
   public model: Model;
   public transform: Matrix4;
 
-  public constructor(model: Model) {
-    this.ModelInstance(model, null, null);
-  }
-
-  public ModelInstance(model: Model, transform: Matrix4, rootNodeIds: string[]) {
+  public constructor(model: Model, transform: Matrix4 = null, rootNodeIds: string[] = null) {
     this.model = model;
-    this.transform = transform == null ? new Matrix4() : transform;
-    if (rootNodeIds == null) this.copyNodes(model.nodes);
+    this.transform = transform === null ? new Matrix4() : transform;
+    if (rootNodeIds === null) this.copyNodes(model.nodes);
     else this.copyNodes(model.nodes, rootNodeIds);
     this.copyAnimations(model.animations, ModelInstance.defaultShareKeyframes);
     this.calculateTransforms();
@@ -55,9 +51,18 @@ export class ModelInstance {
       const part = node.parts[i];
       const bindPose = part.invBoneBindTransforms;
       if (bindPose != null) {
-        bindPose.forEach((value: Matrix4, key: Node) => {
-          key = this.getNode(key.id);
-        });
+        const oldKeys: Node[] = [];
+        for (const [key, value] of bindPose) {
+          const newKey = this.getNode(key.id);
+          if (newKey === key) {
+            oldKeys.push(key);
+          }
+          bindPose.set(newKey, value);
+        }
+
+        for (const key of oldKeys) {
+          bindPose.delete(key);
+        }
       }
       if (!this.materials.includes(part.material)) {
         const midx = this.materials.findIndex(m => m.id === part.material.id);
@@ -122,9 +127,9 @@ export class ModelInstance {
 
   public getRenderable(out: Renderable, node: Node, nodePart: NodePart): Renderable {
     nodePart.setRenderable(out);
-    if (nodePart.bones == null && this.transform != null)
+    if (!nodePart.bones && !!this.transform)
       out.worldTransform.set(this.transform.values).multiply(node.globalTransform);
-    else if (this.transform != null) out.worldTransform.set(this.transform.values);
+    else if (!!this.transform) out.worldTransform.set(this.transform.values);
     else out.worldTransform.idt();
     //out.userData = userData;
     return out;

@@ -41,9 +41,9 @@ export class NodePart {
         this.invBoneBindTransforms.clear();
       }
 
-      other.invBoneBindTransforms.forEach((value: Matrix4, key: Node) => {
+      for (const [key, value] of other.invBoneBindTransforms) {
         this.invBoneBindTransforms.set(key, value);
-      });
+      }
 
       if (this.bones === null || this.bones.length !== this.invBoneBindTransforms.size)
         this.bones = new Array<Matrix4>();

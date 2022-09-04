@@ -53,11 +53,10 @@ export class Node {
       )
         continue;
       let i = 0;
-
-      part.invBoneBindTransforms.forEach((value: Matrix4, key: Node) => {
+      for (const [key, value] of part.invBoneBindTransforms) {
         part.bones[i].set(key.globalTransform.values).multiply(value);
         i++;
-      });
+      }
     }
     if (recursive) {
       for (const child of this.children) {

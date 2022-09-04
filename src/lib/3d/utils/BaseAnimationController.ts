@@ -86,9 +86,11 @@ export class BaseAnimationController {
 
   protected end() {
     if (!this.applying) throw new Error('You must call begin() first');
-    BaseAnimationController.transforms.forEach((value: Transform, key: Node) => {
+    for (const [key, value] of BaseAnimationController.transforms) {
       value.toMatrix4(key.localTransform);
-    });
+      this.transformPool.free(value);
+    }
+
     BaseAnimationController.transforms.clear();
     this.target.calculateTransforms();
     this.applying = false;

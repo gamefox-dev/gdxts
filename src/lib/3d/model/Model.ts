@@ -34,7 +34,7 @@ export class Model implements Disposable {
   public meshParts: MeshPart[] = [];
   protected disposables: Disposable[] = [];
 
-  constructor(private gl: WebGLRenderingContext) {}
+  constructor(private gl: WebGLRenderingContext) { }
 
   public async load(modelData: ModelData, textureProvider: FileTextureProvider = new FileTextureProvider()) {
     this.loadMeshes(modelData.meshes);
@@ -54,7 +54,7 @@ export class Model implements Disposable {
         const nodeAnim = new NodeAnimation();
         nodeAnim.node = node;
 
-        if (nanim.translation != null) {
+        if (nanim.translation !== null) {
           nodeAnim.translation = new Array<NodeKeyframe<Vector3>>();
           for (const kf of nanim.translation) {
             if (kf.keytime > animation.duration) animation.duration = kf.keytime;
@@ -67,7 +67,7 @@ export class Model implements Disposable {
           }
         }
 
-        if (nanim.rotation != null) {
+        if (nanim.rotation !== null) {
           nodeAnim.rotation = new Array<NodeKeyframe<Quaternion>>();
           for (const kf of nanim.rotation) {
             if (kf.keytime > animation.duration) animation.duration = kf.keytime;
@@ -80,7 +80,7 @@ export class Model implements Disposable {
           }
         }
 
-        if (nanim.scaling != null) {
+        if (nanim.scaling !== null) {
           nodeAnim.scaling = new Array<NodeKeyframe<Vector3>>();
           for (const kf of nanim.scaling) {
             if (kf.keytime > animation.duration) animation.duration = kf.keytime;
@@ -91,9 +91,9 @@ export class Model implements Disposable {
         }
 
         if (
-          (nodeAnim.translation != null && nodeAnim.translation.length > 0) ||
-          (nodeAnim.rotation != null && nodeAnim.rotation.length > 0) ||
-          (nodeAnim.scaling != null && nodeAnim.scaling.length > 0)
+          (nodeAnim.translation !== null && nodeAnim.translation.length > 0) ||
+          (nodeAnim.rotation !== null && nodeAnim.rotation.length > 0) ||
+          (nodeAnim.scaling !== null && nodeAnim.scaling.length > 0)
         )
           animation.nodeAnimations.push(nodeAnim);
       }
@@ -108,32 +108,32 @@ export class Model implements Disposable {
       this.nodes.push(this.loadNode(node));
     }
 
-    this.nodePartBones.forEach((value: Map<string, Matrix4>, key: NodePart) => {
+    for (const [key, value] of this.nodePartBones) {
       if (key.invBoneBindTransforms == null) key.invBoneBindTransforms = new Map<Node, Matrix4>();
       key.invBoneBindTransforms.clear();
 
-      value.forEach((value1: Matrix4, key1: string) => {
-        key.invBoneBindTransforms.set(this.getNode(key1), new Matrix4().set(value1.values).invert());
-      });
-    });
+      for (const [k, v] of value) {
+        key.invBoneBindTransforms.set(this.getNode(k), new Matrix4().set(v.values).invert());
+      }
+    }
   }
 
   protected loadNode(modelNode: ModelNode): Node {
     const node = new Node();
     node.id = modelNode.id;
 
-    if (modelNode.translation != null)
+    if (!!modelNode.translation)
       node.translation.set(modelNode.translation.x, modelNode.translation.y, modelNode.translation.z);
-    if (modelNode.rotation != null)
+    if (!!modelNode.rotation)
       node.rotation.set(modelNode.rotation.x, modelNode.rotation.y, modelNode.rotation.z, modelNode.rotation.w);
-    if (modelNode.scale != null) node.scale.set(modelNode.scale.x, modelNode.scale.y, modelNode.scale.z);
+    if (!!modelNode.scale) node.scale.set(modelNode.scale.x, modelNode.scale.y, modelNode.scale.z);
 
-    if (modelNode.parts != null) {
+    if (!!modelNode.parts) {
       for (const modelNodePart of modelNode.parts) {
         let meshPart: MeshPart = null;
         let meshMaterial: Material = null;
 
-        if (modelNodePart.meshPartId != null) {
+        if (!!modelNodePart.meshPartId) {
           for (const part of this.meshParts) {
             if (modelNodePart.meshPartId === part.id) {
               meshPart = part;
@@ -142,7 +142,7 @@ export class Model implements Disposable {
           }
         }
 
-        if (modelNodePart.materialId != null) {
+        if (!!modelNodePart.materialId) {
           for (const material of this.materials) {
             if (modelNodePart.materialId === material.id) {
               meshMaterial = material;
@@ -151,17 +151,17 @@ export class Model implements Disposable {
           }
         }
 
-        if (meshPart == null || meshMaterial == null) throw new Error('Invalid node: ' + node.id);
+        if (!meshPart || !meshMaterial) throw new Error('Invalid node: ' + node.id);
 
         const nodePart = new NodePart();
         nodePart.meshPart = meshPart;
         nodePart.material = meshMaterial;
         node.parts.push(nodePart);
-        if (modelNodePart.bones != null) this.nodePartBones.set(nodePart, modelNodePart.bones);
+        if (!!modelNodePart.bones) this.nodePartBones.set(nodePart, modelNodePart.bones);
       }
     }
 
-    if (modelNode.children != null) {
+    if (!!modelNode.children) {
       for (const child of modelNode.children) {
         node.addChild(this.loadNode(child));
       }
@@ -218,18 +218,18 @@ export class Model implements Disposable {
   protected async convertMaterial(mtl: ModelMaterial, textureProvider: FileTextureProvider): Promise<Material> {
     const result = new Material();
     result.id = mtl.id;
-    if (mtl.ambient != undefined) result.set(new ColorAttribute(ColorAttribute.Ambient, mtl.ambient));
-    if (mtl.diffuse != undefined) result.set(new ColorAttribute(ColorAttribute.Diffuse, mtl.diffuse));
-    if (mtl.specular != undefined) result.set(new ColorAttribute(ColorAttribute.Specular, mtl.specular));
-    if (mtl.emissive != undefined) result.set(new ColorAttribute(ColorAttribute.Emissive, mtl.emissive));
-    if (mtl.reflection != undefined) result.set(new ColorAttribute(ColorAttribute.Reflection, mtl.reflection));
+    if (mtl.ambient !== undefined) result.set(new ColorAttribute(ColorAttribute.Ambient, mtl.ambient));
+    if (mtl.diffuse !== undefined) result.set(new ColorAttribute(ColorAttribute.Diffuse, mtl.diffuse));
+    if (mtl.specular !== undefined) result.set(new ColorAttribute(ColorAttribute.Specular, mtl.specular));
+    if (mtl.emissive !== undefined) result.set(new ColorAttribute(ColorAttribute.Emissive, mtl.emissive));
+    if (mtl.reflection !== undefined) result.set(new ColorAttribute(ColorAttribute.Reflection, mtl.reflection));
     if (mtl.shininess > 0) result.set(new FloatAttribute(FloatAttribute.Shininess, mtl.shininess));
     if (mtl.opacity !== 1)
       result.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, true, mtl.opacity));
 
     const textures = new Map<string, Texture>();
 
-    if (mtl.textures != undefined) {
+    if (mtl.textures !== undefined) {
       for (const tex of mtl.textures) {
         let texture: Texture;
         if (textures.has(tex.fileName)) {
