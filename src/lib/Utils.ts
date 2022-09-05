@@ -700,3 +700,53 @@ export const copyArray = (
     target[targetOffset + i] = src[srcOffset + i];
   }
 };
+
+export class ArrayMap<K, V> {
+  public keys: K[] = [];
+  public values: V[] = [];
+  public size: number = 0;
+
+  public set(key: K, value: V): number {
+    let index = this.indexOfKey(key);
+    if (index === -1) {
+      index = this.size++;
+    }
+    this.keys[index] = key;
+    this.values[index] = value;
+    return index;
+  }
+
+  public get(key: K, defaultValue: V = null): V {
+    let i = this.size - 1;
+    for (; i >= 0; i--) {
+      if (this.keys[i] === key) return this.values[i];
+    }
+    return defaultValue;
+  }
+
+  public indexOfKey(key: K): number {
+    for (let i = 0, n = this.size; i < n; i++) if (this.keys[i] === key) return i;
+    return -1;
+  }
+
+  public removeKey(key: K) {
+    for (let i = 0, n = this.size; i < n; i++) {
+      if (this.keys[i] === key) {
+        this.removeIndex(i);
+      }
+    }
+  }
+
+  public removeIndex(index: number) {
+    if (index >= this.size) throw new Error(`index out of bound`);
+    this.size--;
+    this.keys.splice(index, 1);
+    this.values.splice(index, 1);
+  }
+
+  public clear() {
+    this.keys.length = 0;
+    this.values.length = 0;
+    this.size = 0;
+  }
+}

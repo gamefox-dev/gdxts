@@ -1,27 +1,27 @@
+import { Matrix3 } from '../../Matrix3';
 import { Matrix4 } from '../../Matrix4';
 import { Shader } from '../../Shader';
+import { Utils } from '../../Utils';
 import { Vector3 } from '../../Vector3';
 import { Attributes } from '../attributes/Attributes';
-import { BaseShader, GlobalSetter, LocalSetter, Uniform } from './BaseShader';
 import { BlendingAttribute } from '../attributes/BlendingAttribute';
 import { ColorAttribute } from '../attributes/ColorAttribute';
+import { DirectionalLightsAttribute } from '../attributes/DirectionalLightsAttribute';
 import { FloatAttribute } from '../attributes/FloatAttribute';
-import { GL20 } from '../GL20';
 import { IntAttribute } from '../attributes/IntAttribute';
-import { Matrix3 } from '../../Matrix3';
+import { PointLightsAttribute } from '../attributes/PointLightAttribute';
+import { SpotLightsAttribute } from '../attributes/SpotLightAttribute';
+import { TextureAttribute } from '../attributes/TextureAttribute';
+import { Usage } from '../attributes/VertexAttribute';
+import { AmbientCubemap } from '../environment/AmbientCubemap';
+import { DirectionalLight } from '../environment/DirectionalLight';
+import { PointLight } from '../environment/PointLight';
+import { SpotLight } from '../environment/SpotLight';
+import { GL20 } from '../GL20';
 import { PerspectiveCamera } from '../PerspectiveCamera';
 import { Renderable } from '../Renderable';
 import { RenderContext } from '../RenderContext';
-import { TextureAttribute } from '../attributes/TextureAttribute';
-import { Usage } from '../attributes/VertexAttribute';
-import { DirectionalLight } from '../environment/DirectionalLight';
-import { DirectionalLightsAttribute } from '../attributes/DirectionalLightsAttribute';
-import { AmbientCubemap } from '../environment/AmbientCubemap';
-import { PointLight } from '../environment/PointLight';
-import { SpotLight } from '../environment/SpotLight';
-import { PointLightsAttribute } from '../attributes/PointLightAttribute';
-import { SpotLightsAttribute } from '../attributes/SpotLightAttribute';
-import { Utils } from '../../Utils';
+import { BaseShader, GlobalSetter, LocalSetter, Uniform } from './BaseShader';
 
 export class Config {
   vertexShader: string = null;
@@ -54,7 +54,7 @@ export class ACubemap extends LocalSetter {
   }
 
   public set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
-    if (renderable.environment == null) shader.program.setUniform3fv(shader.getUniformAlias(inputID), ACubemap.ones);
+    if (!renderable.environment) shader.program.setUniform3fv(shader.getUniformAlias(inputID), ACubemap.ones);
     else {
       renderable.worldTransform.getTranslation(ACubemap.tmpV1);
       if (combinedAttributes.has(ColorAttribute.AmbientLight)) {
@@ -93,9 +93,11 @@ export class Bones extends LocalSetter {
   public set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
     for (let i = 0; i < this.bones.length; i += 16) {
       const idx = i / 16;
-      if (renderable.bones == null || idx >= renderable.bones.length || renderable.bones[idx] == null)
+      if (!renderable.bones || idx >= renderable.bones.length || !renderable.bones[idx]) {
         Utils.arrayCopy(Bones.idtMatrix.values, 0, this.bones, i, 16);
-      else Utils.arrayCopy(renderable.bones[idx].values, 0, this.bones, i, 16);
+      } else {
+        Utils.arrayCopy(renderable.bones[idx].values, 0, this.bones, i, 16);
+      }
     }
     shader.program.setUniform4x4fWithLocation(shader.loc(inputID), this.bones);
   }
@@ -993,7 +995,7 @@ export class DefaultShader extends BaseShader {
     super();
     if (vertexShader.length === 0) vertexShader = DefaultShader.defaultVertexShader;
     if (fragmentShader.length === 0) fragmentShader = DefaultShader.defaultFragmentShader;
-    if (config === null) {
+    if (!config) {
       config = new Config();
     } else {
       prefix = DefaultShader.createPrefix(renderable, config);
@@ -1007,12 +1009,12 @@ export class DefaultShader extends BaseShader {
     this.config = config;
     this.program = shaderProgram;
 
-    this.lighting = renderable.environment != null;
+    this.lighting = !!renderable.environment;
     // this.environmentCubemap = attributes.has(CubemapAttribute.EnvironmentMap)
     //     || (lighting && attributes.has(CubemapAttribute.EnvironmentMap));
     this.environmentCubemap = false;
 
-    //this.shadowMap = lighting && renderable.environment.shadowMap != null;
+    //this.shadowMap = lighting && renderable.environment.shadowMap !== null;
     this.shadowMap = false;
 
     this.renderable = renderable;
@@ -1031,10 +1033,10 @@ export class DefaultShader extends BaseShader {
     this.spotLights = new Array<SpotLight>(this.lighting && config.numSpotLights > 0 ? config.numSpotLights : 0);
     for (let i = 0; i < this.spotLights.length; i++) this.spotLights[i] = new SpotLight();
 
-    if (!config.ignoreUnimplemented && (DefaultShader.implementedFlags & this.attributesMask) != this.attributesMask)
+    if (!config.ignoreUnimplemented && (DefaultShader.implementedFlags & this.attributesMask) !== this.attributesMask)
       throw new Error('Some attributes not implemented yet (' + this.attributesMask + ')');
 
-    if (renderable.bones != null && renderable.bones.length > config.numBones) {
+    if (!!renderable.bones && renderable.bones.length > config.numBones) {
       throw new Error('too many bones: ' + renderable.bones.length + ', max configured: ' + config.numBones);
     }
 
@@ -1054,7 +1056,7 @@ export class DefaultShader extends BaseShader {
     this.u_projViewWorldTrans = this.register(Inputs.projViewWorldTrans.alias, null, Setters.projViewWorldTrans);
     this.u_normalMatrix = this.register(Inputs.normalMatrix.alias, null, Setters.normalMatrix);
     this.u_bones =
-      renderable.bones != null && config.numBones > 0
+      !!renderable.bones && config.numBones > 0
         ? this.register(Inputs.bones.alias, null, new Bones(config.numBones))
         : -1;
 
@@ -1134,15 +1136,15 @@ export class DefaultShader extends BaseShader {
 
   private static combineAttributes(renderable: Renderable): Attributes {
     this.tmpAttributes.clear();
-    if (renderable.environment != null) this.tmpAttributes.setAttributes(renderable.environment.getAttributes());
-    if (renderable.material != null) this.tmpAttributes.setAttributes(renderable.material.getAttributes());
+    if (!!renderable.environment) this.tmpAttributes.setAttributes(renderable.environment.getAttributes());
+    if (!!renderable.material) this.tmpAttributes.setAttributes(renderable.material.getAttributes());
     return this.tmpAttributes;
   }
 
   private static combineAttributeMasks(renderable: Renderable): number {
     let mask = 0;
-    if (renderable.environment != null) mask |= renderable.environment.getMask();
-    if (renderable.material != null) mask |= renderable.material.getMask();
+    if (!!renderable.environment) mask |= renderable.environment.getMask();
+    if (!!renderable.material) mask |= renderable.material.getMask();
     return mask;
   }
 
@@ -1157,7 +1159,7 @@ export class DefaultShader extends BaseShader {
     if (this.and(vertexMask, Usage.Tangent)) prefix += '#define tangentFlag\n';
     if (this.and(vertexMask, Usage.Normal)) prefix += '#define normalFlag\n';
     if (this.and(vertexMask, Usage.Normal) || this.and(vertexMask, Usage.Tangent | Usage.BiNormal)) {
-      if (renderable.environment != null) {
+      if (!!renderable.environment) {
         prefix += '#define lightingFlag\n';
         prefix += '#define ambientCubemapFlag\n';
         prefix += '#define numDirectionalLights ' + config.numDirectionalLights + '\n';
@@ -1166,7 +1168,7 @@ export class DefaultShader extends BaseShader {
         if (attributes.has(ColorAttribute.Fog)) {
           prefix += '#define fogFlag\n';
         }
-        // if (renderable.environment.shadowMap != null) prefix += "#define shadowMapFlag\n";
+        // if (renderable.environment.shadowMap !== null) prefix += "#define shadowMapFlag\n";
         // if (attributes.has(CubemapAttribute.EnvironmentMap)) prefix += "#define environmentCubemapFlag\n";
       }
     }
@@ -1214,18 +1216,18 @@ export class DefaultShader extends BaseShader {
       prefix += '#define ' + FloatAttribute.ShininessAlias + 'Flag\n';
     if ((attributesMask & FloatAttribute.AlphaTest) === FloatAttribute.AlphaTest)
       prefix += '#define ' + FloatAttribute.AlphaTestAlias + 'Flag\n';
-    if (renderable.bones != null && config.numBones > 0) prefix += '#define numBones ' + config.numBones + '\n';
+    if (!!renderable.bones && config.numBones > 0) prefix += '#define numBones ' + config.numBones + '\n';
     return prefix;
   }
 
   public canRender(renderable: Renderable): boolean {
-    if (renderable.bones != null && renderable.bones.length > this.config.numBones) return false;
+    if (!!renderable.bones && renderable.bones.length > this.config.numBones) return false;
     const renderableMask = DefaultShader.combineAttributeMasks(renderable);
 
     return (
       this.attributesMask === (renderableMask | DefaultShader.optionalAttributes) &&
-      this.vertexMask == renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked() &&
-      (renderable.environment != null) == this.lighting
+      this.vertexMask === renderable.meshPart.mesh.getVertexAttributes().getMaskWithSizePacked() &&
+      !!renderable.environment === this.lighting
     );
   }
 
@@ -1241,7 +1243,7 @@ export class DefaultShader extends BaseShader {
     for (const spotLight of this.spotLights) spotLight.setFromValue(0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 1, 0);
     this.lightsSet = false;
 
-    // if (has(u_time)) set(u_time, time += Gdx.graphics.getDeltaTime());
+    //if (this.has(this.u_time)) this.setF(this.u_time, (this.time += 0.0167));
   }
 
   public renderWithCombinedAttributes(renderable: Renderable, combinedAttributes: Attributes) {
@@ -1295,14 +1297,14 @@ export class DefaultShader extends BaseShader {
 
   protected bindLights(renderable: Renderable, attributes: Attributes) {
     const dla = attributes.get(DirectionalLightsAttribute.Type) as DirectionalLightsAttribute;
-    const dirs = dla === null ? null : dla.lights;
+    const dirs = !dla ? null : dla.lights;
     const pla = attributes.get(PointLightsAttribute.Type) as PointLightsAttribute;
-    const points = pla === null ? null : pla.lights;
+    const points = !pla ? null : pla.lights;
     const sla = attributes.get(SpotLightsAttribute.Type) as SpotLightsAttribute;
-    const spots = sla === null ? null : sla.lights;
+    const spots = !sla ? null : sla.lights;
     if (this.dirLightsLoc >= 0) {
       for (let i = 0; i < this.directionalLights.length; i++) {
-        if (dirs === null || i >= dirs.length) {
+        if (!dirs || i >= dirs.length) {
           if (
             this.lightsSet &&
             this.directionalLights[i].color.r === 0 &&
@@ -1332,7 +1334,7 @@ export class DefaultShader extends BaseShader {
     }
     if (this.pointLightsLoc >= 0) {
       for (let i = 0; i < this.pointLights.length; i++) {
-        if (points === null || i >= points.length) {
+        if (!points || i >= points.length) {
           if (this.lightsSet && this.pointLights[i].intensity === 0) continue;
           this.pointLights[i].intensity = 0;
         } else if (this.lightsSet && this.pointLights[i].equals(points[i])) continue;
@@ -1360,7 +1362,7 @@ export class DefaultShader extends BaseShader {
     }
     if (this.spotLightsLoc >= 0) {
       for (let i = 0; i < this.spotLights.length; i++) {
-        if (spots === null || i >= spots.length) {
+        if (!spots || i >= spots.length) {
           if (this.lightsSet && this.spotLights[i].intensity === 0) continue;
           this.spotLights[i].intensity = 0;
         } else if (this.lightsSet && this.spotLights[i].equals(spots[i])) continue;
@@ -1403,7 +1405,7 @@ export class DefaultShader extends BaseShader {
     // if (attributes.has(ColorAttribute.Fog)) {
     //     set(u_fogColor, (attributes.get(ColorAttribute.Fog) as ColorAttribute).color);
     // }
-    // if (lights != null && lights.shadowMap != null) {
+    // if (lights !== null && lights.shadowMap !== null) {
     //     set(u_shadowMapProjViewTrans, lights.shadowMap.getProjViewTrans());
     //     set(u_shadowTexture, lights.shadowMap.getDepthMap());
     //     set(u_shadowPCFOffset, 1 / (2 * lights.shadowMap.getDepthMap().texture.getWidth()));
@@ -1414,7 +1416,7 @@ export class DefaultShader extends BaseShader {
   public getLightLoc(inputID: number): number {
     const loc = this.loc(inputID);
     const index = this.lightLocs.indexOf(loc);
-    if (loc === null) return -1;
+    if (!loc) return -1;
     if (index < 0) {
       this.lightLocs.push(loc);
       return this.lightLocs.length - 1;

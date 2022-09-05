@@ -1,6 +1,6 @@
 import { Matrix4 } from '../../Matrix4';
 import { Quaternion } from '../../Quaternion';
-import { Color } from '../../Utils';
+import { ArrayMap, Color } from '../../Utils';
 import { Vector2 } from '../../Vector2';
 import { Vector3 } from '../../Vector3';
 import { VertexAttribute } from '../attributes/VertexAttribute';
@@ -78,7 +78,7 @@ export class G3dModelLoader {
         for (const meshPart of meshParts) {
           const jsonPart = new ModelMeshPart();
           const partId = this.getString(meshPart['id'], null);
-          if (partId === null) {
+          if (!partId) {
             throw new Error('Not id given for mesh part');
           }
           for (const other of parts) {
@@ -88,7 +88,7 @@ export class G3dModelLoader {
           }
           jsonPart.id = partId;
           const type = this.getString(meshPart['type'], null);
-          if (type === null) {
+          if (!type) {
             throw new Error("No primitive type given for mesh part '" + partId + "'");
           }
           jsonPart.primitiveType = this.parseType(type);
@@ -159,7 +159,7 @@ export class G3dModelLoader {
       for (const material of materials) {
         const jsonMaterial = new ModelMaterial();
         const id = this.getString(material['id'], null);
-        if (id === null) throw new Error('Material needs an id.');
+        if (!id) throw new Error('Material needs an id.');
         jsonMaterial.id = id;
         // Read material colors
         const diffuse = material['diffuse'];
@@ -179,10 +179,10 @@ export class G3dModelLoader {
           for (const texture of textures) {
             const jsonTexture = new ModelTexture();
             const textureId = this.getString(texture['id'], null);
-            if (textureId === null) throw new Error('Texture has no id.');
+            if (!textureId) throw new Error('Texture has no id.');
             jsonTexture.id = textureId;
             const fileName = this.getString(texture['filename'], null);
-            if (fileName === null) throw new Error('Texture needs filename.');
+            if (!fileName) throw new Error('Texture needs filename.');
             jsonTexture.fileName =
               materialDir + (materialDir.length === 0 || materialDir.endsWith('/') ? '' : '/') + fileName;
             jsonTexture.uvTranslation = this.readVector2(texture['uvTranslation'], 0, 0);
@@ -240,7 +240,7 @@ export class G3dModelLoader {
     const jsonNode = new ModelNode();
 
     const id = this.getString(json['id'], null);
-    if (id === null) throw new Error('Node id missing.');
+    if (!id) throw new Error('Node id missing.');
     jsonNode.id = id;
 
     const translation = json['translation'];
@@ -258,7 +258,7 @@ export class G3dModelLoader {
     jsonNode.scale = scale === undefined ? null : new Vector3(scale[0], scale[1], scale[2]);
 
     const meshId = this.getString(json['mesh'], null);
-    if (meshId !== null) jsonNode.meshId = meshId;
+    if (!!meshId) jsonNode.meshId = meshId;
 
     const materials = json['parts'];
     if (materials !== undefined) {
@@ -269,7 +269,7 @@ export class G3dModelLoader {
 
         const meshPartId = this.getString(material['meshpartid'], null);
         const materialId = this.getString(material['materialid'], null);
-        if (meshPartId === null || materialId === null) {
+        if (!meshPartId || !materialId) {
           throw new Error('Node ' + id + ' part is missing meshPartId or materialId');
         }
         nodePart.materialId = materialId;
@@ -277,21 +277,21 @@ export class G3dModelLoader {
 
         const bones = material['bones'];
         if (bones !== undefined) {
-          nodePart.bones = new Map<string, Matrix4>();
+          nodePart.bones = new ArrayMap<string, Matrix4>();
           for (const bone of bones) {
             const nodeId = this.getString(bone['node'], null);
-            if (nodeId === null) throw new Error('Bone node ID missing');
+            if (!nodeId) throw new Error('Bone node ID missing');
 
             const transform = new Matrix4();
 
             let val = bone['translation'];
-            if (val !== null && val.length >= 3) transform.translate(val[0], val[1], val[2]);
+            if (!!val && val.length >= 3) transform.translate(val[0], val[1], val[2]);
 
             val = bone['rotation'];
-            if (val !== null && val.length >= 4) transform.rotate(this.tempQ.set(val[0], val[1], val[2], val[3]));
+            if (!!val && val.length >= 4) transform.rotate(this.tempQ.set(val[0], val[1], val[2], val[3]));
 
             val = bone['scale'];
-            if (val !== null && val.length >= 3) transform.scale(val[0], val[1], val[2]);
+            if (!!val && val.length >= 3) transform.scale(val[0], val[1], val[2]);
 
             nodePart.bones.set(nodeId, transform);
           }
@@ -318,7 +318,7 @@ export class G3dModelLoader {
 
   protected parseAnimations(model: ModelData, json: any) {
     const animations = json['animations'];
-    if (animations === null) return;
+    if (!animations) return;
     for (const anim of animations) {
       const nodes = anim['bones'];
       if (nodes === undefined) continue;
@@ -336,7 +336,7 @@ export class G3dModelLoader {
             const keytime = this.getFloat(keyframe['keytime'], 0) / 1000;
             const translation = keyframe['translation'];
             if (translation !== undefined && translation.length === 3) {
-              if (nodeAnim.translation === null) nodeAnim.translation = new Array<ModelNodeKeyframe<Vector3>>();
+              if (!nodeAnim.translation) nodeAnim.translation = new Array<ModelNodeKeyframe<Vector3>>();
               const tkf = new ModelNodeKeyframe<Vector3>();
               tkf.keytime = keytime;
               tkf.value = new Vector3(translation[0], translation[1], translation[2]);
@@ -344,7 +344,7 @@ export class G3dModelLoader {
             }
             const rotation = keyframe['rotation'];
             if (rotation !== undefined && rotation.length === 4) {
-              if (nodeAnim.rotation === null) nodeAnim.rotation = new Array<ModelNodeKeyframe<Quaternion>>();
+              if (!nodeAnim.rotation) nodeAnim.rotation = new Array<ModelNodeKeyframe<Quaternion>>();
               const rkf = new ModelNodeKeyframe<Quaternion>();
               rkf.keytime = keytime;
               rkf.value = new Quaternion(rotation[0], rotation[1], rotation[2], rotation[2]);
@@ -352,7 +352,7 @@ export class G3dModelLoader {
             }
             const scale = keyframe['scale'];
             if (scale !== undefined && scale.length === 3) {
-              if (nodeAnim.scaling === null) nodeAnim.scaling = new Array<ModelNodeKeyframe<Vector3>>();
+              if (!nodeAnim.scaling) nodeAnim.scaling = new Array<ModelNodeKeyframe<Vector3>>();
               const skf = new ModelNodeKeyframe<Vector3>();
               skf.keytime = keytime;
               skf.value = new Vector3(scale[0], scale[1], scale[2]);
@@ -374,7 +374,7 @@ export class G3dModelLoader {
             }
           }
           const rotationKF = node['rotation'];
-          if (rotationKF !== null && Array.isArray(rotationKF)) {
+          if (!!rotationKF && Array.isArray(rotationKF)) {
             nodeAnim.rotation = new Array<ModelNodeKeyframe<Quaternion>>();
             for (const keyframe of rotationKF) {
               const kf = new ModelNodeKeyframe<Quaternion>();
@@ -386,7 +386,7 @@ export class G3dModelLoader {
             }
           }
           const scalingKF = node['scaling'];
-          if (scalingKF !== null && Array.isArray(scalingKF)) {
+          if (!!scalingKF && Array.isArray(scalingKF)) {
             nodeAnim.scaling = new Array<ModelNodeKeyframe<Vector3>>();
             for (const keyframe of scalingKF) {
               const kf = new ModelNodeKeyframe<Vector3>();

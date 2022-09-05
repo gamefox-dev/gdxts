@@ -109,7 +109,7 @@ export class VertexAttribute {
 
   public equals(other: VertexAttribute): boolean {
     return (
-      other !== null &&
+      !!other &&
       this.usage === other.usage &&
       this.numComponents === other.numComponents &&
       this.type === other.type &&

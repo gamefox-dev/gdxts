@@ -1,13 +1,13 @@
+import { Matrix4 } from '../../Matrix4';
+import { Disposable } from '../../Utils';
+import { VertexAttributes } from '../attributes/VertexAttributes';
+import { GL20 } from '../GL20';
+import { Material } from '../Material';
+import { MeshPart } from '../model/MeshPart';
 import { Model } from '../model/Model';
 import { Node } from '../model/Node';
-import { MeshBuilder } from './MeshBuilder';
-import { Material } from '../Material';
-import { Matrix4 } from '../../Matrix4';
-import { VertexAttributes } from '../attributes/VertexAttributes';
-import { Disposable } from '../../Utils';
-import { MeshPart } from '../model/MeshPart';
 import { NodePart } from '../model/NodePart';
-import { GL20 } from '../GL20';
+import { MeshBuilder } from './MeshBuilder';
 
 const SHORT_MAX_VALUE = 32767;
 
@@ -29,14 +29,14 @@ export class ModelBuilder {
   }
 
   public begin() {
-    if (this.model != null) throw new Error('Call end() first');
+    if (!!this.model) throw new Error('Call end() first');
     this.node = null;
     this.model = new Model(this.gl);
     this.builders.length = 0;
   }
 
   public end(): Model {
-    if (this.model == null) throw new Error('Call begin() first');
+    if (!this.model) throw new Error('Call begin() first');
     const result = this.model;
     this.endnode();
     this.model = null;
@@ -56,7 +56,7 @@ export class ModelBuilder {
   }
 
   protected addNode(node: Node): Node {
-    if (this.model == null) throw new Error('Call begin() first');
+    if (!this.model) throw new Error('Call begin() first');
 
     this.endnode();
 
@@ -67,18 +67,18 @@ export class ModelBuilder {
   }
 
   private endnode() {
-    if (this.node != null) {
+    if (!!this.node) {
       this.node = null;
     }
   }
 
   public manage(disposable: Disposable) {
-    if (this.model == null) throw new Error('Call begin() first');
+    if (!this.model) throw new Error('Call begin() first');
     this.model.manageDisposable(disposable);
   }
 
   public partByMeshPart(meshpart: MeshPart, material: Material) {
-    if (this.node == null) this.createNode();
+    if (!this.node) this.createNode();
     this.node.parts.push(new NodePart(meshpart, material));
   }
 
@@ -90,7 +90,7 @@ export class ModelBuilder {
 
   public part(id: string, primitiveType: number, attributes: number, material: Material): MeshBuilder {
     const builder = this.getBuilder(MeshBuilder.createAttributes(attributes));
-    if (this.node == null) this.createNode();
+    if (!this.node) this.createNode();
     this.node.parts.push(new NodePart(builder.part(id, primitiveType), material));
     return builder;
   }

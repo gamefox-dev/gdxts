@@ -18,7 +18,7 @@ export class FloatAttribute extends Attribute {
   public value: number;
   constructor(type: number, value: number) {
     super();
-    this.Attribute(type);
+    this.setType(type);
     this.value = value;
   }
 

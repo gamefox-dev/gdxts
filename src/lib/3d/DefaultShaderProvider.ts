@@ -1,7 +1,7 @@
-import { Config, DefaultShader } from './shaders/DefaultShader';
-import { Renderable } from './Renderable';
-import { Shader3D } from './shaders/Shader3D';
 import { Disposable } from '../Utils';
+import { Renderable } from './Renderable';
+import { Config, DefaultShader } from './shaders/DefaultShader';
+import { Shader3D } from './shaders/Shader3D';
 
 export class DefaultShaderProvider implements Disposable {
   public config: Config;
@@ -13,13 +13,13 @@ export class DefaultShaderProvider implements Disposable {
     vertexShader: string = '',
     fragmentShader: string = ''
   ) {
-    this.config = config == null ? new Config(vertexShader, fragmentShader) : config;
+    this.config = !config ? new Config(vertexShader, fragmentShader) : config;
   }
   dispose(): void {}
 
   public getShader(renderable: Renderable) {
     const suggestedShader = renderable.shader;
-    if (suggestedShader != null && suggestedShader.canRender(renderable)) return suggestedShader;
+    if (!!suggestedShader && suggestedShader.canRender(renderable)) return suggestedShader;
     for (const shader of this.shaders) {
       if (shader.canRender(renderable)) return shader;
     }

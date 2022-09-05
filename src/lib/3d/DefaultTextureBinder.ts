@@ -91,7 +91,7 @@ export class DefaultTextureBinder {
         this.reused = true;
         break;
       }
-      if (this.textures[idx] == null) {
+      if (!this.textures[idx]) {
         break;
       }
     }

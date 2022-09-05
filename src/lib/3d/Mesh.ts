@@ -1,15 +1,15 @@
+import { Matrix3 } from '../Matrix3';
 import { Matrix4 } from '../Matrix4';
 import { Shader } from '../Shader';
 import { Disposable } from '../Utils';
 import { Vector2 } from '../Vector2';
 import { Vector3 } from '../Vector3';
-import { BoundingBox } from './BoundingBox';
-import { GL20 } from './GL20';
-import { Matrix3 } from '../Matrix3';
-import { IndexBufferObject } from './utils/IndexBufferObject';
-import { VertexBufferObject } from './utils/VertexBufferObject';
 import { Usage, VertexAttribute } from './attributes/VertexAttribute';
 import { VertexAttributes } from './attributes/VertexAttributes';
+import { BoundingBox } from './BoundingBox';
+import { GL20 } from './GL20';
+import { IndexBufferObject } from './utils/IndexBufferObject';
+import { VertexBufferObject } from './utils/VertexBufferObject';
 
 export enum VertexDataType {
   VertexArray,
@@ -335,14 +335,14 @@ export class Mesh implements Disposable {
           for (let i = offset; i < end; i++) {
             const idx = (index[i] & 0xffff) * vertexSize + posoff;
             this.tmpV.set(verts[idx], 0, 0);
-            if (transform != null) this.tmpV.multiply(transform);
+            if (!!transform) this.tmpV.multiply(transform);
             out.ext(this.tmpV.x, this.tmpV.y, this.tmpV.z);
           }
         } else {
           for (let i = offset; i < end; i++) {
             const idx = i * vertexSize + posoff;
             this.tmpV.set(verts[idx], 0, 0);
-            if (transform != null) this.tmpV.multiply(transform);
+            if (!!transform) this.tmpV.multiply(transform);
             out.ext(this.tmpV.x, this.tmpV.y, this.tmpV.z);
           }
         }
@@ -352,14 +352,14 @@ export class Mesh implements Disposable {
           for (let i = offset; i < end; i++) {
             const idx = (index[i] & 0xffff) * vertexSize + posoff;
             this.tmpV.set(verts[idx], verts[idx + 1], 0);
-            if (transform != null) this.tmpV.multiply(transform);
+            if (!!transform) this.tmpV.multiply(transform);
             out.ext(this.tmpV.x, this.tmpV.y, this.tmpV.z);
           }
         } else {
           for (let i = offset; i < end; i++) {
             const idx = i * vertexSize + posoff;
             this.tmpV.set(verts[idx], verts[idx + 1], 0);
-            if (transform != null) this.tmpV.multiply(transform);
+            if (!!transform) this.tmpV.multiply(transform);
             out.ext(this.tmpV.x, this.tmpV.y, this.tmpV.z);
           }
         }
@@ -369,14 +369,14 @@ export class Mesh implements Disposable {
           for (let i = offset; i < end; i++) {
             const idx = (index[i] & 0xffff) * vertexSize + posoff;
             this.tmpV.set(verts[idx], verts[idx + 1], verts[idx + 2]);
-            if (transform != null) this.tmpV.multiply(transform);
+            if (!!transform) this.tmpV.multiply(transform);
             out.ext(this.tmpV.x, this.tmpV.y, this.tmpV.z);
           }
         } else {
           for (let i = offset; i < end; i++) {
             const idx = i * vertexSize + posoff;
             this.tmpV.set(verts[idx], verts[idx + 1], verts[idx + 2]);
-            if (transform != null) this.tmpV.multiply(transform);
+            if (!!transform) this.tmpV.multiply(transform);
             out.ext(this.tmpV.x, this.tmpV.y, this.tmpV.z);
           }
         }
@@ -410,7 +410,7 @@ export class Mesh implements Disposable {
         for (let i = offset; i < end; i++) {
           const idx = (index[i] & 0xffff) * vertexSize + posoff;
           this.tmpV.set(verts[idx], 0, 0);
-          if (transform != null) this.tmpV.multiply(transform);
+          if (!!transform) this.tmpV.multiply(transform);
           const r = this.tmpV.sub(new Vector3(centerX, centerY, centerZ)).length2();
           if (r > result) result = r;
         }
@@ -419,7 +419,7 @@ export class Mesh implements Disposable {
         for (let i = offset; i < end; i++) {
           const idx = (index[i] & 0xffff) * vertexSize + posoff;
           this.tmpV.set(verts[i], verts[idx + 1], 0);
-          if (transform != null) this.tmpV.multiply(transform);
+          if (!!transform) this.tmpV.multiply(transform);
           const r = this.tmpV.sub(new Vector3(centerX, centerY, centerZ)).length2();
           if (r > result) result = r;
         }
@@ -428,7 +428,7 @@ export class Mesh implements Disposable {
         for (let i = offset; i < end; i++) {
           const idx = (index[i] & 0xffff) * vertexSize + posoff;
           this.tmpV.set(verts[i], verts[idx + 1], verts[idx + 2]);
-          if (transform != null) this.tmpV.multiply(transform);
+          if (!!transform) this.tmpV.multiply(transform);
           const r = this.tmpV.sub(new Vector3(centerX, centerY, centerZ)).length2();
           if (r > result) result = r;
         }
@@ -453,12 +453,12 @@ export class Mesh implements Disposable {
   }
 
   private static addManagedMesh(mesh: Mesh) {
-    if (Mesh.meshes == null) Mesh.meshes = new Array<Mesh>();
+    if (!Mesh.meshes) Mesh.meshes = new Array<Mesh>();
     Mesh.meshes.push(mesh);
   }
 
   public static invalidateAllMeshes() {
-    if (Mesh.meshes == null) return;
+    if (!Mesh.meshes) return;
     for (let i = 0; i < Mesh.meshes.length; i++) {
       Mesh.meshes[i].vertices.invalidate();
       Mesh.meshes[i].indices.invalidate();
@@ -609,11 +609,11 @@ export class Mesh implements Disposable {
     let checks: number[] = null;
     let attrs: VertexAttribute[] = null;
     let newVertexSize = 0;
-    if (usage != null) {
+    if (!!usage) {
       let size = 0;
       let as = 0;
       for (let i = 0; i < usage.length; i++)
-        if (this.getVertexAttribute(usage[i]) != null) {
+        if (!!this.getVertexAttribute(usage[i])) {
           size += this.getVertexAttribute(usage[i]).numComponents;
           as++;
         }
@@ -624,14 +624,14 @@ export class Mesh implements Disposable {
         let ai = -1;
         for (let i = 0; i < usage.length; i++) {
           const a = this.getVertexAttribute(usage[i]);
-          if (a == null) continue;
+          if (!a) continue;
           for (let j = 0; j < a.numComponents; j++) checks[++idx] = a.offset + j;
           attrs[++ai] = a.copy();
           newVertexSize += a.numComponents;
         }
       }
     }
-    if (checks == null) {
+    if (!checks) {
       checks = new Array<number>(vertexSize);
       for (let i = 0; i < vertexSize; i++) checks[i] = i;
       newVertexSize = vertexSize;
@@ -672,13 +672,13 @@ export class Mesh implements Disposable {
     }
 
     let result: Mesh;
-    if (attrs == null)
+    if (!attrs)
       result = new Mesh(
         this.gl,
         isStatic,
         isStatic,
         numVertices,
-        indices == null ? 0 : indices.length,
+        !indices ? 0 : indices.length,
         this.getVertexAttributes()
       );
     else
@@ -687,11 +687,11 @@ export class Mesh implements Disposable {
         isStatic,
         isStatic,
         numVertices,
-        indices == null ? 0 : indices.length,
+        !indices ? 0 : indices.length,
         new VertexAttributes(attrs)
       );
     result.setVertices(vertices, 0, numVertices * newVertexSize);
-    if (indices != null) result.setIndices(indices);
+    if (!!indices) result.setIndices(indices);
     return result;
   }
 }

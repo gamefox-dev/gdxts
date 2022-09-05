@@ -1,5 +1,5 @@
-import { Attribute } from './Attribute';
 import { GL20 } from '../GL20';
+import { Attribute } from './Attribute';
 
 export class BlendingAttribute extends Attribute {
   public static Alias: string = 'blended';
@@ -21,7 +21,7 @@ export class BlendingAttribute extends Attribute {
     opacity: number = 1
   ) {
     super();
-    this.Attribute(this.type);
+    this.setType(this.type);
     this.blended = blended;
     this.sourceFunction = sourceFunc;
     this.destFunction = destFunc;

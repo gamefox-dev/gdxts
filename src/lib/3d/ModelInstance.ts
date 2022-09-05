@@ -1,16 +1,16 @@
 import { Matrix4 } from '../Matrix4';
+import { Quaternion } from '../Quaternion';
 import { Pool } from '../Utils';
+import { Vector3 } from '../Vector3';
 import { BoundingBox } from './BoundingBox';
 import { Material } from './Material';
+import { Animation } from './model/Animation';
 import { Model } from './model/Model';
 import { Node } from './model/Node';
+import { NodeAnimation } from './model/NodeAnimation';
+import { NodeKeyframe } from './model/NodeKeyframe';
 import { NodePart } from './model/NodePart';
 import { Renderable } from './Renderable';
-import { Animation } from './model/Animation';
-import { NodeAnimation } from './model/NodeAnimation';
-import { Vector3 } from '../Vector3';
-import { NodeKeyframe } from './model/NodeKeyframe';
-import { Quaternion } from '../Quaternion';
 
 export class ModelInstance {
   public static defaultShareKeyframes = true;
@@ -22,8 +22,8 @@ export class ModelInstance {
 
   public constructor(model: Model, transform: Matrix4 = null, rootNodeIds: string[] = null) {
     this.model = model;
-    this.transform = transform === null ? new Matrix4() : transform;
-    if (rootNodeIds === null) this.copyNodes(model.nodes);
+    this.transform = !transform ? new Matrix4() : transform;
+    if (!rootNodeIds) this.copyNodes(model.nodes);
     else this.copyNodes(model.nodes, rootNodeIds);
     this.copyAnimations(model.animations, ModelInstance.defaultShareKeyframes);
     this.calculateTransforms();
@@ -32,7 +32,7 @@ export class ModelInstance {
   private copyNodes(nodes: Node[], nodeIds: string[] = null) {
     for (let i = 0, n = nodes.length; i < n; ++i) {
       const node = nodes[i];
-      if (nodeIds === null) {
+      if (!nodeIds) {
         this.nodes.push(node.copy());
       } else {
         for (const nodeId of nodeIds) {
@@ -50,18 +50,19 @@ export class ModelInstance {
     for (let i = 0, n = node.parts.length; i < n; ++i) {
       const part = node.parts[i];
       const bindPose = part.invBoneBindTransforms;
-      if (bindPose != null) {
+      if (!!bindPose) {
         const oldKeys: Node[] = [];
-        for (const [key, value] of bindPose) {
+        for (let i = 0; i < bindPose.size; i++) {
+          const key = bindPose.keys[i];
+          const value = bindPose.values[i];
           const newKey = this.getNode(key.id);
           if (newKey === key) {
             oldKeys.push(key);
           }
           bindPose.set(newKey, value);
         }
-
         for (const key of oldKeys) {
-          bindPose.delete(key);
+          bindPose.removeKey(key);
         }
       }
       if (!this.materials.includes(part.material)) {
@@ -97,7 +98,7 @@ export class ModelInstance {
     animation.duration = sourceAnim.duration;
     for (const nanim of sourceAnim.nodeAnimations) {
       const node = this.getNode(nanim.node.id);
-      if (node == null) continue;
+      if (!node) continue;
       const nodeAnim = new NodeAnimation();
       nodeAnim.node = node;
       if (shareKeyframes) {
@@ -105,32 +106,34 @@ export class ModelInstance {
         nodeAnim.rotation = nanim.rotation;
         nodeAnim.scaling = nanim.scaling;
       } else {
-        if (nanim.translation != null) {
+        if (!!nanim.translation) {
           nodeAnim.translation = new Array<NodeKeyframe<Vector3>>();
           for (const kf of nanim.translation)
             nodeAnim.translation.push(new NodeKeyframe<Vector3>(kf.keytime, kf.value));
         }
-        if (nanim.rotation != null) {
+        if (!!nanim.rotation) {
           nodeAnim.rotation = new Array<NodeKeyframe<Quaternion>>();
           for (const kf of nanim.rotation) nodeAnim.rotation.push(new NodeKeyframe<Quaternion>(kf.keytime, kf.value));
         }
-        if (nanim.scaling != null) {
+        if (!!nanim.scaling) {
           nodeAnim.scaling = new Array<NodeKeyframe<Vector3>>();
           for (const kf of nanim.scaling) nodeAnim.scaling.push(new NodeKeyframe<Vector3>(kf.keytime, kf.value));
         }
       }
-      if (nodeAnim.translation != null || nodeAnim.rotation != null || nodeAnim.scaling != null)
-        animation.nodeAnimations.push(nodeAnim);
+      if (!!nodeAnim.translation || !!nodeAnim.rotation || !!nodeAnim.scaling) animation.nodeAnimations.push(nodeAnim);
     }
     if (animation.nodeAnimations.length > 0) this.animations.push(animation);
   }
 
   public getRenderable(out: Renderable, node: Node, nodePart: NodePart): Renderable {
     nodePart.setRenderable(out);
-    if (!nodePart.bones && !!this.transform)
+    if (!nodePart.bones && !!this.transform) {
       out.worldTransform.set(this.transform.values).multiply(node.globalTransform);
-    else if (!!this.transform) out.worldTransform.set(this.transform.values);
-    else out.worldTransform.idt();
+    } else if (!!this.transform) {
+      out.worldTransform.set(this.transform.values);
+    } else {
+      out.worldTransform.idt();
+    }
     //out.userData = userData;
     return out;
   }

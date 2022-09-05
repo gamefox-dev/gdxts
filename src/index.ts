@@ -1,28 +1,25 @@
 import {
+  Color,
+  createGameLoop,
   createStage,
   createViewport,
-  createGameLoop,
-  Color,
-  Vector3,
-  ViewportInputHandler,
   InputEvent,
-  Vector2
+  Vector2,
+  Vector3,
+  ViewportInputHandler
 } from './lib';
-import { Material } from './lib/3d/Material';
-import { PerspectiveCamera } from './lib/3d/PerspectiveCamera';
-import { ModelBuilder } from './lib/3d/utils/ModelBuilder';
 import { ColorAttribute } from './lib/3d/attributes/ColorAttribute';
 import { Usage } from './lib/3d/attributes/VertexAttribute';
-import { ModelInstance } from './lib/3d/ModelInstance';
-import { ModelBatch } from './lib/3d/ModelBatch';
-import { Environment } from './lib/3d/environment/Environment';
-import { DirectionalLight } from './lib/3d/environment/DirectionalLight';
-import { PointLight } from './lib/3d/environment/PointLight';
-import { SpotLight } from './lib/3d/environment/SpotLight';
 import { BoundingBox } from './lib/3d/BoundingBox';
-import { ObjLoader } from './lib/3d/loader/ObjLoader';
+import { DirectionalLight } from './lib/3d/environment/DirectionalLight';
+import { Environment } from './lib/3d/environment/Environment';
 import { G3dModelLoader } from './lib/3d/loader/G3dModelLoader';
+import { Material } from './lib/3d/Material';
+import { ModelBatch } from './lib/3d/ModelBatch';
+import { ModelInstance } from './lib/3d/ModelInstance';
+import { PerspectiveCamera } from './lib/3d/PerspectiveCamera';
 import { AnimationController } from './lib/3d/utils/AminationController';
+import { ModelBuilder } from './lib/3d/utils/ModelBuilder';
 
 const init = async () => {
   const stage = createStage();
@@ -33,7 +30,8 @@ const init = async () => {
   });
 
   const gl = viewport.getContext();
-  const cam = new PerspectiveCamera(67, canvas.width, canvas.height);
+  //const cam = new PerspectiveCamera(67, canvas.width, canvas.height);
+  const cam = new PerspectiveCamera(67, 640, 480);
   cam.position.set(10, 10, 10);
   cam.lookAt(0, 0, 0);
   cam.near = 1;
@@ -124,6 +122,7 @@ const init = async () => {
 
   const lightDirection = new Vector2(1, 0);
   const ROTATION_SPEED = Math.PI;
+
   createGameLoop((delta: number) => {
     gl.clear(gl.COLOR_BUFFER_BIT);
     modelBatch.begin(cam);

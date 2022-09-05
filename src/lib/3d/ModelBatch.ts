@@ -37,21 +37,20 @@ export class ModelBatch implements Disposable {
   protected sorter: DefaultRenderableSorter = null;
 
   public constructor(gl: WebGLRenderingContext, context: RenderContext = null, sorter: DefaultRenderableSorter = null) {
-    this.sorter = sorter == null ? new DefaultRenderableSorter() : sorter;
-    this.ownContext = context == null;
-    this.context =
-      context == null ? new RenderContext(new DefaultTextureBinder(gl, DefaultTextureBinder.LRU, 1)) : context;
-    this.shaderProvider = this.shaderProvider == null ? new DefaultShaderProvider(gl) : this.shaderProvider;
+    this.sorter = !sorter ? new DefaultRenderableSorter() : sorter;
+    this.ownContext = !context;
+    this.context = !context ? new RenderContext(new DefaultTextureBinder(gl, DefaultTextureBinder.LRU, 1)) : context;
+    this.shaderProvider = !this.shaderProvider ? new DefaultShaderProvider(gl) : this.shaderProvider;
   }
 
   public begin(cam: PerspectiveCamera) {
-    if (this.camera != null) throw new Error('Call end() first.');
+    if (!!this.camera) throw new Error('Call end() first.');
     this.camera = cam;
     if (this.ownContext) this.context.begin();
   }
 
   public setCamera(cam: PerspectiveCamera) {
-    if (this.camera == null) throw new Error('Call begin() first.');
+    if (!this.camera) throw new Error('Call begin() first.');
     if (this.renderables.length > 0) this.flush();
     this.camera = cam;
   }
@@ -78,7 +77,7 @@ export class ModelBatch implements Disposable {
     for (let i = 0; i < this.renderables.length; i++) {
       const renderable = this.renderables[i];
       if (currentShader !== renderable.shader) {
-        if (currentShader !== null) {
+        if (!!currentShader) {
           currentShader.end();
         }
         currentShader = renderable.shader;
@@ -86,7 +85,7 @@ export class ModelBatch implements Disposable {
       }
       currentShader.render(renderable);
     }
-    if (currentShader != null) currentShader.end();
+    if (!!currentShader) currentShader.end();
     this.renderablesPool.flush();
     this.renderables.length = 0;
   }
@@ -107,7 +106,7 @@ export class ModelBatch implements Disposable {
     renderableProvider.getRenderables(this.renderables, this.renderablesPool);
     for (let i = offset; i < this.renderables.length; i++) {
       const renderable = this.renderables[i];
-      if (environment !== null) {
+      if (!!environment) {
         renderable.environment = environment;
       }
       renderable.shader = this.shaderProvider.getShader(renderable);

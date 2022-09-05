@@ -80,7 +80,7 @@ export class TextureAttribute extends Attribute {
     this.offsetV = offsetV;
     this.scaleU = scaleU;
     this.scaleV = scaleV;
-    this.Attribute(type);
+    this.setType(type);
   }
 
   public setTextureRegion(region: TextureRegion) {

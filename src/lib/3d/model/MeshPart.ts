@@ -1,8 +1,8 @@
-import { Mesh } from '../Mesh';
 import { Shader } from '../../Shader';
 import { Disposable } from '../../Utils';
 import { Vector3 } from '../../Vector3';
 import { BoundingBox } from '../BoundingBox';
+import { Mesh } from '../Mesh';
 
 export class MeshPart implements Disposable {
   public id = '';
@@ -18,7 +18,7 @@ export class MeshPart implements Disposable {
   public dispose() {}
 
   constructor(other: MeshPart = null) {
-    if (other != null) {
+    if (!!other) {
       this.setByMeshPart(other);
     }
   }
@@ -57,7 +57,7 @@ export class MeshPart implements Disposable {
   public equals(other: MeshPart): boolean {
     return (
       other === this ||
-      (other != null &&
+      (!!other &&
         other.mesh === this.mesh &&
         other.primitiveType === this.primitiveType &&
         other.offset === this.offset &&

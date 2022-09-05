@@ -1,13 +1,14 @@
 import { Matrix4 } from '../../Matrix4';
-import { Node } from './Node';
+import { ArrayMap } from '../../Utils';
 import { Material } from '../Material';
-import { MeshPart } from './MeshPart';
 import { Renderable } from '../Renderable';
+import { MeshPart } from './MeshPart';
+import { Node } from './Node';
 
 export class NodePart {
   public meshPart: MeshPart;
   public material: Material;
-  public invBoneBindTransforms: Map<Node, Matrix4> = null;
+  public invBoneBindTransforms: ArrayMap<Node, Matrix4> = null;
   public bones: Matrix4[] = null;
   public enabled = true;
 
@@ -31,22 +32,22 @@ export class NodePart {
     this.meshPart = new MeshPart(other.meshPart);
     this.material = other.material;
     this.enabled = other.enabled;
-    if (other.invBoneBindTransforms === null) {
+    if (!other.invBoneBindTransforms) {
       this.invBoneBindTransforms = null;
       this.bones = null;
     } else {
-      if (this.invBoneBindTransforms === null) {
-        this.invBoneBindTransforms = new Map<Node, Matrix4>();
+      if (!this.invBoneBindTransforms) {
+        this.invBoneBindTransforms = new ArrayMap<Node, Matrix4>();
       } else {
         this.invBoneBindTransforms.clear();
       }
 
-      for (const [key, value] of other.invBoneBindTransforms) {
-        this.invBoneBindTransforms.set(key, value);
+      this.invBoneBindTransforms.clear();
+      for (let i = 0; i < other.invBoneBindTransforms.size; i++) {
+        this.invBoneBindTransforms.set(other.invBoneBindTransforms.keys[i], other.invBoneBindTransforms.values[i]);
       }
 
-      if (this.bones === null || this.bones.length !== this.invBoneBindTransforms.size)
-        this.bones = new Array<Matrix4>();
+      if (!this.bones || this.bones.length !== this.invBoneBindTransforms.size) this.bones = new Array<Matrix4>();
 
       for (let i = 0; i < this.invBoneBindTransforms.size; i++) {
         if (this.bones[i] === undefined) this.bones[i] = new Matrix4();

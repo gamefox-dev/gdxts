@@ -12,7 +12,7 @@ export class IntAttribute extends Attribute {
 
   constructor(type: number, value: number = 0) {
     super();
-    this.Attribute(type);
+    this.setType(type);
     this.value = value;
   }
 

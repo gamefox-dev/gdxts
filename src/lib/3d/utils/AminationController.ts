@@ -12,7 +12,7 @@ export class AnimationDesc {
   public loopCount: number = 0;
 
   public update(delta: number): number {
-    if (this.loopCount !== 0 && this.animation !== null) {
+    if (this.loopCount !== 0 && !!this.animation) {
       let loops;
       const diff = this.speed * delta;
       if (!MathUtils.isZero(this.duration)) {
@@ -29,11 +29,11 @@ export class AnimationDesc {
       } else loops = 1;
       for (let i = 0; i < loops; i++) {
         if (this.loopCount > 0) this.loopCount--;
-        if (this.loopCount !== 0 && this.listener !== null) this.listener.onLoop(this);
+        if (this.loopCount !== 0 && !!this.listener) this.listener.onLoop(this);
         if (this.loopCount === 0) {
           const result = (loops - 1 - i) * this.duration + (diff < 0 ? this.duration - this.time : this.time);
           this.time = diff < 0 ? 0 : this.duration;
-          if (this.listener !== null) this.listener.onEnd(this);
+          if (!!this.listener) this.listener.onEnd(this);
           return result;
         }
       }
@@ -71,7 +71,7 @@ export class AnimationController extends BaseAnimationController {
     speed: number,
     listener: AnimationListener
   ): AnimationDesc {
-    if (anim === null) return null;
+    if (!anim) return null;
     const result = this.animationPool.obtain();
     result.animation = anim;
     result.listener = listener;
@@ -91,9 +91,9 @@ export class AnimationController extends BaseAnimationController {
     speed: number,
     listener: AnimationListener
   ): AnimationDesc {
-    if (id === null) return null;
+    if (!id) return null;
     const anim = this.target.getAnimation(id);
-    if (anim === null) throw new Error('Unknown animation: ' + id);
+    if (!anim) throw new Error('Unknown animation: ' + id);
     return this.obtainAnimation(anim, offset, duration, loopCount, speed, listener);
   }
 
@@ -103,7 +103,7 @@ export class AnimationController extends BaseAnimationController {
 
   public update(delta: number) {
     if (this.paused) return;
-    if (this.previous !== null && (this.transitionCurrentTime += delta) >= this.transitionTargetTime) {
+    if (!!this.previous && (this.transitionCurrentTime += delta) >= this.transitionTargetTime) {
       this.removeAnimation(this.previous.animation);
       this.justChangedAnimation = true;
       this.animationPool.free(this.previous);
@@ -113,16 +113,16 @@ export class AnimationController extends BaseAnimationController {
       this.target.calculateTransforms();
       this.justChangedAnimation = false;
     }
-    if (this.current === null || this.current.loopCount === 0 || this.current.animation === null) return;
+    if (!this.current || this.current.loopCount === 0 || !this.current.animation) return;
     const remain = this.current.update(delta);
-    if (remain >= 0 && this.queued !== null) {
+    if (remain >= 0 && !!this.queued) {
       this.inAction = false;
       this.actionWithAnimationDesc(this.queued, this.queuedTransitionTime);
       this.queued = null;
       if (remain > 0) this.update(remain);
       return;
     }
-    if (this.previous !== null)
+    if (!!this.previous)
       this.applyAnimations(
         this.previous.animation,
         this.previous.offset + this.previous.time,
@@ -165,9 +165,9 @@ export class AnimationController extends BaseAnimationController {
   }
 
   protected setAnimationWithAnimationDesc(anim: AnimationDesc): AnimationDesc {
-    if (this.current === null) this.current = anim;
+    if (!this.current) this.current = anim;
     else {
-      if (!this.allowSameAnimation && anim !== null && this.current.animation === anim.animation)
+      if (!this.allowSameAnimation && !!anim && this.current.animation === anim.animation)
         anim.time = this.current.time;
       else this.removeAnimation(this.current.animation);
       this.animationPool.free(this.current);
@@ -215,14 +215,14 @@ export class AnimationController extends BaseAnimationController {
   }
 
   protected animateWithAnimationDesc(anim: AnimationDesc, transitionTime: number): AnimationDesc {
-    if (this.current === null || this.current.loopCount === 0) this.current = anim;
+    if (!this.current || this.current.loopCount === 0) this.current = anim;
     else if (this.inAction) this.queueWithAnimationDesc(anim, transitionTime);
-    else if (!this.allowSameAnimation && anim !== null && this.current.animation === anim.animation) {
+    else if (!this.allowSameAnimation && !!anim && this.current.animation === anim.animation) {
       anim.time = this.current.time;
       this.animationPool.free(this.current);
       this.current = anim;
     } else {
-      if (this.previous !== null) {
+      if (!!this.previous) {
         this.removeAnimation(this.previous.animation);
         this.animationPool.free(this.previous);
       }
@@ -272,9 +272,9 @@ export class AnimationController extends BaseAnimationController {
   }
 
   protected queueWithAnimationDesc(anim: AnimationDesc, transitionTime: number): AnimationDesc {
-    if (this.current === null || this.current.loopCount === 0) this.animateWithAnimationDesc(anim, transitionTime);
+    if (!this.current || this.current.loopCount === 0) this.animateWithAnimationDesc(anim, transitionTime);
     else {
-      if (this.queued !== null) this.animationPool.free(this.queued);
+      if (!!this.queued) this.animationPool.free(this.queued);
       this.queued = anim;
       this.queuedTransitionTime = transitionTime;
       if (this.current.loopCount < 0) this.current.loopCount = 1;
@@ -321,13 +321,13 @@ export class AnimationController extends BaseAnimationController {
 
   protected actionWithAnimationDesc(anim: AnimationDesc, transitionTime: number): AnimationDesc {
     if (anim.loopCount < 0) throw new Error('An action cannot be continuous');
-    if (this.current === null || this.current.loopCount === 0) this.animateWithAnimationDesc(anim, transitionTime);
+    if (!this.current || this.current.loopCount === 0) this.animateWithAnimationDesc(anim, transitionTime);
     else {
       const toQueue = this.inAction ? null : this.obtainAnimationDesc(this.current);
       this.inAction = false;
       this.animateWithAnimationDesc(anim, transitionTime);
       this.inAction = true;
-      if (toQueue !== null) this.queueWithAnimationDesc(toQueue, transitionTime);
+      if (!!toQueue) this.queueWithAnimationDesc(toQueue, transitionTime);
     }
     return anim;
   }

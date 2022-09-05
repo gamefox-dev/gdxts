@@ -16,7 +16,7 @@ export class VertexAttributes {
 
   public getOffset(usage: number, defaultIfNotFound: number = 0) {
     const vertexAttribute = this.findByUsage(usage);
-    if (vertexAttribute == null) return defaultIfNotFound;
+    if (!vertexAttribute) return defaultIfNotFound;
     return vertexAttribute.offset / 4;
   }
 

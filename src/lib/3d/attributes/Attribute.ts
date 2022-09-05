@@ -25,7 +25,7 @@ export class Attribute {
   type: number;
   typeBit: number;
 
-  protected Attribute(type: number) {
+  protected setType(type: number) {
     this.type = type;
     this.typeBit = this.numberOfTrailingZeros(type);
   }
@@ -35,7 +35,7 @@ export class Attribute {
   }
 
   public equals(obj: Attribute): boolean {
-    if (obj === null) return false;
+    if (!obj) return false;
     if (obj === this) return true;
     if (!obj) return false;
     if (this.type !== obj.type) return false;

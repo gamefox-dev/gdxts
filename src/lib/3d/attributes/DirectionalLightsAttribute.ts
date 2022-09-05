@@ -12,7 +12,7 @@ export class DirectionalLightsAttribute extends Attribute {
   public lights: DirectionalLight[];
   constructor() {
     super();
-    this.Attribute(DirectionalLightsAttribute.Type);
+    this.setType(DirectionalLightsAttribute.Type);
     this.lights = new Array<DirectionalLight>();
   }
 

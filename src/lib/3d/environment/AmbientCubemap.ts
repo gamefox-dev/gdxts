@@ -11,7 +11,7 @@ export class AmbientCubemap {
   public data: number[];
 
   constructor(copyFrom: number[] = null) {
-    if (copyFrom === null) {
+    if (!copyFrom) {
       this.data = new Array<number>(AmbientCubemap.NUM_VALUES);
     } else {
       if (copyFrom.length !== AmbientCubemap.NUM_VALUES) throw new Error('Incorrect array size');

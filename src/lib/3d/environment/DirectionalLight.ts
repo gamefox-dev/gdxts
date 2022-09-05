@@ -11,8 +11,8 @@ export class DirectionalLight extends BaseLight {
   }
 
   public setFrom(color: Color, direction: Vector3) {
-    if (color != null) this.color.set(color.r, color.g, color.b, color.a);
-    if (direction != null) this.direction.setFrom(direction).normalize();
+    if (!!color) this.color.set(color.r, color.g, color.b, color.a);
+    if (!!direction) this.direction.setFrom(direction).normalize();
     return this;
   }
 
@@ -23,8 +23,6 @@ export class DirectionalLight extends BaseLight {
   }
 
   public equals(other: DirectionalLight) {
-    return (
-      other !== null && (other === this || (this.color.equals(other.color) && this.direction.equals(other.direction)))
-    );
+    return !!other && (other === this || (this.color.equals(other.color) && this.direction.equals(other.direction)));
   }
 }

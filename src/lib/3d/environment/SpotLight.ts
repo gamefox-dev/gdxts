@@ -42,9 +42,9 @@ export class SpotLight extends BaseLight {
     cutoffAngle: number,
     exponent: number
   ): SpotLight {
-    if (color != null) this.color.setFromColor(color);
-    if (position != null) this.position.setFrom(position);
-    if (direction != null) this.direction.setFrom(direction).normalize();
+    if (!!color) this.color.setFromColor(color);
+    if (!!position) this.position.setFrom(position);
+    if (!!direction) this.direction.setFrom(direction).normalize();
     this.intensity = intensity;
     this.cutoffAngle = cutoffAngle;
     this.exponent = exponent;
@@ -92,7 +92,7 @@ export class SpotLight extends BaseLight {
 
   public equals(other: SpotLight): boolean {
     return (
-      other !== null &&
+      !!other &&
       (other === this ||
         (this.color.equals(other.color) &&
           this.position.equals(other.position) &&

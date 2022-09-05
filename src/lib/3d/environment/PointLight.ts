@@ -21,8 +21,8 @@ export class PointLight extends BaseLight {
   }
 
   public set(color: Color, position: Vector3, intensity: number): PointLight {
-    if (color != null) this.color.setFromColor(color);
-    if (position != null) this.position.setFrom(position);
+    if (!!color) this.color.setFromColor(color);
+    if (!!position) this.position.setFrom(position);
     this.intensity = intensity;
     return this;
   }
@@ -36,7 +36,7 @@ export class PointLight extends BaseLight {
 
   public equals(other: PointLight): boolean {
     return (
-      other !== null &&
+      !!other &&
       (other === this ||
         (this.color.equals(other.color) && this.position.equals(other.position) && this.intensity === other.intensity))
     );

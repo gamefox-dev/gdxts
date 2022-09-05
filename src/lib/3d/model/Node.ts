@@ -1,8 +1,8 @@
 import { Matrix4 } from '../../Matrix4';
+import { Quaternion } from '../../Quaternion';
 import { Vector3 } from '../../Vector3';
 import { BoundingBox } from '../BoundingBox';
 import { NodePart } from './NodePart';
-import { Quaternion } from '../../Quaternion';
 
 export class Node {
   public id: string;
@@ -25,7 +25,7 @@ export class Node {
   }
 
   public calculateWorldTransform(): Matrix4 {
-    if (this.inheritTransform && this.parent != null) {
+    if (this.inheritTransform && !!this.parent) {
       this.globalTransform.set(this.parent.globalTransform.values).multiply(this.localTransform);
     } else {
       this.globalTransform.set(this.localTransform.values);
@@ -46,16 +46,11 @@ export class Node {
 
   public calculateBoneTransforms(recursive: boolean) {
     for (const part of this.parts) {
-      if (
-        part.invBoneBindTransforms == null ||
-        part.bones == null ||
-        part.invBoneBindTransforms.size !== part.bones.length
-      )
-        continue;
-      let i = 0;
-      for (const [key, value] of part.invBoneBindTransforms) {
-        part.bones[i].set(key.globalTransform.values).multiply(value);
-        i++;
+      if (!part.invBoneBindTransforms || !part.bones || part.invBoneBindTransforms.size !== part.bones.length) continue;
+      for (let i = 0; i < part.invBoneBindTransforms.size; i++) {
+        part.bones[i]
+          .set(part.invBoneBindTransforms.keys[i].globalTransform.values)
+          .multiply(part.invBoneBindTransforms.values[i]);
       }
     }
     if (recursive) {
@@ -86,18 +81,18 @@ export class Node {
   }
 
   public attachTo(parent: Node) {
-    this.parent.addChild(this);
+    parent.addChild(this);
   }
 
   public detach() {
-    if (this.parent != null) {
+    if (!!this.parent) {
       this.parent.removeChild(this);
       this.parent = null;
     }
   }
 
   public hasChildren(): boolean {
-    return this.children != null && this.children.length > 0;
+    return !!this.children && this.children.length > 0;
   }
 
   public getChildCount(): number {
@@ -117,11 +112,11 @@ export class Node {
   }
 
   public insertChild(index: number, child: Node): number {
-    for (let p: Node = this; p != null; p = p.getParent()) {
+    for (let p: Node = this; !!p; p = p.getParent()) {
       if (p === child) throw new Error('Cannot add a parent as a child');
     }
     const p = child.getParent();
-    if (p != null && !p.removeChild(child)) throw new Error('Could not remove child from its current parent');
+    if (!!p && !p.removeChild(child)) throw new Error('Could not remove child from its current parent');
     if (index < 0 || index >= this.children.length) {
       index = this.children.length;
       this.children.push(child);
@@ -156,7 +151,7 @@ export class Node {
   }
 
   public hasParent(): boolean {
-    return this.parent != null;
+    return !!this.parent;
   }
 
   public copy(): Node {
@@ -168,9 +163,9 @@ export class Node {
     this.id = other.id;
     this.isAnimated = other.isAnimated;
     this.inheritTransform = other.inheritTransform;
-    this.translation.set(other.translation.x, other.translation.y, other.translation.z);
-    this.rotation.set(other.rotation.x, other.rotation.y, other.rotation.z, other.rotation.w);
-    this.scale.set(other.scale.x, other.scale.y, other.scale.z);
+    this.translation.setFrom(other.translation);
+    this.rotation.setFrom(other.rotation);
+    this.scale.setFrom(other.scale);
     this.localTransform.set(other.localTransform.values);
     this.globalTransform.set(other.globalTransform.values);
     this.parts.length = 0;
@@ -193,8 +188,7 @@ export class Node {
       for (let i = 0; i < n; i++) if ((node = nodes[i]).id === id) return node;
     }
     if (recursive) {
-      for (let i = 0; i < n; i++)
-        if ((node = this.getNode(nodes[i].children, id, true, ignoreCase)) != null) return node;
+      for (let i = 0; i < n; i++) if (!!(node = this.getNode(nodes[i].children, id, true, ignoreCase))) return node;
     }
     return null;
   }

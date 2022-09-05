@@ -1,3 +1,4 @@
+import { Matrix3 } from '../../Matrix3';
 import { Matrix4 } from '../../Matrix4';
 import { NumberUtil } from '../../NumberUtils';
 import { Shader } from '../../Shader';
@@ -5,15 +6,14 @@ import { TextureRegion } from '../../TextureRegion';
 import { Color, MathUtils, Utils } from '../../Utils';
 import { Vector2 } from '../../Vector2';
 import { Vector3 } from '../../Vector3';
-import { BoundingBox } from '../BoundingBox';
-import { VertexInfo } from './VertexInfo';
-import { GL20 } from '../GL20';
-import { Matrix3 } from '../../Matrix3';
-import { Mesh } from '../Mesh';
-import { MeshPart } from '../model/MeshPart';
 import { Usage, VertexAttribute } from '../attributes/VertexAttribute';
 import { VertexAttributes } from '../attributes/VertexAttributes';
+import { BoundingBox } from '../BoundingBox';
+import { GL20 } from '../GL20';
+import { Mesh } from '../Mesh';
+import { MeshPart } from '../model/MeshPart';
 import { BoxShapeBuilder } from './BoxShapeBuilder';
+import { VertexInfo } from './VertexInfo';
 
 export class MeshBuilder {
   public static MAX_VERTICES = 1 << 16;
@@ -76,7 +76,7 @@ export class MeshBuilder {
   }
 
   public begin(attributes: VertexAttributes, primitiveType: number = -1) {
-    if (this.attributes != null) throw new Error('Call end() first');
+    if (!!this.attributes) throw new Error('Call end() first');
     this.attributes = attributes;
     this.parts.length = 0;
     this.vindex = 0;
@@ -84,24 +84,24 @@ export class MeshBuilder {
     this.istart = 0;
     this.meshPart = null;
     this.stride = attributes.vertexSize / 4;
-    if (this._vertex === null || this.vertex.length < this.stride) this._vertex = new Array<number>(this.stride);
+    if (!this._vertex || this.vertex.length < this.stride) this._vertex = new Array<number>(this.stride);
     let a = attributes.findByUsage(Usage.Position);
-    if (a === null) throw new Error('Cannot build mesh without position attribute');
+    if (!a) throw new Error('Cannot build mesh without position attribute');
     this.posOffset = a.offset / 4;
     this.posSize = a.numComponents;
     a = attributes.findByUsage(Usage.Normal);
-    this.norOffset = a === null ? -1 : a.offset / 4;
+    this.norOffset = !a ? -1 : a.offset / 4;
     a = attributes.findByUsage(Usage.BiNormal);
-    this.biNorOffset = a === null ? -1 : a.offset / 4;
+    this.biNorOffset = !a ? -1 : a.offset / 4;
     a = attributes.findByUsage(Usage.Tangent);
-    this.tangentOffset = a === null ? -1 : a.offset / 4;
+    this.tangentOffset = !a ? -1 : a.offset / 4;
     a = attributes.findByUsage(Usage.ColorUnpacked);
-    this.colOffset = a === null ? -1 : a.offset / 4;
-    this.colSize = a === null ? 0 : a.numComponents;
+    this.colOffset = !a ? -1 : a.offset / 4;
+    this.colSize = !a ? 0 : a.numComponents;
     a = attributes.findByUsage(Usage.ColorPacked);
-    this.cpOffset = a === null ? -1 : a.offset / 4;
+    this.cpOffset = !a ? -1 : a.offset / 4;
     a = attributes.findByUsage(Usage.TextureCoordinates);
-    this.uvOffset = a === null ? -1 : a.offset / 4;
+    this.uvOffset = !a ? -1 : a.offset / 4;
     this.setColor(null);
     this.setVertexTransform(null);
     this.setUVRangeByRegion(null);
@@ -110,7 +110,7 @@ export class MeshBuilder {
   }
 
   public setColor(color: Color) {
-    this.hasColor = color != null;
+    this.hasColor = !!color;
 
     const newColor = !this.hasColor ? Color.WHITE : color;
     this.color.set(newColor.r, newColor.g, newColor.b, newColor.a);
@@ -126,7 +126,7 @@ export class MeshBuilder {
   }
 
   private endpart() {
-    if (this.meshPart != null) {
+    if (!!this.meshPart) {
       this.bounds.getCenter(this.meshPart.center);
       this.bounds.getDimensions(this.meshPart.halfExtents).scale(0.5);
       this.meshPart.radius = this.meshPart.halfExtents.length();
@@ -139,9 +139,9 @@ export class MeshBuilder {
   }
 
   public part(id: string, primitiveType: number, meshPart: MeshPart = null): MeshPart {
-    if (this.attributes === null) throw new Error('Call begin() first');
+    if (!this.attributes) throw new Error('Call begin() first');
 
-    if (meshPart === null) meshPart = new MeshPart();
+    if (!meshPart) meshPart = new MeshPart();
     this.endpart();
 
     this.meshPart = meshPart;
@@ -157,7 +157,7 @@ export class MeshBuilder {
   }
 
   public end(mesh: Mesh = null): Mesh {
-    if (mesh === null) {
+    if (!mesh) {
       mesh = new Mesh(
         this.gl,
         true,
@@ -169,7 +169,7 @@ export class MeshBuilder {
     }
     this.endpart();
 
-    if (this.attributes === null) throw new Error('Call begin() first');
+    if (!this.attributes) throw new Error('Call begin() first');
     if (!this.attributes.equals(mesh.getVertexAttributes())) throw new Error("Mesh attributes don't match");
     if (mesh.getMaxVertices() * this.stride < this.vertices.length)
       throw new Error(
@@ -219,7 +219,7 @@ export class MeshBuilder {
   }
 
   public setUVRangeByRegion(region: TextureRegion) {
-    if (region === null) {
+    if (!region) {
       this.hasUVTransform = false;
       this.uOffset = this.vOffset = 0;
       this.uScale = this.vScale = 1;
@@ -230,7 +230,7 @@ export class MeshBuilder {
   }
 
   public setVertexTransform(transform: Matrix4) {
-    this.vertexTransformationEnabled = transform != null;
+    this.vertexTransformationEnabled = !!transform;
     if (this.vertexTransformationEnabled) {
       this.positionTransform.set(transform.values);
       this.normalTransform.setByMatrix4(transform).inv().transpose();
@@ -383,24 +383,24 @@ export class MeshBuilder {
     if (this.posSize > 2) this._vertex[this.posOffset + 2] = pos.z;
 
     if (this.norOffset >= 0) {
-      if (nor === null) nor = this.tmpNormal.set(pos.x, pos.y, pos.z).normalize();
+      if (!nor) nor = this.tmpNormal.set(pos.x, pos.y, pos.z).normalize();
       this._vertex[this.norOffset] = nor.x;
       this._vertex[this.norOffset + 1] = nor.y;
       this._vertex[this.norOffset + 2] = nor.z;
     }
 
     if (this.colOffset >= 0) {
-      if (col === null) col = Color.WHITE;
+      if (!col) col = Color.WHITE;
       this._vertex[this.colOffset] = col.r;
       this._vertex[this.colOffset + 1] = col.g;
       this._vertex[this.colOffset + 2] = col.b;
       if (this.colSize > 3) this._vertex[this.colOffset + 3] = col.a;
     } else if (this.cpOffset > 0) {
-      if (col === null) col = Color.WHITE;
+      if (!col) col = Color.WHITE;
       this._vertex[this.cpOffset] = NumberUtil.colorToFloat(col.r, col.g, col.b, col.a); // FIXME cache packed color?
     }
 
-    if (uv != null && this.uvOffset >= 0) {
+    if (!!uv && this.uvOffset >= 0) {
       this._vertex[this.uvOffset] = uv.x;
       this._vertex[this.uvOffset + 1] = uv.y;
     }

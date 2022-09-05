@@ -10,7 +10,7 @@ export class Plane {
   public d = 0;
 
   constructor(normal: Vector3 = null, d: number = 0) {
-    if (normal !== null) {
+    if (!!normal) {
       this.normal.setFrom(normal).normalize();
       this.d = d;
     }

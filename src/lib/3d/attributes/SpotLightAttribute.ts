@@ -12,7 +12,7 @@ export class SpotLightsAttribute extends Attribute {
   public lights: SpotLight[];
   constructor() {
     super();
-    this.Attribute(SpotLightsAttribute.Type);
+    this.setType(SpotLightsAttribute.Type);
     this.lights = new Array<SpotLight>();
   }
 

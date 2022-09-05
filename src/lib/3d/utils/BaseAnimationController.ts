@@ -2,11 +2,11 @@ import { Matrix4 } from '../../Matrix4';
 import { Quaternion } from '../../Quaternion';
 import { Pool, Poolable } from '../../Utils';
 import { Vector3 } from '../../Vector3';
-import { ModelInstance } from '../ModelInstance';
-import { Node } from '../model/Node';
 import { Animation } from '../model/Animation';
-import { NodeKeyframe } from '../model/NodeKeyframe';
+import { Node } from '../model/Node';
 import { NodeAnimation } from '../model/NodeAnimation';
+import { NodeKeyframe } from '../model/NodeKeyframe';
+import { ModelInstance } from '../ModelInstance';
 
 export class Transform implements Poolable {
   public translation = new Vector3();
@@ -103,8 +103,8 @@ export class BaseAnimationController {
   }
 
   protected applyAnimations(anim1: Animation, time1: number, anim2: Animation, time2: number, weight: number) {
-    if (anim2 === null || weight === 0) this.applyAnimation(anim1, time1);
-    else if (anim1 === null || weight === 1) this.applyAnimation(anim2, time2);
+    if (!anim2 || weight === 0) this.applyAnimation(anim1, time1);
+    else if (!anim1 || weight === 1) this.applyAnimation(anim2, time2);
     else if (this.applying) throw new Error('Call end() first');
     else {
       this.begin();
@@ -138,7 +138,7 @@ export class BaseAnimationController {
   }
 
   private static getTranslationAtTime(nodeAnim: NodeAnimation, time: number, out: Vector3): Vector3 {
-    if (nodeAnim.translation === null) return out.setFrom(nodeAnim.node.translation);
+    if (!nodeAnim.translation) return out.setFrom(nodeAnim.node.translation);
     if (nodeAnim.translation.length === 1) return out.setFrom(nodeAnim.translation[0].value);
 
     let index = this.getFirstKeyframeIndexAtTime(nodeAnim.translation, time);
@@ -154,7 +154,7 @@ export class BaseAnimationController {
   }
 
   private static getRotationAtTime(nodeAnim: NodeAnimation, time: number, out: Quaternion): Quaternion {
-    if (nodeAnim.rotation === null) return out.setFrom(nodeAnim.node.rotation);
+    if (!nodeAnim.rotation) return out.setFrom(nodeAnim.node.rotation);
     if (nodeAnim.rotation.length === 1) return out.setFrom(nodeAnim.rotation[0].value);
 
     let index = this.getFirstKeyframeIndexAtTime(nodeAnim.rotation, time);
@@ -170,7 +170,7 @@ export class BaseAnimationController {
   }
 
   private static getScalingAtTime(nodeAnim: NodeAnimation, time: number, out: Vector3): Vector3 {
-    if (nodeAnim.scaling === null) return out.setFrom(nodeAnim.node.scale);
+    if (!nodeAnim.scaling) return out.setFrom(nodeAnim.node.scale);
     if (nodeAnim.scaling.length === 1) return out.setFrom(nodeAnim.scaling[0].value);
 
     let index = this.getFirstKeyframeIndexAtTime(nodeAnim.scaling, time);
@@ -212,7 +212,7 @@ export class BaseAnimationController {
     const transform = this.getNodeAnimationTransform(nodeAnim, time);
 
     const t = out.get(node);
-    if (t != null) {
+    if (!!t) {
       if (alpha > 0.999999) t.setFrom(transform);
       else t.lerpWithTranform(transform, alpha);
     } else {
@@ -232,7 +232,7 @@ export class BaseAnimationController {
     animation: Animation,
     time: number
   ) {
-    if (out === null) {
+    if (!out) {
       for (const nodeAnim of animation.nodeAnimations) this.applyNodeAnimationDirectly(nodeAnim, time);
     } else {
       for (const node of out.keys()) node.isAnimated = false;

@@ -1,19 +1,18 @@
-import { VertexAttribute } from '../attributes/VertexAttribute';
+import { Quaternion } from '../../Quaternion';
+import { Shader } from '../../Shader';
 import { Color } from '../../Utils';
-import { Usage } from '../attributes/VertexAttribute';
+import { Vector3 } from '../../Vector3';
+import { Usage, VertexAttribute } from '../attributes/VertexAttribute';
+import { GL20 } from '../GL20';
 import { Material } from '../Material';
 import { ModelData } from '../model/data/ModelData';
 import { ModelMaterial } from '../model/data/ModelMaterial';
+import { ModelMesh } from '../model/data/ModelMesh';
+import { ModelMeshPart } from '../model/data/ModelMeshPart';
+import { ModelNode } from '../model/data/ModelNode';
+import { ModelNodePart } from '../model/data/ModelNodePart';
 import { ModelTexture } from '../model/data/ModelTexture';
 import { Model } from '../model/Model';
-import { Shader } from '../../Shader';
-import { GL20 } from '../GL20';
-import { ModelNode } from '../model/data/ModelNode';
-import { Vector3 } from '../../Vector3';
-import { Quaternion } from '../../Quaternion';
-import { ModelNodePart } from '../model/data/ModelNodePart';
-import { ModelMeshPart } from '../model/data/ModelMeshPart';
-import { ModelMesh } from '../model/data/ModelMesh';
 
 class Group {
   name: string;
@@ -53,10 +52,9 @@ export class ObjMaterial {
   public build(): ModelMaterial {
     const mat = new ModelMaterial();
     mat.id = this.materialName;
-    mat.ambient =
-      this.ambientColor === null
-        ? null
-        : new Color(this.ambientColor.r, this.ambientColor.g, this.ambientColor.b, this.ambientColor.a);
+    mat.ambient = !this.ambientColor
+      ? null
+      : new Color(this.ambientColor.r, this.ambientColor.g, this.ambientColor.b, this.ambientColor.a);
     mat.diffuse = new Color(this.diffuseColor.r, this.diffuseColor.g, this.diffuseColor.b, this.diffuseColor.a);
     mat.specular = new Color(this.specularColor.r, this.specularColor.g, this.specularColor.b, this.specularColor.a);
     mat.opacity = this.opacity;
@@ -71,7 +69,7 @@ export class ObjMaterial {
   }
 
   private addTexture(mat: ModelMaterial, texFilename: string, usage: number) {
-    if (texFilename != null) {
+    if (!!texFilename) {
       const tex = new ModelTexture();
       tex.usage = usage;
       tex.fileName = texFilename;
@@ -381,7 +379,7 @@ export class ObjLoader {
   }
 
   private getIndex(index: string, size: number): number {
-    if (index === null || index.length === 0) return 0;
+    if (!index || index.length === 0) return 0;
     const idx = parseInt(index);
     if (idx < 0) return size + idx;
     else return idx - 1;

@@ -56,8 +56,8 @@ export class ColorAttribute extends Attribute {
 
   constructor(type: number, color: Color) {
     super();
-    this.Attribute(type);
-    if (color != null) this.color.set(color.r, color.g, color.b, color.a);
+    this.setType(type);
+    if (!!color) this.color.set(color.r, color.g, color.b, color.a);
   }
 
   public copy(): Attribute {

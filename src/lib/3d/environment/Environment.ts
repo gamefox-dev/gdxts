@@ -24,21 +24,21 @@ export class Environment extends Attributes {
 
   public addDirectionalLight(light: DirectionalLight): Environment {
     let dirLights = this.get(DirectionalLightsAttribute.Type) as DirectionalLightsAttribute;
-    if (dirLights === null) this.set((dirLights = new DirectionalLightsAttribute()));
+    if (!dirLights) this.set((dirLights = new DirectionalLightsAttribute()));
     dirLights.lights.push(light);
     return this;
   }
 
   public addPointLight(light: PointLight): Environment {
     let pointLights = this.get(PointLightsAttribute.Type) as PointLightsAttribute;
-    if (pointLights === null) this.set((pointLights = new PointLightsAttribute()));
+    if (!pointLights) this.set((pointLights = new PointLightsAttribute()));
     pointLights.lights.push(light);
     return this;
   }
 
   public addSpotLight(light: SpotLight): Environment {
     let spotLights = this.get(SpotLightsAttribute.Type) as SpotLightsAttribute;
-    if (spotLights === null) this.set((spotLights = new SpotLightsAttribute()));
+    if (!spotLights) this.set((spotLights = new SpotLightsAttribute()));
     spotLights.lights.push(light);
     return this;
   }

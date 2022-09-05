@@ -83,7 +83,7 @@ export class TextureAtlas implements Disposable {
       }
       if (line.trim().length === 0) {
         pageImage = null;
-      } else if (pageImage === null) {
+      } else if (!pageImage) {
         const file = concatAndResolveUrl(packFileUrl, `../${line}`);
 
         i++;

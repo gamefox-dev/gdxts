@@ -11,7 +11,7 @@ export class Renderable {
   material: Material;
   environment: Environment;
   //   userData: Object;
-  bones: Matrix4[];
+  bones: Matrix4[] = null;
   shader: Shader3D;
 
   public set(renderable: Renderable): Renderable {

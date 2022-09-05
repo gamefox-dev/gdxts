@@ -21,19 +21,19 @@ export class VertexInfo {
 
   public set(pos: Vector3, nor: Vector3, col: Color, uv: Vector2): VertexInfo {
     this.reset();
-    this.hasPosition = pos != null;
+    this.hasPosition = !!pos;
     if (this.hasPosition) this.position.set(pos.x, pos.y, pos.z);
-    this.hasNormal = nor != null;
+    this.hasNormal = !!nor;
     if (this.hasNormal) this.normal.set(nor.x, nor.y, nor.z);
-    this.hasColor = col != null;
+    this.hasColor = !!col;
     if (this.hasColor) this.color.set(col.r, col.g, col.b, col.a);
-    this.hasUV = uv != null;
+    this.hasUV = !!uv;
     if (this.hasUV) this.uv.set(uv.x, uv.y);
     return this;
   }
 
   public setWithVertextInfo(other: VertexInfo): VertexInfo {
-    if (other === null) return this.set(null, null, null, null);
+    if (!other) return this.set(null, null, null, null);
     this.hasPosition = other.hasPosition;
     this.position.set(other.position.x, other.position.y, other.position.z);
     this.hasNormal = other.hasNormal;

@@ -6,7 +6,7 @@ export class Material extends Attributes {
 
   constructor(id: string = null) {
     super();
-    if (id === null) {
+    if (!id) {
       this.id = 'mtl' + ++Material.counter;
     } else {
       this.id = id;

@@ -1,6 +1,6 @@
 import { Shader } from '../../Shader';
-import { GL20 } from '../GL20';
 import { VertexAttributes } from '../attributes/VertexAttributes';
+import { GL20 } from '../GL20';
 
 export class VertexBufferObject {
   private attributes: VertexAttributes;
@@ -84,7 +84,7 @@ export class VertexBufferObject {
     }
 
     const numAttributes = this.attributes.size();
-    if (locations == null) {
+    if (!locations) {
       for (let i = 0; i < numAttributes; i++) {
         const attribute = this.attributes.get(i);
         const location = shader.getAttributeLocation(attribute.alias);
@@ -120,7 +120,7 @@ export class VertexBufferObject {
 
   public unbind(shader: Shader, locations: number[] = null) {
     const numAttributes = this.attributes.size();
-    if (locations == null) {
+    if (!locations) {
       for (let i = 0; i < numAttributes; i++) {
         const name = this.attributes.get(i).alias;
         const location = shader.getAttributeLocation(name);

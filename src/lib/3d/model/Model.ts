@@ -1,30 +1,30 @@
 import { Matrix4 } from '../../Matrix4';
-import { Mesh } from '../Mesh';
-import { Node } from './Node';
-import { Disposable } from '../../Utils';
-import { ModelData } from './data/ModelData';
-import { ModelNode } from './data/ModelNode';
-import { Material } from '../Material';
-import { MeshPart } from './MeshPart';
-import { FileTextureProvider } from '../utils/TextureProvider';
-import { ModelMesh } from './data/ModelMesh';
-import { ModelMaterial } from './data/ModelMaterial';
+import { Quaternion } from '../../Quaternion';
+import { Texture } from '../../Texture';
+import { ArrayMap, Disposable } from '../../Utils';
+import { Vector3 } from '../../Vector3';
+import { BlendingAttribute } from '../attributes/BlendingAttribute';
 import { ColorAttribute } from '../attributes/ColorAttribute';
 import { FloatAttribute } from '../attributes/FloatAttribute';
-import { BlendingAttribute } from '../attributes/BlendingAttribute';
-import { GL20 } from '../GL20';
-import { Texture } from '../../Texture';
-import { ModelTexture } from './data/ModelTexture';
 import { TextureAttribute } from '../attributes/TextureAttribute';
-import { BoundingBox } from '../BoundingBox';
-import { NodePart } from './NodePart';
 import { VertexAttributes } from '../attributes/VertexAttributes';
-import { ModelAnimation } from './data/ModelAnimation';
-import { NodeAnimation } from './NodeAnimation';
+import { BoundingBox } from '../BoundingBox';
+import { GL20 } from '../GL20';
+import { Material } from '../Material';
+import { Mesh } from '../Mesh';
+import { FileTextureProvider } from '../utils/TextureProvider';
 import { Animation } from './Animation';
+import { ModelAnimation } from './data/ModelAnimation';
+import { ModelData } from './data/ModelData';
+import { ModelMaterial } from './data/ModelMaterial';
+import { ModelMesh } from './data/ModelMesh';
+import { ModelNode } from './data/ModelNode';
+import { ModelTexture } from './data/ModelTexture';
+import { MeshPart } from './MeshPart';
+import { Node } from './Node';
+import { NodeAnimation } from './NodeAnimation';
 import { NodeKeyframe } from './NodeKeyframe';
-import { Vector3 } from '../../Vector3';
-import { Quaternion } from '../../Quaternion';
+import { NodePart } from './NodePart';
 
 export class Model implements Disposable {
   public materials: Material[] = [];
@@ -34,7 +34,7 @@ export class Model implements Disposable {
   public meshParts: MeshPart[] = [];
   protected disposables: Disposable[] = [];
 
-  constructor(private gl: WebGLRenderingContext) { }
+  constructor(private gl: WebGLRenderingContext) {}
 
   public async load(modelData: ModelData, textureProvider: FileTextureProvider = new FileTextureProvider()) {
     this.loadMeshes(modelData.meshes);
@@ -50,50 +50,44 @@ export class Model implements Disposable {
       animation.id = anim.id;
       for (const nanim of anim.nodeAnimations) {
         const node = this.getNode(nanim.nodeId);
-        if (node == null) continue;
+        if (!node) continue;
         const nodeAnim = new NodeAnimation();
         nodeAnim.node = node;
 
-        if (nanim.translation !== null) {
+        if (!!nanim.translation) {
           nodeAnim.translation = new Array<NodeKeyframe<Vector3>>();
           for (const kf of nanim.translation) {
             if (kf.keytime > animation.duration) animation.duration = kf.keytime;
             nodeAnim.translation.push(
-              new NodeKeyframe<Vector3>(
-                kf.keytime,
-                new Vector3().setFrom(kf.value == null ? node.translation : kf.value)
-              )
+              new NodeKeyframe<Vector3>(kf.keytime, new Vector3().setFrom(!kf.value ? node.translation : kf.value))
             );
           }
         }
 
-        if (nanim.rotation !== null) {
+        if (!!nanim.rotation) {
           nodeAnim.rotation = new Array<NodeKeyframe<Quaternion>>();
           for (const kf of nanim.rotation) {
             if (kf.keytime > animation.duration) animation.duration = kf.keytime;
             nodeAnim.rotation.push(
-              new NodeKeyframe<Quaternion>(
-                kf.keytime,
-                new Quaternion().setFrom(kf.value == null ? node.rotation : kf.value)
-              )
+              new NodeKeyframe<Quaternion>(kf.keytime, new Quaternion().setFrom(!kf.value ? node.rotation : kf.value))
             );
           }
         }
 
-        if (nanim.scaling !== null) {
+        if (!!nanim.scaling) {
           nodeAnim.scaling = new Array<NodeKeyframe<Vector3>>();
           for (const kf of nanim.scaling) {
             if (kf.keytime > animation.duration) animation.duration = kf.keytime;
             nodeAnim.scaling.push(
-              new NodeKeyframe<Vector3>(kf.keytime, new Vector3().setFrom(kf.value == null ? node.scale : kf.value))
+              new NodeKeyframe<Vector3>(kf.keytime, new Vector3().setFrom(!kf.value ? node.scale : kf.value))
             );
           }
         }
 
         if (
-          (nodeAnim.translation !== null && nodeAnim.translation.length > 0) ||
-          (nodeAnim.rotation !== null && nodeAnim.rotation.length > 0) ||
-          (nodeAnim.scaling !== null && nodeAnim.scaling.length > 0)
+          (!!nodeAnim.translation && nodeAnim.translation.length > 0) ||
+          (!!nodeAnim.rotation && nodeAnim.rotation.length > 0) ||
+          (!!nodeAnim.scaling && nodeAnim.scaling.length > 0)
         )
           animation.nodeAnimations.push(nodeAnim);
       }
@@ -101,7 +95,7 @@ export class Model implements Disposable {
     }
   }
 
-  private nodePartBones: Map<NodePart, Map<string, Matrix4>> = new Map<NodePart, Map<string, Matrix4>>();
+  private nodePartBones: Map<NodePart, ArrayMap<string, Matrix4>> = new Map<NodePart, ArrayMap<string, Matrix4>>();
   protected loadNodes(modelNodes: ModelNode[]) {
     this.nodePartBones.clear();
     for (const node of modelNodes) {
@@ -109,10 +103,12 @@ export class Model implements Disposable {
     }
 
     for (const [key, value] of this.nodePartBones) {
-      if (key.invBoneBindTransforms == null) key.invBoneBindTransforms = new Map<Node, Matrix4>();
+      if (!key.invBoneBindTransforms) key.invBoneBindTransforms = new ArrayMap<Node, Matrix4>();
       key.invBoneBindTransforms.clear();
 
-      for (const [k, v] of value) {
+      for (let i = 0; i < value.size; i++) {
+        const k = value.keys[i];
+        const v = value.values[i];
         key.invBoneBindTransforms.set(this.getNode(k), new Matrix4().set(v.values).invert());
       }
     }
@@ -246,10 +242,10 @@ export class Model implements Disposable {
         //  descriptor.uWrap = texture.getUWrap();
         //  descriptor.vWrap = texture.getVWrap();
 
-        const offsetU = tex.uvTranslation == null ? 0 : tex.uvTranslation.x;
-        const offsetV = tex.uvTranslation == null ? 0 : tex.uvTranslation.y;
-        const scaleU = tex.uvScaling == null ? 1 : tex.uvScaling.x;
-        const scaleV = tex.uvScaling == null ? 1 : tex.uvScaling.y;
+        const offsetU = !tex.uvTranslation ? 0 : tex.uvTranslation.x;
+        const offsetV = !tex.uvTranslation ? 0 : tex.uvTranslation.y;
+        const scaleU = !tex.uvScaling ? 1 : tex.uvScaling.x;
+        const scaleV = !tex.uvScaling ? 1 : tex.uvScaling.y;
 
         let ta: TextureAttribute;
         switch (tex.usage) {

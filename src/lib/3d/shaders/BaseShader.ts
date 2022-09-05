@@ -1,17 +1,17 @@
+import { Matrix3 } from '../../Matrix3';
 import { Matrix4 } from '../../Matrix4';
-import { Mesh } from '../Mesh';
 import { Shader } from '../../Shader';
 import { Texture } from '../../Texture';
 import { Color } from '../../Utils';
 import { Vector2 } from '../../Vector2';
 import { Vector3 } from '../../Vector3';
 import { Attributes } from '../attributes/Attributes';
-import { Matrix3 } from '../../Matrix3';
+import { VertexAttributes } from '../attributes/VertexAttributes';
+import { Mesh } from '../Mesh';
 import { PerspectiveCamera } from '../PerspectiveCamera';
 import { Renderable } from '../Renderable';
 import { RenderContext } from '../RenderContext';
 import { Shader3D } from './Shader3D';
-import { VertexAttributes } from '../attributes/VertexAttributes';
 
 export interface Validator {
   validate(shader: BaseShader, inputID: number, renderable: Renderable): boolean;
@@ -52,8 +52,8 @@ export class Uniform implements Validator {
   }
 
   validate(shader: BaseShader, inputID: number, renderable: Renderable): boolean {
-    const matFlags = renderable != null && renderable.material != null ? renderable.material.getMask() : 0;
-    const envFlags = renderable != null && renderable.environment != null ? renderable.environment.getMask() : 0;
+    const matFlags = !!renderable && !!renderable.material ? renderable.material.getMask() : 0;
+    const envFlags = !!renderable && !!renderable.environment ? renderable.environment.getMask() : 0;
     return (
       (matFlags & this.materialMask) === this.materialMask &&
       (envFlags & this.environmentMask) === this.environmentMask &&
@@ -106,7 +106,7 @@ export class BaseShader implements Shader3D {
   }
 
   initWithVariables(program: Shader, renderable: Renderable) {
-    if (this.locations != null) throw new Error('Already initialized');
+    if (!!this.locations) throw new Error('Already initialized');
     this.program = program;
 
     const n = this.uniforms.length;
@@ -115,11 +115,11 @@ export class BaseShader implements Shader3D {
       const input = this.uniforms[i];
       const validator = this.validators[i];
       const setter = this.setters[i];
-      if (validator != null && !validator.validate(this, i, renderable)) {
+      if (!!validator && !validator.validate(this, i, renderable)) {
         this.locations[i] = null;
       } else {
         this.locations[i] = program.getUniformLocation(input, false);
-        if (this.locations[i] != null && setter != null) {
+        if (!!this.locations[i] && !!setter) {
           if (setter.isGlobal(this, i)) {
             this.globalUniforms.push(i);
           } else {
@@ -127,11 +127,11 @@ export class BaseShader implements Shader3D {
           }
         }
       }
-      if (this.locations[i] === null) {
+      if (!this.locations[i]) {
         this.validators.splice(i, 0, null);
       }
     }
-    if (renderable != null) {
+    if (!!renderable) {
       const attrs = renderable.meshPart.mesh.getVertexAttributes();
       const c = attrs.size();
       for (let i = 0; i < c; i++) {
@@ -149,7 +149,7 @@ export class BaseShader implements Shader3D {
     this.currentMesh = null;
     for (let i = 0; i < this.globalUniforms.length; ++i) {
       const u = this.globalUniforms[i];
-      if (this.setters[u] != null) {
+      if (!!this.setters[u]) {
         this.setters[u].set(this, u, null, null);
       }
     }
@@ -159,19 +159,19 @@ export class BaseShader implements Shader3D {
   render(renderable: Renderable) {
     if (renderable.worldTransform.det3x3() === 0) return;
     this.combinedAttributes.clear();
-    if (renderable.environment != null) this.combinedAttributes.setAttributes(renderable.environment.getAttributes());
-    if (renderable.material != null) this.combinedAttributes.setAttributes(renderable.material.getAttributes());
+    if (!!renderable.environment) this.combinedAttributes.setAttributes(renderable.environment.getAttributes());
+    if (!!renderable.material) this.combinedAttributes.setAttributes(renderable.material.getAttributes());
 
     this.renderWithCombinedAttributes(renderable, this.combinedAttributes);
   }
 
   renderWithCombinedAttributes(renderable: Renderable, combinedAttributes: Attributes) {
     for (let u: number, i = 0; i < this.localUniforms.length; ++i)
-      if (this.setters[(u = this.localUniforms[i])] != null) {
+      if (!!this.setters[(u = this.localUniforms[i])]) {
         this.setters[u].set(this, u, renderable, combinedAttributes);
       }
     if (this.currentMesh !== renderable.meshPart.mesh) {
-      if (this.currentMesh != null) this.currentMesh.unbind(this.program);
+      if (!!this.currentMesh) this.currentMesh.unbind(this.program);
       this.currentMesh = renderable.meshPart.mesh;
       this.currentMesh.bind(this.program, this.getAttributeLocations(renderable.meshPart.mesh.getVertexAttributes()));
     }
@@ -184,14 +184,17 @@ export class BaseShader implements Shader3D {
     const n = attrs.size();
     for (let i = 0; i < n; i++) {
       let number = this.attributes.get(attrs.get(i).getKey());
-      if (number === undefined || number === null) number = -1;
+      if (number === undefined || number === null) {
+        number = -1;
+      }
+
       this.tempArray.push(number);
     }
     return this.tempArray;
   }
 
   public end() {
-    if (this.currentMesh != null) {
+    if (!!this.currentMesh) {
       this.currentMesh.unbind(this.program);
       this.currentMesh = null;
     }
@@ -208,7 +211,7 @@ export class BaseShader implements Shader3D {
   }
 
   public has(inputID: number): boolean {
-    return inputID >= 0 && inputID < this.locations.length && this.locations[inputID] !== null;
+    return inputID >= 0 && inputID < this.locations.length && !!this.locations[inputID];
   }
 
   public loc(inputID: number): WebGLUniformLocation {
@@ -216,67 +219,67 @@ export class BaseShader implements Shader3D {
   }
 
   public setMatrix4(uniform: number, value: Matrix4): boolean {
-    if (this.uniforms[uniform] === null) return false;
+    if (!this.uniforms[uniform]) return false;
     this.program.setUniform4x4f(this.uniforms[uniform], value.values);
     return true;
   }
 
   public setMatrix3(uniform: number, value: Matrix3): boolean {
-    if (this.uniforms[uniform] === null) return false;
+    if (!this.uniforms[uniform]) return false;
     this.program.setUniform3x3f(this.uniforms[uniform], value.getValues());
     return true;
   }
 
   public setVector3(uniform: number, value: Vector3): boolean {
-    if (this.uniforms[uniform] === null) return false;
+    if (!this.uniforms[uniform]) return false;
     this.program.setUniform3f(this.uniforms[uniform], value.x, value.y, value.z);
     return true;
   }
 
   public setVector2(uniform: number, value: Vector2): boolean {
-    if (this.uniforms[uniform] === null) return false;
+    if (!this.uniforms[uniform]) return false;
     this.program.setUniform2f(this.uniforms[uniform], value.x, value.y);
     return true;
   }
 
   public setColor(uniform: number, value: Color): boolean {
-    if (this.uniforms[uniform] === null) return false;
+    if (!this.uniforms[uniform]) return false;
     this.program.setUniform4f(this.uniforms[uniform], value.r, value.g, value.b, value.a);
     return true;
   }
 
   public setF(uniform: number, value: number): boolean {
-    if (this.uniforms[uniform] === null) return false;
+    if (!this.uniforms[uniform]) return false;
     this.program.setUniformf(this.uniforms[uniform], value);
     return true;
   }
 
   public set2f(uniform: number, v1: number, v2: number) {
-    if (this.uniforms[uniform] === null) return false;
+    if (!this.uniforms[uniform]) return false;
     this.program.setUniform2f(this.uniforms[uniform], v1, v2);
     return true;
   }
 
   public set3f(uniform: number, v1: number, v2: number, v3: number) {
-    if (this.uniforms[uniform] === null) return false;
+    if (!this.uniforms[uniform]) return false;
     this.program.setUniform3f(this.uniforms[uniform], v1, v2, v3);
     return true;
   }
 
   public set4f(uniform: number, v1: number, v2: number, v3: number, v4: number) {
-    if (this.uniforms[uniform] === null) return false;
+    if (!this.uniforms[uniform]) return false;
     this.program.setUniform4f(this.uniforms[uniform], v1, v2, v3, v4);
     return true;
   }
 
   public setI(uniform: number, value: number): boolean {
-    if (this.uniforms[uniform] === null) return false;
+    if (!this.uniforms[uniform]) return false;
     this.program.setUniformi(this.uniforms[uniform], value);
     return true;
   }
 
   public setTexture(uniform: number, texture: Texture): boolean {
-    if (this.uniforms[uniform] === null) return false;
+    if (!this.uniforms[uniform]) return false;
     this.program.setUniformi(this.uniforms[uniform], this.context.textureBinder.bindTexture(texture));
     return true;
   }
