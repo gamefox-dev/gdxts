@@ -38,10 +38,7 @@ export class NodePart {
     } else {
       if (!this.invBoneBindTransforms) {
         this.invBoneBindTransforms = new ArrayMap<Node, Matrix4>();
-      } else {
-        this.invBoneBindTransforms.clear();
       }
-
       this.invBoneBindTransforms.clear();
       for (let i = 0; i < other.invBoneBindTransforms.size; i++) {
         this.invBoneBindTransforms.set(other.invBoneBindTransforms.keys[i], other.invBoneBindTransforms.values[i]);

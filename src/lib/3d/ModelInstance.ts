@@ -51,18 +51,8 @@ export class ModelInstance {
       const part = node.parts[i];
       const bindPose = part.invBoneBindTransforms;
       if (!!bindPose) {
-        const oldKeys: Node[] = [];
-        for (let i = 0; i < bindPose.size; i++) {
-          const key = bindPose.keys[i];
-          const value = bindPose.values[i];
-          const newKey = this.getNode(key.id);
-          if (newKey === key) {
-            oldKeys.push(key);
-          }
-          bindPose.set(newKey, value);
-        }
-        for (const key of oldKeys) {
-          bindPose.removeKey(key);
+        for (let j = 0; j < bindPose.size; ++j) {
+          bindPose.keys[j] = this.getNode(bindPose.keys[j].id);
         }
       }
       if (!this.materials.includes(part.material)) {

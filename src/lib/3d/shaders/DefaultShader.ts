@@ -1231,8 +1231,6 @@ export class DefaultShader extends BaseShader {
     );
   }
 
-  private normalMatrix: Matrix3 = new Matrix3();
-  private time: number;
   private lightsSet: boolean;
 
   public begin(camera: PerspectiveCamera, context: RenderContext) {
