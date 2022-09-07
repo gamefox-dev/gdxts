@@ -129,7 +129,7 @@ const init = async () => {
     lightDirection.rotateRad(ROTATION_SPEED * delta);
     directionalLight.direction.set(lightDirection.x, 0, lightDirection.y);
 
-    animationController.update(0.0167);
+    animationController.update(delta);
 
     for (let i = 0; i < instances.length; i++) {
       if (isVisible(cam, instances[i])) {

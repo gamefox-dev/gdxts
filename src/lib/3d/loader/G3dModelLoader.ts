@@ -347,7 +347,7 @@ export class G3dModelLoader {
               if (!nodeAnim.rotation) nodeAnim.rotation = new Array<ModelNodeKeyframe<Quaternion>>();
               const rkf = new ModelNodeKeyframe<Quaternion>();
               rkf.keytime = keytime;
-              rkf.value = new Quaternion(rotation[0], rotation[1], rotation[2], rotation[2]);
+              rkf.value = new Quaternion(rotation[0], rotation[1], rotation[2], rotation[3]);
               nodeAnim.rotation.push(rkf);
             }
             const scale = keyframe['scale'];
