@@ -40,7 +40,7 @@ const init = async () => {
 
   const gl = viewport.getContext();
   const cam = new PerspectiveCamera(67, canvas.width, canvas.height);
-  cam.position.set(-10, 13, 10);
+  cam.position.set(0, 15, 10);
   cam.lookAt(0, 0, 0);
   cam.near = 1;
   cam.far = 300;
