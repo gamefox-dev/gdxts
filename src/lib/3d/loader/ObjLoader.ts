@@ -110,14 +110,14 @@ export class MtlLoader {
     let i = 0;
     try {
       while ((line = lines[i]) !== undefined) {
+        i++;
         if (line.length > 0 && line.charAt(0) === '\t') line = line.substring(1).trim();
-
         tokens = line.split(' ');
-
         if (tokens[0].length === 0) {
           continue;
-        } else if (tokens[0].charAt(0) === '#') continue;
-        else {
+        } else if (tokens[0].charAt(0) === '#') {
+          continue;
+        } else {
           const key = tokens[0].toLowerCase();
           if (key === 'newmtl') {
             const mat = currentMaterial.build();
@@ -153,7 +153,6 @@ export class MtlLoader {
             currentMaterial.shininessTexFilename = tokens[1];
           }
         }
-        i++;
       }
     } catch (ex: any) {
       console.error(ex);
