@@ -1,17 +1,17 @@
 import {
+  Align,
+  BitmapFont,
+  createGameLoop,
   createStage,
   createViewport,
-  PolygonBatch,
-  createGameLoop,
   Game,
-  BitmapFont,
-  Screen,
-  Align,
-  Viewport,
-  ShapeRenderer,
-  ViewportInputHandler,
   InputEvent,
-  pointInRect
+  pointInRect,
+  PolygonBatch,
+  Screen,
+  ShapeRenderer,
+  Viewport,
+  ViewportInputHandler
 } from './lib';
 import { createBunnyScreen } from './screens/createBunnyScreen';
 import { createMainScreen } from './screens/createMainScreen';
@@ -19,10 +19,9 @@ import { createTestBitmapFontScreen } from './screens/createTestBitmapFontScreen
 import { createTestOutlineScreen } from './screens/createTestOutlineScreen';
 import { createTestScreen } from './screens/createTestScreen';
 import { createTestSpriteScreen } from './screens/createTestSpriteScreen';
-import { createTestUIScreen } from './screens/createTestUIScreen';
 
 export const YDOWN = true;
-const FIRST_TEST_INDEX = 6;
+const FIRST_TEST_INDEX = 0;
 
 const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Basic rendering 01': createMainScreen,
@@ -30,8 +29,7 @@ const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Sprite rendering': createTestSpriteScreen,
   'Bitmap Font': createTestBitmapFontScreen,
   'Fun with Bunnymark': createBunnyScreen,
-  'Outline shader test': createTestOutlineScreen,
-  'Test UI': createTestUIScreen
+  'Outline shader test': createTestOutlineScreen
 };
 
 const init = async () => {
