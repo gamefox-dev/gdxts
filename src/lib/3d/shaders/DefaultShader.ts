@@ -5,7 +5,7 @@ import { Utils } from '../../Utils';
 import { Vector3 } from '../../Vector3';
 import { Attributes } from '../attributes/Attributes';
 import { BlendingAttribute } from '../attributes/BlendingAttribute';
-import { ColorAttribute } from '../attributes/ColorAttribute';
+import { ColorAttribute3D } from '../attributes/ColorAttribute';
 import { DirectionalLightsAttribute } from '../attributes/DirectionalLightsAttribute';
 import { FloatAttribute } from '../attributes/FloatAttribute';
 import { IntAttribute } from '../attributes/IntAttribute';
@@ -57,8 +57,8 @@ export class ACubemap extends LocalSetter {
     if (!renderable.environment) shader.program.setUniform3fv(shader.getUniformAlias(inputID), ACubemap.ones);
     else {
       renderable.worldTransform.getTranslation(ACubemap.tmpV1);
-      if (combinedAttributes.has(ColorAttribute.AmbientLight)) {
-        const color = (combinedAttributes.get(ColorAttribute.AmbientLight) as ColorAttribute).color;
+      if (combinedAttributes.has(ColorAttribute3D.AmbientLight)) {
+        const color = (combinedAttributes.get(ColorAttribute3D.AmbientLight) as ColorAttribute3D).color;
         this.cacheAmbientCubemap.setColor(color.r, color.g, color.b);
       }
 
@@ -120,16 +120,16 @@ export class Inputs {
 
   public static shininess: Uniform = new Uniform('u_shininess', FloatAttribute.Shininess);
   public static opacity: Uniform = new Uniform('u_opacity', BlendingAttribute.Type);
-  public static diffuseColor: Uniform = new Uniform('u_diffuseColor', ColorAttribute.Diffuse);
+  public static diffuseColor: Uniform = new Uniform('u_diffuseColor', ColorAttribute3D.Diffuse);
   public static diffuseTexture: Uniform = new Uniform('u_diffuseTexture', TextureAttribute.Diffuse);
   public static diffuseUVTransform: Uniform = new Uniform('u_diffuseUVTransform', TextureAttribute.Diffuse);
-  public static specularColor: Uniform = new Uniform('u_specularColor', ColorAttribute.Specular);
+  public static specularColor: Uniform = new Uniform('u_specularColor', ColorAttribute3D.Specular);
   public static specularTexture: Uniform = new Uniform('u_specularTexture', TextureAttribute.Specular);
   public static specularUVTransform: Uniform = new Uniform('u_specularUVTransform', TextureAttribute.Specular);
-  public static emissiveColor: Uniform = new Uniform('u_emissiveColor', ColorAttribute.Emissive);
+  public static emissiveColor: Uniform = new Uniform('u_emissiveColor', ColorAttribute3D.Emissive);
   public static emissiveTexture: Uniform = new Uniform('u_emissiveTexture', TextureAttribute.Emissive);
   public static emissiveUVTransform: Uniform = new Uniform('u_emissiveUVTransform', TextureAttribute.Emissive);
-  public static reflectionColor: Uniform = new Uniform('u_reflectionColor', ColorAttribute.Reflection);
+  public static reflectionColor: Uniform = new Uniform('u_reflectionColor', ColorAttribute3D.Reflection);
   public static reflectionTexture: Uniform = new Uniform('u_reflectionTexture', TextureAttribute.Reflection);
   public static reflectionUVTransform: Uniform = new Uniform('u_reflectionUVTransform', TextureAttribute.Reflection);
   public static normalTexture: Uniform = new Uniform('u_normalTexture', TextureAttribute.Normal);
@@ -217,7 +217,7 @@ export class Setters {
   })();
   public static diffuseColor = new (class extends LocalSetter {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
-      shader.setColor(inputID, (combinedAttributes.get(ColorAttribute.Diffuse) as ColorAttribute).color);
+      shader.setColor(inputID, (combinedAttributes.get(ColorAttribute3D.Diffuse) as ColorAttribute3D).color);
     }
   })();
   public static diffuseTexture = new (class extends LocalSetter {
@@ -236,7 +236,7 @@ export class Setters {
   })();
   public static specularColor = new (class extends LocalSetter {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
-      shader.setColor(inputID, (combinedAttributes.get(ColorAttribute.Specular) as ColorAttribute).color);
+      shader.setColor(inputID, (combinedAttributes.get(ColorAttribute3D.Specular) as ColorAttribute3D).color);
     }
   })();
   public static specularTexture = new (class extends LocalSetter {
@@ -255,7 +255,7 @@ export class Setters {
   })();
   public static emissiveColor = new (class extends LocalSetter {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
-      shader.setColor(inputID, (combinedAttributes.get(ColorAttribute.Emissive) as ColorAttribute).color);
+      shader.setColor(inputID, (combinedAttributes.get(ColorAttribute3D.Emissive) as ColorAttribute3D).color);
     }
   })();
   public static emissiveTexture = new (class extends LocalSetter {
@@ -274,7 +274,7 @@ export class Setters {
   })();
   public static reflectionColor = new (class extends LocalSetter {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
-      shader.setColor(inputID, (combinedAttributes.get(ColorAttribute.Reflection) as ColorAttribute).color);
+      shader.setColor(inputID, (combinedAttributes.get(ColorAttribute3D.Reflection) as ColorAttribute3D).color);
     }
   })();
   public static reflectionTexture = new (class extends LocalSetter {
@@ -885,8 +885,8 @@ export class DefaultShader extends BaseShader {
   protected static implementedFlags: number =
     BlendingAttribute.Type |
     TextureAttribute.Diffuse |
-    ColorAttribute.Diffuse |
-    ColorAttribute.Specular |
+    ColorAttribute3D.Diffuse |
+    ColorAttribute3D.Specular |
     FloatAttribute.Shininess;
 
   public static defaultCullFace: number = GL20.GL_BACK;
@@ -1165,7 +1165,7 @@ export class DefaultShader extends BaseShader {
         prefix += '#define numDirectionalLights ' + config.numDirectionalLights + '\n';
         prefix += '#define numPointLights ' + config.numPointLights + '\n';
         prefix += '#define numSpotLights ' + config.numSpotLights + '\n';
-        if (attributes.has(ColorAttribute.Fog)) {
+        if (attributes.has(ColorAttribute3D.Fog)) {
           prefix += '#define fogFlag\n';
         }
         // if (renderable.environment.shadowMap !== null) prefix += "#define shadowMapFlag\n";
@@ -1204,14 +1204,14 @@ export class DefaultShader extends BaseShader {
       prefix += '#define ' + TextureAttribute.AmbientAlias + 'Flag\n';
       prefix += '#define ' + TextureAttribute.AmbientAlias + 'Coord texCoords0\n'; // FIXME implement UV mapping
     }
-    if ((attributesMask & ColorAttribute.Diffuse) === ColorAttribute.Diffuse)
-      prefix += '#define ' + ColorAttribute.DiffuseAlias + 'Flag\n';
-    if ((attributesMask & ColorAttribute.Specular) === ColorAttribute.Specular)
-      prefix += '#define ' + ColorAttribute.SpecularAlias + 'Flag\n';
-    if ((attributesMask & ColorAttribute.Emissive) === ColorAttribute.Emissive)
-      prefix += '#define ' + ColorAttribute.EmissiveAlias + 'Flag\n';
-    if ((attributesMask & ColorAttribute.Reflection) === ColorAttribute.Reflection)
-      prefix += '#define ' + ColorAttribute.ReflectionAlias + 'Flag\n';
+    if ((attributesMask & ColorAttribute3D.Diffuse) === ColorAttribute3D.Diffuse)
+      prefix += '#define ' + ColorAttribute3D.DiffuseAlias + 'Flag\n';
+    if ((attributesMask & ColorAttribute3D.Specular) === ColorAttribute3D.Specular)
+      prefix += '#define ' + ColorAttribute3D.SpecularAlias + 'Flag\n';
+    if ((attributesMask & ColorAttribute3D.Emissive) === ColorAttribute3D.Emissive)
+      prefix += '#define ' + ColorAttribute3D.EmissiveAlias + 'Flag\n';
+    if ((attributesMask & ColorAttribute3D.Reflection) === ColorAttribute3D.Reflection)
+      prefix += '#define ' + ColorAttribute3D.ReflectionAlias + 'Flag\n';
     if ((attributesMask & FloatAttribute.Shininess) === FloatAttribute.Shininess)
       prefix += '#define ' + FloatAttribute.ShininessAlias + 'Flag\n';
     if ((attributesMask & FloatAttribute.AlphaTest) === FloatAttribute.AlphaTest)

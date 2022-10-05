@@ -7,7 +7,7 @@ import { Vector2 } from '../../Vector2';
 import { Vector3 } from '../../Vector3';
 import { Attributes } from '../attributes/Attributes';
 import { VertexAttributes } from '../attributes/VertexAttributes';
-import { Mesh } from '../Mesh';
+import { Mesh3D } from '../Mesh';
 import { PerspectiveCamera } from '../PerspectiveCamera';
 import { Renderable } from '../Renderable';
 import { RenderContext } from '../RenderContext';
@@ -80,7 +80,7 @@ export class BaseShader implements Shader3D {
   program: Shader;
   context: RenderContext;
   camera: PerspectiveCamera;
-  currentMesh: Mesh;
+  currentMesh: Mesh3D;
 
   register(alias: string, validator: Validator = null, setter: Setter = null): number {
     const existing = this.getUniformID(alias);

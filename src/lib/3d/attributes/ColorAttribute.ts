@@ -1,21 +1,21 @@
 import { Color } from '../../Utils';
 import { Attribute } from './Attribute';
 
-export class ColorAttribute extends Attribute {
+export class ColorAttribute3D extends Attribute {
   public static DiffuseAlias: string = 'diffuseColor';
-  public static Diffuse: number = this.register(ColorAttribute.DiffuseAlias);
+  public static Diffuse: number = this.register(ColorAttribute3D.DiffuseAlias);
   public static SpecularAlias: string = 'specularColor';
-  public static Specular: number = this.register(ColorAttribute.SpecularAlias);
+  public static Specular: number = this.register(ColorAttribute3D.SpecularAlias);
   public static AmbientAlias: string = 'ambientColor';
-  public static Ambient: number = this.register(ColorAttribute.AmbientAlias);
+  public static Ambient: number = this.register(ColorAttribute3D.AmbientAlias);
   public static EmissiveAlias: string = 'emissiveColor';
-  public static Emissive: number = this.register(ColorAttribute.EmissiveAlias);
+  public static Emissive: number = this.register(ColorAttribute3D.EmissiveAlias);
   public static ReflectionAlias: string = 'reflectionColor';
-  public static Reflection: number = this.register(ColorAttribute.ReflectionAlias);
+  public static Reflection: number = this.register(ColorAttribute3D.ReflectionAlias);
   public static AmbientLightAlias: string = 'ambientLightColor';
-  public static AmbientLight: number = this.register(ColorAttribute.AmbientLightAlias);
+  public static AmbientLight: number = this.register(ColorAttribute3D.AmbientLightAlias);
   public static FogAlias: string = 'fogColor';
-  public static Fog: number = this.register(ColorAttribute.FogAlias);
+  public static Fog: number = this.register(ColorAttribute3D.FogAlias);
 
   protected static Mask: number =
     this.Ambient | this.Diffuse | this.Specular | this.Emissive | this.Reflection | this.AmbientLight | this.Fog;
@@ -24,32 +24,32 @@ export class ColorAttribute extends Attribute {
     return (mask & this.Mask) !== 0;
   }
 
-  public static createAmbient(color: Color): ColorAttribute {
-    return new ColorAttribute(ColorAttribute.Ambient, color);
+  public static createAmbient(color: Color): ColorAttribute3D {
+    return new ColorAttribute3D(ColorAttribute3D.Ambient, color);
   }
 
-  public static createDiffuse(color: Color): ColorAttribute {
-    return new ColorAttribute(ColorAttribute.Diffuse, color);
+  public static createDiffuse(color: Color): ColorAttribute3D {
+    return new ColorAttribute3D(ColorAttribute3D.Diffuse, color);
   }
 
-  public static createSpecular(color: Color): ColorAttribute {
-    return new ColorAttribute(ColorAttribute.Specular, color);
+  public static createSpecular(color: Color): ColorAttribute3D {
+    return new ColorAttribute3D(ColorAttribute3D.Specular, color);
   }
 
-  public static createReflection(color: Color): ColorAttribute {
-    return new ColorAttribute(ColorAttribute.Reflection, color);
+  public static createReflection(color: Color): ColorAttribute3D {
+    return new ColorAttribute3D(ColorAttribute3D.Reflection, color);
   }
 
-  public static createEmissive(color: Color): ColorAttribute {
-    return new ColorAttribute(ColorAttribute.Emissive, color);
+  public static createEmissive(color: Color): ColorAttribute3D {
+    return new ColorAttribute3D(ColorAttribute3D.Emissive, color);
   }
 
-  public static createAmbientLight(color: Color): ColorAttribute {
-    return new ColorAttribute(ColorAttribute.AmbientLight, color);
+  public static createAmbientLight(color: Color): ColorAttribute3D {
+    return new ColorAttribute3D(ColorAttribute3D.AmbientLight, color);
   }
 
   public static createFog(color: Color) {
-    return new ColorAttribute(ColorAttribute.Fog, color);
+    return new ColorAttribute3D(ColorAttribute3D.Fog, color);
   }
 
   public color: Color = new Color();
@@ -61,6 +61,6 @@ export class ColorAttribute extends Attribute {
   }
 
   public copy(): Attribute {
-    return new ColorAttribute(this.type, this.color);
+    return new ColorAttribute3D(this.type, this.color);
   }
 }

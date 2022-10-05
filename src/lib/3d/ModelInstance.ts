@@ -4,7 +4,7 @@ import { Quaternion } from '../Quaternion';
 import { Pool } from '../Utils';
 import { Vector3 } from '../Vector3';
 import { Material } from './Material';
-import { Animation } from './model/Animation';
+import { Animation3D } from './model/Animation';
 import { Model } from './model/Model';
 import { Node } from './model/Node';
 import { NodeAnimation } from './model/NodeAnimation';
@@ -16,7 +16,7 @@ export class ModelInstance {
   public static defaultShareKeyframes = true;
   public materials: Material[] = [];
   public nodes: Node[] = [];
-  public animations: Animation[] = [];
+  public animations: Animation3D[] = [];
   public model: Model;
   public transform: Matrix4;
 
@@ -76,14 +76,14 @@ export class ModelInstance {
     }
   }
 
-  public copyAnimations(source: Animation[], shareKeyframes: boolean) {
+  public copyAnimations(source: Animation3D[], shareKeyframes: boolean) {
     for (const anim of source) {
       this.copyAnimation(anim, shareKeyframes);
     }
   }
 
-  public copyAnimation(sourceAnim: Animation, shareKeyframes: boolean) {
-    const animation = new Animation();
+  public copyAnimation(sourceAnim: Animation3D, shareKeyframes: boolean) {
+    const animation = new Animation3D();
     animation.id = sourceAnim.id;
     animation.duration = sourceAnim.duration;
     for (const nanim of sourceAnim.nodeAnimations) {
@@ -167,9 +167,9 @@ export class ModelInstance {
     return out;
   }
 
-  public getAnimation(id: string, ignoreCase: boolean = false): Animation {
+  public getAnimation(id: string, ignoreCase: boolean = false): Animation3D {
     const n = this.animations.length;
-    let animation: Animation;
+    let animation: Animation3D;
     if (ignoreCase) {
       for (let i = 0; i < n; i++)
         if ((animation = this.animations[i]).id.toUpperCase() === id.toUpperCase()) return animation;

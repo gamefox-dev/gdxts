@@ -5,7 +5,7 @@ import { Shader } from '../Shader';
 import { Disposable } from '../Utils';
 import { Vector2 } from '../Vector2';
 import { Vector3 } from '../Vector3';
-import { Usage, VertexAttribute } from './attributes/VertexAttribute';
+import { Usage, VertexAttribute3D } from './attributes/VertexAttribute';
 import { VertexAttributes } from './attributes/VertexAttributes';
 import { GL20 } from './GL20';
 import { IndexBufferObject } from './utils/IndexBufferObject';
@@ -18,8 +18,8 @@ export enum VertexDataType {
   VertexBufferObjectWithVAO
 }
 
-export class Mesh implements Disposable {
-  static meshes: Mesh[] = [];
+export class Mesh3D implements Disposable {
+  static meshes: Mesh3D[] = [];
 
   vertices: VertexBufferObject;
   indices: IndexBufferObject;
@@ -33,7 +33,7 @@ export class Mesh implements Disposable {
     this.indices = indices;
     this.isVertexArray = isVertexArray;
 
-    Mesh.addManagedMesh(this);
+    Mesh3D.addManagedMesh(this);
   }
 
   constructor(
@@ -47,7 +47,7 @@ export class Mesh implements Disposable {
     this.vertices = this.makeVertexBuffer(staticVertices, maxVertices, attributes);
     this.indices = new IndexBufferObject(gl, maxIndices, staticIndices);
     this.isVertexArray = false;
-    Mesh.addManagedMesh(this);
+    Mesh3D.addManagedMesh(this);
   }
 
   private makeVertexBuffer(
@@ -120,14 +120,14 @@ export class Mesh implements Disposable {
   //   return this;
   // }
 
-  public setVertices(vertices: number[], offset: number = 0, count: number = -1): Mesh {
+  public setVertices(vertices: number[], offset: number = 0, count: number = -1): Mesh3D {
     if (count < 0) count = vertices.length;
     this.vertices.setVertices(vertices, offset, vertices.length);
 
     return this;
   }
 
-  public updateVertices(targetOffset: number, source: number[], sourceOffset: number = 0, count: number = -1): Mesh {
+  public updateVertices(targetOffset: number, source: number[], sourceOffset: number = 0, count: number = -1): Mesh3D {
     if (count < 0) count = source.length;
     this.vertices.updateVertices(targetOffset, source, sourceOffset, count);
     return this;
@@ -149,7 +149,7 @@ export class Mesh implements Disposable {
     return vertices;
   }
 
-  public setIndices(indices: number[], offset: number = 0, count: number = indices.length): Mesh {
+  public setIndices(indices: number[], offset: number = 0, count: number = indices.length): Mesh3D {
     this.indices.setIndices(indices, offset, count);
 
     return this;
@@ -252,9 +252,9 @@ export class Mesh implements Disposable {
   }
 
   public dispose() {
-    const index = Mesh.meshes.indexOf(this);
+    const index = Mesh3D.meshes.indexOf(this);
     if (index > -1) {
-      Mesh.meshes.splice(index, 1);
+      Mesh3D.meshes.splice(index, 1);
     }
 
     this.vertices.dispose();
@@ -262,7 +262,7 @@ export class Mesh implements Disposable {
     this.indices.dispose();
   }
 
-  public getVertexAttribute(usage: number): VertexAttribute {
+  public getVertexAttribute(usage: number): VertexAttribute3D {
     const attributes = this.vertices.getAttributes();
     const len = attributes.size();
     for (let i = 0; i < len; i++) if (attributes.get(i).usage === usage) return attributes.get(i);
@@ -452,21 +452,21 @@ export class Mesh implements Disposable {
     return this.indices.getBuffer();
   }
 
-  private static addManagedMesh(mesh: Mesh) {
-    if (!Mesh.meshes) Mesh.meshes = new Array<Mesh>();
-    Mesh.meshes.push(mesh);
+  private static addManagedMesh(mesh: Mesh3D) {
+    if (!Mesh3D.meshes) Mesh3D.meshes = new Array<Mesh3D>();
+    Mesh3D.meshes.push(mesh);
   }
 
   public static invalidateAllMeshes() {
-    if (!Mesh.meshes) return;
-    for (let i = 0; i < Mesh.meshes.length; i++) {
-      Mesh.meshes[i].vertices.invalidate();
-      Mesh.meshes[i].indices.invalidate();
+    if (!Mesh3D.meshes) return;
+    for (let i = 0; i < Mesh3D.meshes.length; i++) {
+      Mesh3D.meshes[i].vertices.invalidate();
+      Mesh3D.meshes[i].indices.invalidate();
     }
   }
 
   public static clearAllMeshes() {
-    Mesh.meshes.length = 0;
+    Mesh3D.meshes.length = 0;
   }
 
   public scale(scaleX: number, scaleY: number, scaleZ: number) {
@@ -515,7 +515,7 @@ export class Mesh implements Disposable {
 
     const vertices = new Array<number>(count * stride);
     this.getVertices(vertices, start * stride, count * stride);
-    Mesh.transform(matrix, vertices, stride, posOffset, numComponents, 0, count);
+    Mesh3D.transform(matrix, vertices, stride, posOffset, numComponents, 0, count);
     this.updateVertices(start * stride, vertices);
   }
 
@@ -573,7 +573,7 @@ export class Mesh implements Disposable {
 
     const vertices = new Array<number>(numVertices * vertexSize);
     this.getVertices(vertices, 0, vertices.length);
-    Mesh.transformUV(matrix, vertices, vertexSize, offset, start, count);
+    Mesh3D.transformUV(matrix, vertices, vertexSize, offset, start, count);
     this.setVertices(vertices, 0, vertices.length);
   }
 
@@ -601,13 +601,13 @@ export class Mesh implements Disposable {
     }
   }
 
-  public copy(isStatic: boolean, removeDuplicates: boolean = false, usage: number[] = null): Mesh {
+  public copy(isStatic: boolean, removeDuplicates: boolean = false, usage: number[] = null): Mesh3D {
     const vertexSize = this.getVertexSize() / 4;
     let numVertices = this.getNumVertices();
     let vertices = new Array<number>(numVertices * vertexSize);
     this.getVertices(vertices, 0, vertices.length);
     let checks: number[] = null;
-    let attrs: VertexAttribute[] = null;
+    let attrs: VertexAttribute3D[] = null;
     let newVertexSize = 0;
     if (!!usage) {
       let size = 0;
@@ -618,7 +618,7 @@ export class Mesh implements Disposable {
           as++;
         }
       if (size > 0) {
-        attrs = new Array<VertexAttribute>(as);
+        attrs = new Array<VertexAttribute3D>(as);
         checks = new Array<number>(size);
         let idx = -1;
         let ai = -1;
@@ -671,9 +671,9 @@ export class Mesh implements Disposable {
       }
     }
 
-    let result: Mesh;
+    let result: Mesh3D;
     if (!attrs)
-      result = new Mesh(
+      result = new Mesh3D(
         this.gl,
         isStatic,
         isStatic,
@@ -682,7 +682,7 @@ export class Mesh implements Disposable {
         this.getVertexAttributes()
       );
     else
-      result = new Mesh(
+      result = new Mesh3D(
         this.gl,
         isStatic,
         isStatic,

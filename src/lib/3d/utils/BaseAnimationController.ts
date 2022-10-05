@@ -2,7 +2,7 @@ import { Matrix4 } from '../../Matrix4';
 import { Quaternion } from '../../Quaternion';
 import { Pool, Poolable } from '../../Utils';
 import { Vector3 } from '../../Vector3';
-import { Animation } from '../model/Animation';
+import { Animation3D } from '../model/Animation';
 import { Node } from '../model/Node';
 import { NodeAnimation } from '../model/NodeAnimation';
 import { NodeKeyframe } from '../model/NodeKeyframe';
@@ -73,7 +73,7 @@ export class BaseAnimationController {
     this.applying = true;
   }
 
-  protected apply(animation: Animation, time: number, weight: number) {
+  protected apply(animation: Animation3D, time: number, weight: number) {
     if (!this.applying) throw new Error('You must call begin() before adding an animation');
     BaseAnimationController.applyAnimation(
       BaseAnimationController.transforms,
@@ -96,13 +96,13 @@ export class BaseAnimationController {
     this.applying = false;
   }
 
-  protected applyAnimation(animation: Animation, time: number) {
+  protected applyAnimation(animation: Animation3D, time: number) {
     if (this.applying) throw new Error('Call end() first');
     BaseAnimationController.applyAnimation(null, null, 1, animation, time);
     this.target.calculateTransforms();
   }
 
-  protected applyAnimations(anim1: Animation, time1: number, anim2: Animation, time2: number, weight: number) {
+  protected applyAnimations(anim1: Animation3D, time1: number, anim2: Animation3D, time2: number, weight: number) {
     if (!anim2 || weight === 0) this.applyAnimation(anim1, time1);
     else if (!anim1 || weight === 1) this.applyAnimation(anim2, time2);
     else if (this.applying) throw new Error('Call end() first');
@@ -229,7 +229,7 @@ export class BaseAnimationController {
     out: Map<Node, Transform>,
     pool: Pool<Transform>,
     alpha: number,
-    animation: Animation,
+    animation: Animation3D,
     time: number
   ) {
     if (!out) {
@@ -247,7 +247,7 @@ export class BaseAnimationController {
     }
   }
 
-  public removeAnimation(animation: Animation) {
+  public removeAnimation(animation: Animation3D) {
     for (const nodeAnim of animation.nodeAnimations) {
       nodeAnim.node.isAnimated = false;
     }

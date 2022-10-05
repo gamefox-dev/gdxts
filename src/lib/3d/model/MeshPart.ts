@@ -2,14 +2,14 @@ import { BoundingBox } from '../../BoundingBox';
 import { Shader } from '../../Shader';
 import { Disposable } from '../../Utils';
 import { Vector3 } from '../../Vector3';
-import { Mesh } from '../Mesh';
+import { Mesh3D } from '../Mesh';
 
 export class MeshPart implements Disposable {
   public id = '';
   public primitiveType = 0;
   public offset = 0;
   public size = 0;
-  public mesh: Mesh = null;
+  public mesh: Mesh3D = null;
   public center = new Vector3();
   public halfExtents = new Vector3();
   public radius = -1;
@@ -35,7 +35,7 @@ export class MeshPart implements Disposable {
     return this;
   }
 
-  public set(id: string, mesh: Mesh, offset: number, size: number, type: number): MeshPart {
+  public set(id: string, mesh: Mesh3D, offset: number, size: number, type: number): MeshPart {
     this.id = id;
     this.mesh = mesh;
     this.offset = offset;

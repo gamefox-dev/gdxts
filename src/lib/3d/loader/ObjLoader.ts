@@ -2,7 +2,7 @@ import { Quaternion } from '../../Quaternion';
 import { Shader } from '../../Shader';
 import { Color } from '../../Utils';
 import { Vector3 } from '../../Vector3';
-import { Usage, VertexAttribute } from '../attributes/VertexAttribute';
+import { Usage, VertexAttribute3D } from '../attributes/VertexAttribute';
 import { GL20 } from '../GL20';
 import { Material } from '../Material';
 import { ModelData } from '../model/data/ModelData';
@@ -325,11 +325,13 @@ export class ObjLoader {
         }
       }
 
-      const attributes = new Array<VertexAttribute>();
-      attributes.push(new VertexAttribute(Usage.Position, 3, GL20.GL_FLOAT, false, Shader.POSITION));
-      if (hasNorms) attributes.push(new VertexAttribute(Usage.Normal, 3, GL20.GL_FLOAT, false, Shader.NORMAL));
+      const attributes = new Array<VertexAttribute3D>();
+      attributes.push(new VertexAttribute3D(Usage.Position, 3, GL20.GL_FLOAT, false, Shader.POSITION));
+      if (hasNorms) attributes.push(new VertexAttribute3D(Usage.Normal, 3, GL20.GL_FLOAT, false, Shader.NORMAL));
       if (hasUVs)
-        attributes.push(new VertexAttribute(Usage.TextureCoordinates, 2, GL20.GL_FLOAT, false, Shader.TEXCOORDS + '0'));
+        attributes.push(
+          new VertexAttribute3D(Usage.TextureCoordinates, 2, GL20.GL_FLOAT, false, Shader.TEXCOORDS + '0')
+        );
 
       const stringId = (++id).toString();
       const nodeId = 'default' === group.name ? 'node' + stringId : group.name;

@@ -7,10 +7,10 @@ import { TextureRegion } from '../../TextureRegion';
 import { Color, MathUtils, Utils } from '../../Utils';
 import { Vector2 } from '../../Vector2';
 import { Vector3 } from '../../Vector3';
-import { Usage, VertexAttribute } from '../attributes/VertexAttribute';
+import { Usage, VertexAttribute3D } from '../attributes/VertexAttribute';
 import { VertexAttributes } from '../attributes/VertexAttributes';
 import { GL20 } from '../GL20';
-import { Mesh } from '../Mesh';
+import { Mesh3D } from '../Mesh';
 import { MeshPart } from '../model/MeshPart';
 import { BoxShapeBuilder } from './BoxShapeBuilder';
 import { VertexInfo } from './VertexInfo';
@@ -64,14 +64,14 @@ export class MeshBuilder {
   constructor(private gl: WebGLRenderingContext) {}
 
   public static createAttributes(usage: number): VertexAttributes {
-    const attrs: VertexAttribute[] = [];
+    const attrs: VertexAttribute3D[] = [];
 
-    if ((usage & Usage.Position) === Usage.Position) attrs.push(VertexAttribute.Position());
-    if ((usage & Usage.ColorUnpacked) === Usage.ColorUnpacked) attrs.push(VertexAttribute.ColorUnpacked());
-    if ((usage & Usage.ColorPacked) === Usage.ColorPacked) attrs.push(VertexAttribute.ColorPacked());
-    if ((usage & Usage.Normal) === Usage.Normal) attrs.push(VertexAttribute.Normal());
+    if ((usage & Usage.Position) === Usage.Position) attrs.push(VertexAttribute3D.Position());
+    if ((usage & Usage.ColorUnpacked) === Usage.ColorUnpacked) attrs.push(VertexAttribute3D.ColorUnpacked());
+    if ((usage & Usage.ColorPacked) === Usage.ColorPacked) attrs.push(VertexAttribute3D.ColorPacked());
+    if ((usage & Usage.Normal) === Usage.Normal) attrs.push(VertexAttribute3D.Normal());
     if ((usage & Usage.TextureCoordinates) === Usage.TextureCoordinates)
-      attrs.push(new VertexAttribute(Usage.TextureCoordinates, 2, GL20.GL_FLOAT, false, Shader.TEXCOORDS + '0'));
+      attrs.push(new VertexAttribute3D(Usage.TextureCoordinates, 2, GL20.GL_FLOAT, false, Shader.TEXCOORDS + '0'));
     return new VertexAttributes(attrs);
   }
 
@@ -156,9 +156,9 @@ export class MeshBuilder {
     return this.meshPart;
   }
 
-  public end(mesh: Mesh = null): Mesh {
+  public end(mesh: Mesh3D = null): Mesh3D {
     if (!mesh) {
-      mesh = new Mesh(
+      mesh = new Mesh3D(
         this.gl,
         true,
         true,

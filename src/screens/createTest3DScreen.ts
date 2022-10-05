@@ -1,14 +1,23 @@
-import { Color, Game, InputEvent, Screen, Vector2, Vector3, Viewport, ViewportInputHandler } from '../lib';
-import { ColorAttribute } from '../lib/3d/attributes/ColorAttribute';
-import { DirectionalLight } from '../lib/3d/environment/DirectionalLight';
-import { Environment } from '../lib/3d/environment/Environment';
-import { G3dModelLoader } from '../lib/3d/loader/G3dModelLoader';
-import { ObjLoader } from '../lib/3d/loader/ObjLoader';
-import { ModelBatch } from '../lib/3d/ModelBatch';
-import { ModelInstance } from '../lib/3d/ModelInstance';
-import { PerspectiveCamera } from '../lib/3d/PerspectiveCamera';
-import { AnimationController } from '../lib/3d/utils/AminationController';
-import { Quaternion } from '../lib/Quaternion';
+import {
+  AnimationController,
+  Color,
+  ColorAttribute3D,
+  DirectionalLight,
+  Environment,
+  G3dModelLoader,
+  Game,
+  InputEvent,
+  ModelBatch,
+  ModelInstance,
+  ObjLoader,
+  PerspectiveCamera,
+  Quaternion,
+  Screen,
+  Vector2,
+  Vector3,
+  Viewport,
+  ViewportInputHandler
+} from '../lib';
 
 const modelFiles = ['Treasure.obj', 'Kings_Throne.obj', 'Thirsty_Corridor.obj', 'TrappedRoom.obj'];
 const modelRotations: Quaternion[] = [
@@ -33,7 +42,7 @@ export const create3DTestScreen = async (viewport: Viewport): Promise<Screen> =>
 
   const modelBatch = new ModelBatch(gl);
   const environment = new Environment();
-  environment.set(new ColorAttribute(ColorAttribute.AmbientLight, new Color(0.8, 0.8, 0.8, 1)));
+  environment.set(new ColorAttribute3D(ColorAttribute3D.AmbientLight, new Color(0.8, 0.8, 0.8, 1)));
   const directionalLight = new DirectionalLight().set(1, 1, 1, -0.3, 0.3, -0.7);
   environment.addLight(directionalLight);
 

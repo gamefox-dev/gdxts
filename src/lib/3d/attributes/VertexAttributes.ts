@@ -1,13 +1,13 @@
-import { VertexAttribute } from './VertexAttribute';
+import { VertexAttribute3D } from './VertexAttribute';
 
 export class VertexAttributes {
-  public attributes: VertexAttribute[];
+  public attributes: VertexAttribute3D[];
   public vertexSize: number;
   private mask = -1;
-  constructor(attributes: VertexAttribute[]) {
+  constructor(attributes: VertexAttribute3D[]) {
     if (attributes.length === 0) throw new Error('attributes must be >= 1');
 
-    const list: VertexAttribute[] = [];
+    const list: VertexAttribute3D[] = [];
     for (let i = 0; i < attributes.length; i++) list[i] = attributes[i];
 
     this.attributes = list;
@@ -20,7 +20,7 @@ export class VertexAttributes {
     return vertexAttribute.offset / 4;
   }
 
-  public findByUsage(usage: number): VertexAttribute {
+  public findByUsage(usage: number): VertexAttribute3D {
     for (const att of this.attributes) {
       if (att.usage === usage) return att;
     }
@@ -41,7 +41,7 @@ export class VertexAttributes {
     return this.attributes.length;
   }
 
-  public get(index: number): VertexAttribute {
+  public get(index: number): VertexAttribute3D {
     return this.attributes[index];
   }
 

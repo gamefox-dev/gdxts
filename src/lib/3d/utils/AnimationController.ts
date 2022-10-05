@@ -1,10 +1,10 @@
 import { MathUtils, Pool } from '../../Utils';
-import { Animation } from '../model/Animation';
+import { Animation3D } from '../model/Animation';
 import { BaseAnimationController } from './BaseAnimationController';
 
 export class AnimationDesc {
   public listener: AnimationListener = null;
-  public animation: Animation = null;
+  public animation: Animation3D = null;
   public speed: number = 0;
   public time: number = 0;
   public offset: number = 0;
@@ -64,7 +64,7 @@ export class AnimationController extends BaseAnimationController {
   private justChangedAnimation = false;
 
   private obtainAnimation(
-    anim: Animation,
+    anim: Animation3D,
     offset: number,
     duration: number,
     loopCount: number,
@@ -154,7 +154,7 @@ export class AnimationController extends BaseAnimationController {
   }
 
   protected setAnimationWithAnimation(
-    anim: Animation,
+    anim: Animation3D,
     offset: number,
     duration: number,
     loopCount: number,
@@ -200,7 +200,7 @@ export class AnimationController extends BaseAnimationController {
   }
 
   protected animateWithAnimation(
-    anim: Animation,
+    anim: Animation3D,
     offset: number,
     duration: number,
     loopCount: number,
@@ -257,7 +257,7 @@ export class AnimationController extends BaseAnimationController {
   }
 
   protected queueWithAnimation(
-    anim: Animation,
+    anim: Animation3D,
     offset: number,
     duration: number,
     loopCount: number,
@@ -305,7 +305,7 @@ export class AnimationController extends BaseAnimationController {
   }
 
   protected actionWithAnimation(
-    anim: Animation,
+    anim: Animation3D,
     offset: number,
     duration: number,
     loopCount: number,

@@ -3,7 +3,7 @@ import { Quaternion } from '../../Quaternion';
 import { ArrayMap, Color } from '../../Utils';
 import { Vector2 } from '../../Vector2';
 import { Vector3 } from '../../Vector3';
-import { VertexAttribute } from '../attributes/VertexAttribute';
+import { VertexAttribute3D } from '../attributes/VertexAttribute';
 import { GL20 } from '../GL20';
 import { ModelAnimation } from '../model/data/ModelAnimation';
 import { ModelData } from '../model/data/ModelData';
@@ -121,28 +121,28 @@ export class G3dModelLoader {
     }
   }
 
-  protected parseAttributes(attributes: any): VertexAttribute[] {
-    const vertexAttributes = new Array<VertexAttribute>();
+  protected parseAttributes(attributes: any): VertexAttribute3D[] {
+    const vertexAttributes = new Array<VertexAttribute3D>();
     let unit = 0;
     let blendWeightCount = 0;
     for (const attr of attributes) {
       if (attr === 'POSITION') {
-        vertexAttributes.push(VertexAttribute.Position());
+        vertexAttributes.push(VertexAttribute3D.Position());
       } else if (attr === 'NORMAL') {
-        vertexAttributes.push(VertexAttribute.Normal());
+        vertexAttributes.push(VertexAttribute3D.Normal());
       } else if (attr === 'COLOR') {
-        vertexAttributes.push(VertexAttribute.ColorUnpacked());
+        vertexAttributes.push(VertexAttribute3D.ColorUnpacked());
       } else if (attr === 'COLORPACKED') {
         //vertexAttributes.push(VertexAttribute.ColorPacked());
         throw Error('ColorPacked currently not supported');
       } else if (attr === 'TANGENT') {
-        vertexAttributes.push(VertexAttribute.Tangent());
+        vertexAttributes.push(VertexAttribute3D.Tangent());
       } else if (attr === 'BINORMAL') {
-        vertexAttributes.push(VertexAttribute.Binormal());
+        vertexAttributes.push(VertexAttribute3D.Binormal());
       } else if (attr.startsWith('TEXCOORD')) {
-        vertexAttributes.push(VertexAttribute.TexCoords(unit++));
+        vertexAttributes.push(VertexAttribute3D.TexCoords(unit++));
       } else if (attr.startsWith('BLENDWEIGHT')) {
-        vertexAttributes.push(VertexAttribute.BoneWeight(blendWeightCount++));
+        vertexAttributes.push(VertexAttribute3D.BoneWeight(blendWeightCount++));
       } else {
         throw new Error(
           "Unknown vertex attribute '" + attr + "', should be one of position, normal, uv, tangent or binormal"

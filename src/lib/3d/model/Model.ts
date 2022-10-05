@@ -5,15 +5,15 @@ import { Texture } from '../../Texture';
 import { ArrayMap, Disposable } from '../../Utils';
 import { Vector3 } from '../../Vector3';
 import { BlendingAttribute } from '../attributes/BlendingAttribute';
-import { ColorAttribute } from '../attributes/ColorAttribute';
+import { ColorAttribute3D } from '../attributes/ColorAttribute';
 import { FloatAttribute } from '../attributes/FloatAttribute';
 import { TextureAttribute } from '../attributes/TextureAttribute';
 import { VertexAttributes } from '../attributes/VertexAttributes';
 import { GL20 } from '../GL20';
 import { Material } from '../Material';
-import { Mesh } from '../Mesh';
+import { Mesh3D } from '../Mesh';
 import { FileTextureProvider } from '../utils/TextureProvider';
-import { Animation } from './Animation';
+import { Animation3D } from './Animation';
 import { ModelAnimation } from './data/ModelAnimation';
 import { ModelData } from './data/ModelData';
 import { ModelMaterial } from './data/ModelMaterial';
@@ -29,8 +29,8 @@ import { NodePart } from './NodePart';
 export class Model implements Disposable {
   public materials: Material[] = [];
   public nodes: Node[] = [];
-  public animations: Animation[] = [];
-  public meshes: Mesh[] = [];
+  public animations: Animation3D[] = [];
+  public meshes: Mesh3D[] = [];
   public meshParts: MeshPart[] = [];
   protected disposables: Disposable[] = [];
 
@@ -46,7 +46,7 @@ export class Model implements Disposable {
 
   protected loadAnimations(modelAnimations: ModelAnimation[]) {
     for (const anim of modelAnimations) {
-      const animation = new Animation();
+      const animation = new Animation3D();
       animation.id = anim.id;
       for (const nanim of anim.nodeAnimations) {
         const node = this.getNode(nanim.nodeId);
@@ -181,7 +181,7 @@ export class Model implements Disposable {
     const hasIndices = numIndices > 0;
     const attributes = new VertexAttributes(modelMesh.attributes);
     const numVertices = modelMesh.vertices.length / (attributes.vertexSize / 4);
-    const mesh = new Mesh(this.gl, true, true, numVertices, numIndices, attributes);
+    const mesh = new Mesh3D(this.gl, true, true, numVertices, numIndices, attributes);
     this.meshes.push(mesh);
     this.disposables.push(mesh);
 
@@ -214,11 +214,11 @@ export class Model implements Disposable {
   protected async convertMaterial(mtl: ModelMaterial, textureProvider: FileTextureProvider): Promise<Material> {
     const result = new Material();
     result.id = mtl.id;
-    if (mtl.ambient !== undefined) result.set(new ColorAttribute(ColorAttribute.Ambient, mtl.ambient));
-    if (mtl.diffuse !== undefined) result.set(new ColorAttribute(ColorAttribute.Diffuse, mtl.diffuse));
-    if (mtl.specular !== undefined) result.set(new ColorAttribute(ColorAttribute.Specular, mtl.specular));
-    if (mtl.emissive !== undefined) result.set(new ColorAttribute(ColorAttribute.Emissive, mtl.emissive));
-    if (mtl.reflection !== undefined) result.set(new ColorAttribute(ColorAttribute.Reflection, mtl.reflection));
+    if (mtl.ambient !== undefined) result.set(new ColorAttribute3D(ColorAttribute3D.Ambient, mtl.ambient));
+    if (mtl.diffuse !== undefined) result.set(new ColorAttribute3D(ColorAttribute3D.Diffuse, mtl.diffuse));
+    if (mtl.specular !== undefined) result.set(new ColorAttribute3D(ColorAttribute3D.Specular, mtl.specular));
+    if (mtl.emissive !== undefined) result.set(new ColorAttribute3D(ColorAttribute3D.Emissive, mtl.emissive));
+    if (mtl.reflection !== undefined) result.set(new ColorAttribute3D(ColorAttribute3D.Reflection, mtl.reflection));
     if (mtl.shininess > 0) result.set(new FloatAttribute(FloatAttribute.Shininess, mtl.shininess));
     if (mtl.opacity !== 1)
       result.set(new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA, true, mtl.opacity));
@@ -317,7 +317,7 @@ export class Model implements Disposable {
     return out;
   }
 
-  public getAnimation(id: string, ignoreCase: boolean = false): Animation {
+  public getAnimation(id: string, ignoreCase: boolean = false): Animation3D {
     const n = this.animations.length;
     if (ignoreCase) {
       for (let i = 0; i < n; i++)

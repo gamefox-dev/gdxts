@@ -13,7 +13,7 @@ export class Usage {
   public static BiNormal = 256;
 }
 
-export class VertexAttribute {
+export class VertexAttribute3D {
   usage: number;
   type: number;
   offset: number;
@@ -40,40 +40,40 @@ export class VertexAttribute {
     this.usageIndex = this.numberOfTrailingZeros(usage);
   }
 
-  public copy(): VertexAttribute {
-    return new VertexAttribute(this.usage, this.numComponents, this.type, this.normalized, this.alias, this.unit);
+  public copy(): VertexAttribute3D {
+    return new VertexAttribute3D(this.usage, this.numComponents, this.type, this.normalized, this.alias, this.unit);
   }
 
-  public static Position(): VertexAttribute {
-    return new VertexAttribute(Usage.Position, 3, GL20.GL_FLOAT, false, Shader.POSITION, 0);
+  public static Position(): VertexAttribute3D {
+    return new VertexAttribute3D(Usage.Position, 3, GL20.GL_FLOAT, false, Shader.POSITION, 0);
   }
 
-  public static TexCoords(unit: number): VertexAttribute {
-    return new VertexAttribute(Usage.TextureCoordinates, 2, GL20.GL_FLOAT, false, Shader.TEXCOORDS + unit, unit);
+  public static TexCoords(unit: number): VertexAttribute3D {
+    return new VertexAttribute3D(Usage.TextureCoordinates, 2, GL20.GL_FLOAT, false, Shader.TEXCOORDS + unit, unit);
   }
 
-  public static Normal(): VertexAttribute {
-    return new VertexAttribute(Usage.Normal, 3, GL20.GL_FLOAT, false, Shader.NORMAL);
+  public static Normal(): VertexAttribute3D {
+    return new VertexAttribute3D(Usage.Normal, 3, GL20.GL_FLOAT, false, Shader.NORMAL);
   }
 
-  public static ColorPacked(): VertexAttribute {
-    return new VertexAttribute(Usage.ColorPacked, 4, GL20.GL_UNSIGNED_BYTE, true, Shader.COLOR);
+  public static ColorPacked(): VertexAttribute3D {
+    return new VertexAttribute3D(Usage.ColorPacked, 4, GL20.GL_UNSIGNED_BYTE, true, Shader.COLOR);
   }
 
-  public static ColorUnpacked(): VertexAttribute {
-    return new VertexAttribute(Usage.ColorUnpacked, 4, GL20.GL_FLOAT, false, Shader.COLOR);
+  public static ColorUnpacked(): VertexAttribute3D {
+    return new VertexAttribute3D(Usage.ColorUnpacked, 4, GL20.GL_FLOAT, false, Shader.COLOR);
   }
 
-  public static Tangent(): VertexAttribute {
-    return new VertexAttribute(Usage.Tangent, 3, GL20.GL_FLOAT, false, Shader.TANGENT);
+  public static Tangent(): VertexAttribute3D {
+    return new VertexAttribute3D(Usage.Tangent, 3, GL20.GL_FLOAT, false, Shader.TANGENT);
   }
 
-  public static Binormal(): VertexAttribute {
-    return new VertexAttribute(Usage.BiNormal, 3, GL20.GL_FLOAT, false, Shader.BINORMAL);
+  public static Binormal(): VertexAttribute3D {
+    return new VertexAttribute3D(Usage.BiNormal, 3, GL20.GL_FLOAT, false, Shader.BINORMAL);
   }
 
-  public static BoneWeight(unit: number): VertexAttribute {
-    return new VertexAttribute(Usage.BoneWeight, 2, GL20.GL_FLOAT, false, Shader.BONEWEIGHT + unit, unit);
+  public static BoneWeight(unit: number): VertexAttribute3D {
+    return new VertexAttribute3D(Usage.BoneWeight, 2, GL20.GL_FLOAT, false, Shader.BONEWEIGHT + unit, unit);
   }
 
   public getKey(): number {
@@ -107,7 +107,7 @@ export class VertexAttribute {
     return 0;
   }
 
-  public equals(other: VertexAttribute): boolean {
+  public equals(other: VertexAttribute3D): boolean {
     return (
       !!other &&
       this.usage === other.usage &&
