@@ -15,6 +15,7 @@ import {
 } from './lib';
 import { createBunnyScreen } from './screens/createBunnyScreen';
 import { createMainScreen } from './screens/createMainScreen';
+import { create3DTestScreen } from './screens/createTest3DScreen';
 import { createTestBitmapFontScreen } from './screens/createTestBitmapFontScreen';
 import { createTestOutlineScreen } from './screens/createTestOutlineScreen';
 import { createTestScreen } from './screens/createTestScreen';
@@ -29,7 +30,8 @@ const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Sprite rendering': createTestSpriteScreen,
   'Bitmap Font': createTestBitmapFontScreen,
   'Fun with Bunnymark': createBunnyScreen,
-  'Outline shader test': createTestOutlineScreen
+  'Outline shader test': createTestOutlineScreen,
+  'Basic 3D': create3DTestScreen
 };
 
 const init = async () => {

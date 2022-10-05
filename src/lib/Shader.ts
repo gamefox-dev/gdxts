@@ -7,6 +7,10 @@ export class Shader implements Disposable, Restorable {
   public static COLOR2 = 'a_color2';
   public static TEXCOORDS = 'a_texCoords';
   public static SAMPLER = 'u_texture';
+  public static NORMAL = 'a_normal';
+  public static TANGENT = 'a_tangent';
+  public static BINORMAL = 'a_binormal';
+  public static BONEWEIGHT = 'a_boneWeight';
 
   private context: WebGLRenderingContext;
   private vs: WebGLShader = null;
@@ -109,56 +113,67 @@ export class Shader implements Disposable, Restorable {
     this.context.uniform3f(this.getUniformLocation(uniform), value, value2, value3);
   }
 
+  public setUniform1fWithLocation(location: WebGLUniformLocation, value: number) {
+    this.context.uniform1f(location, value);
+  }
+
+  public setUniform3fWithLocation(location: WebGLUniformLocation, value: number, value2: number, value3: number) {
+    this.context.uniform3f(location, value, value2, value3);
+  }
+
   public setUniform4f(uniform: string, value: number, value2: number, value3: number, value4: number) {
     this.context.uniform4f(this.getUniformLocation(uniform), value, value2, value3, value4);
   }
 
   public setUniform2x2f(uniform: string, value: ArrayLike<number>) {
-    let gl = this.context;
     this.tmp2x2.set(value);
-    gl.uniformMatrix2fv(this.getUniformLocation(uniform), false, this.tmp2x2);
+    this.context.uniformMatrix2fv(this.getUniformLocation(uniform), false, this.tmp2x2);
   }
 
   public setUniform3x3f(uniform: string, value: ArrayLike<number>) {
-    let gl = this.context;
     this.tmp3x3.set(value);
-    gl.uniformMatrix3fv(this.getUniformLocation(uniform), false, this.tmp3x3);
+    this.context.uniformMatrix3fv(this.getUniformLocation(uniform), false, this.tmp3x3);
   }
 
   public setUniform4x4f(uniform: string, value: ArrayLike<number>) {
-    let gl = this.context;
     this.tmp4x4.set(value);
-    gl.uniformMatrix4fv(this.getUniformLocation(uniform), false, this.tmp4x4);
+    this.context.uniformMatrix4fv(this.getUniformLocation(uniform), false, this.tmp4x4);
   }
 
-  public getUniformLocation(uniform: string): WebGLUniformLocation {
-    let gl = this.context;
-    let location = gl.getUniformLocation(this.program, uniform);
-    if (!location && !gl.isContextLost()) throw new Error(`Couldn't find location for uniform ${uniform}`);
+  public setUniform4x4fWithLocation(location: WebGLUniformLocation, value: number[]) {
+    this.context.uniformMatrix4fv(location, false, value);
+  }
+
+  public setUniform3fv(uniform: string, value: number[]) {
+    this.context.uniform3fv(this.getUniformLocation(uniform), value);
+  }
+
+  public getUniformLocation(uniform: string, pedantic: boolean = true): WebGLUniformLocation {
+    let location = this.context.getUniformLocation(this.program, uniform);
+    if (pedantic && !location && !this.context.isContextLost())
+      throw new Error(`Couldn't find location for uniform ${uniform}`);
     return location;
   }
 
   public getAttributeLocation(attribute: string): number {
-    let gl = this.context;
-    let location = gl.getAttribLocation(this.program, attribute);
-    if (location === -1 && !gl.isContextLost()) throw new Error(`Couldn't find location for attribute ${attribute}`);
+    let location = this.context.getAttribLocation(this.program, attribute);
+    //if (location === -1 && !gl.isContextLost()) throw new Error(`Couldn't find location for attribute ${attribute}`);
     return location;
   }
 
   public dispose() {
-    let gl = this.context;
     if (this.vs) {
-      gl.deleteShader(this.vs);
+      this.context.deleteShader(this.vs);
       this.vs = null;
     }
 
     if (this.fs) {
-      gl.deleteShader(this.fs);
+      this.context.deleteShader(this.fs);
       this.fs = null;
     }
 
     if (this.program) {
-      gl.deleteProgram(this.program);
+      this.context.deleteProgram(this.program);
       this.program = null;
     }
   }

@@ -168,8 +168,29 @@ export class Color {
     return this;
   }
 
+  lerp(target: Color, t: number) {
+    this.r += t * (target.r - this.r);
+    this.g += t * (target.g - this.g);
+    this.b += t * (target.b - this.b);
+    this.a += t * (target.a - this.a);
+    return this.clamp();
+  }
+
+  mul(r: number, g: number, b: number, a: number) {
+    this.r *= r;
+    this.g *= g;
+    this.b *= b;
+    this.a *= a;
+    return this.clamp();
+  }
+
   toIntBits() {
     return ((255 * this.a) << 24) | ((255 * this.b) << 16) | ((255 * this.g) << 8) | (255 * this.r);
+  }
+
+  equals(other: Color): boolean {
+    if (this === other) return true;
+    return this.toIntBits() === other.toIntBits();
   }
 
   static rgba8888ToColor(color: Color, value: number) {
@@ -191,6 +212,7 @@ export class Color {
 }
 
 export class MathUtils {
+  static FLOAT_ROUNDING_ERROR = 0.000001; // 32 bits
   static PI = 3.1415927;
   static PI2 = MathUtils.PI * 2;
   static radiansToDegrees = 180 / MathUtils.PI;
@@ -238,6 +260,14 @@ export class MathUtils {
 
   static isPowerOfTwo(value: number) {
     return value && (value & (value - 1)) === 0;
+  }
+
+  static isEqual(a: number, b: number): boolean {
+    return Math.abs(a - b) <= MathUtils.FLOAT_ROUNDING_ERROR;
+  }
+
+  static isZero(value: number): boolean {
+    return Math.abs(value) <= MathUtils.FLOAT_ROUNDING_ERROR;
   }
 }
 
@@ -346,6 +376,19 @@ export class Utils {
   static enumValue(type: any, name: string) {
     return type[name[0].toUpperCase() + name.slice(1)];
   }
+
+  static getHashCodeOfString(s: string) {
+    var hash = 0,
+      i,
+      chr;
+    if (this.length === 0) return hash;
+    for (i = 0; i < this.length; i++) {
+      chr = s.charCodeAt(i);
+      hash = (hash << 5) - hash + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+  }
 }
 
 export interface Poolable {
@@ -382,6 +425,43 @@ export class Pool<T> {
 
   clear() {
     this.items.length = 0;
+  }
+}
+
+export class FlushablePool<T> extends Pool<T> {
+  protected obtained = new Array<T>();
+
+  public constructor(instantiator: () => T) {
+    super(instantiator);
+  }
+
+  public obtain() {
+    const result = super.obtain();
+    this.obtained.push(result);
+    return result;
+  }
+
+  public flush() {
+    super.freeAll(this.obtained);
+    this.obtained.length = 0;
+  }
+
+  public free(object: T) {
+    const index = this.obtained.indexOf(object);
+    if (index > -1) {
+      this.obtained.splice(index, 1);
+    }
+    super.free(object);
+  }
+
+  public freeAll(objects: ArrayLike<T>) {
+    for (let i = 0; i < objects.length; i++) {
+      const index = this.obtained.indexOf(objects[i]);
+      if (index >= 0) {
+        this.obtained.splice(index, 1);
+      }
+    }
+    super.freeAll(objects);
   }
 }
 
@@ -627,6 +707,56 @@ export const copyArray = (
     target[targetOffset + i] = src[srcOffset + i];
   }
 };
+
+export class ArrayMap<K, V> {
+  public keys: K[] = [];
+  public values: V[] = [];
+  public size: number = 0;
+
+  public set(key: K, value: V): number {
+    let index = this.indexOfKey(key);
+    if (index === -1) {
+      index = this.size++;
+    }
+    this.keys[index] = key;
+    this.values[index] = value;
+    return index;
+  }
+
+  public get(key: K, defaultValue: V = null): V {
+    let i = this.size - 1;
+    for (; i >= 0; i--) {
+      if (this.keys[i] === key) return this.values[i];
+    }
+    return defaultValue;
+  }
+
+  public indexOfKey(key: K): number {
+    for (let i = 0, n = this.size; i < n; i++) if (this.keys[i] === key) return i;
+    return -1;
+  }
+
+  public removeKey(key: K) {
+    for (let i = 0, n = this.size; i < n; i++) {
+      if (this.keys[i] === key) {
+        this.removeIndex(i);
+      }
+    }
+  }
+
+  public removeIndex(index: number) {
+    if (index >= this.size) throw new Error(`index out of bound`);
+    this.size--;
+    this.keys.splice(index, 1);
+    this.values.splice(index, 1);
+  }
+
+  public clear() {
+    this.keys.length = 0;
+    this.values.length = 0;
+    this.size = 0;
+  }
+}
 
 export function concatAndResolveUrl(url: string, concat: string): string {
   let url1 = url.split('/');

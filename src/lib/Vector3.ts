@@ -1,14 +1,32 @@
-import { Matrix4, M00, M01, M02, M03, M10, M11, M12, M13, M20, M21, M22, M23, M30, M31, M32, M33 } from './Matrix4';
+import { Matrix3 } from './Matrix3';
+import { Matrix4 } from './Matrix4';
 
 export class Vector3 {
   x = 0;
   y = 0;
   z = 0;
 
+  public static X = new Vector3(1, 0, 0);
+  public static Y = new Vector3(0, 1, 0);
+  public static Z = new Vector3(0, 0, 1);
+  public static Zero = new Vector3(0, 0, 0);
+  static tmpMat = new Matrix4();
+
   constructor(x: number = 0, y: number = 0, z: number = 0) {
     this.x = x;
     this.y = y;
     this.z = z;
+  }
+
+  isZero() {
+    return this.x === 0 && this.y === 0 && this.z === 0;
+  }
+
+  dst2(point: Vector3): number {
+    const a = point.x - this.x;
+    const b = point.y - this.y;
+    const c = point.z - this.z;
+    return a * a + b * b + c * c;
   }
 
   setFrom(v: Vector3): Vector3 {
@@ -63,19 +81,33 @@ export class Vector3 {
   multiply(matrix: Matrix4): Vector3 {
     let l_mat = matrix.values;
     return this.set(
-      this.x * l_mat[M00] + this.y * l_mat[M01] + this.z * l_mat[M02] + l_mat[M03],
-      this.x * l_mat[M10] + this.y * l_mat[M11] + this.z * l_mat[M12] + l_mat[M13],
-      this.x * l_mat[M20] + this.y * l_mat[M21] + this.z * l_mat[M22] + l_mat[M23]
+      this.x * l_mat[Matrix4.M00] + this.y * l_mat[Matrix4.M01] + this.z * l_mat[Matrix4.M02] + l_mat[Matrix4.M03],
+      this.x * l_mat[Matrix4.M10] + this.y * l_mat[Matrix4.M11] + this.z * l_mat[Matrix4.M12] + l_mat[Matrix4.M13],
+      this.x * l_mat[Matrix4.M20] + this.y * l_mat[Matrix4.M21] + this.z * l_mat[Matrix4.M22] + l_mat[Matrix4.M23]
+    );
+  }
+
+  multiplyMat3(matrix: Matrix3): Vector3 {
+    const l_mat = matrix.val;
+    return this.set(
+      this.x * l_mat[Matrix3.M00] + this.y * l_mat[Matrix3.M01] + this.z * l_mat[Matrix3.M02],
+      this.x * l_mat[Matrix3.M10] + this.y * l_mat[Matrix3.M11] + this.z * l_mat[Matrix3.M12],
+      this.x * l_mat[Matrix3.M20] + this.y * l_mat[Matrix3.M21] + this.z * l_mat[Matrix3.M22]
     );
   }
 
   project(matrix: Matrix4): Vector3 {
     let l_mat = matrix.values;
-    let l_w = 1 / (this.x * l_mat[M30] + this.y * l_mat[M31] + this.z * l_mat[M32] + l_mat[M33]);
+    let l_w =
+      1 /
+      (this.x * l_mat[Matrix4.M30] + this.y * l_mat[Matrix4.M31] + this.z * l_mat[Matrix4.M32] + l_mat[Matrix4.M33]);
     return this.set(
-      (this.x * l_mat[M00] + this.y * l_mat[M01] + this.z * l_mat[M02] + l_mat[M03]) * l_w,
-      (this.x * l_mat[M10] + this.y * l_mat[M11] + this.z * l_mat[M12] + l_mat[M13]) * l_w,
-      (this.x * l_mat[M20] + this.y * l_mat[M21] + this.z * l_mat[M22] + l_mat[M23]) * l_w
+      (this.x * l_mat[Matrix4.M00] + this.y * l_mat[Matrix4.M01] + this.z * l_mat[Matrix4.M02] + l_mat[Matrix4.M03]) *
+        l_w,
+      (this.x * l_mat[Matrix4.M10] + this.y * l_mat[Matrix4.M11] + this.z * l_mat[Matrix4.M12] + l_mat[Matrix4.M13]) *
+        l_w,
+      (this.x * l_mat[Matrix4.M20] + this.y * l_mat[Matrix4.M21] + this.z * l_mat[Matrix4.M22] + l_mat[Matrix4.M23]) *
+        l_w
     );
   }
 
@@ -100,8 +132,21 @@ export class Vector3 {
     return this.x * v.x + this.y * v.y + this.z * v.z;
   }
 
+  dotWithValue(x: number, y: number, z: number) {
+    return this.x * x + this.y * y + this.z * z;
+  }
+
+  rotate(axis: Vector3, degrees: number) {
+    Vector3.tmpMat.setToRotation(axis, degrees);
+    return this.multiply(Vector3.tmpMat);
+  }
+
   length(): number {
     return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+  }
+
+  length2(): number {
+    return this.x * this.x + this.y * this.y + this.z * this.z;
   }
 
   distance(v: Vector3): number {
@@ -109,5 +154,17 @@ export class Vector3 {
     let b = v.y - this.y;
     let c = v.z - this.z;
     return Math.sqrt(a * a + b * b + c * c);
+  }
+
+  lerp(target: Vector3, alpha: number) {
+    this.x += alpha * (target.x - this.x);
+    this.y += alpha * (target.y - this.y);
+    this.z += alpha * (target.z - this.z);
+    return this;
+  }
+
+  equals(other: Vector3): boolean {
+    if (this === other) return true;
+    return this.x === other.x && this.y === other.y && this.z === other.z;
   }
 }

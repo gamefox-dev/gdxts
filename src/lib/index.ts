@@ -1,3 +1,4 @@
+export * from './3d';
 export * from './Animation';
 export * from './AssetManager';
 export * from './BitmapFont';
@@ -14,6 +15,7 @@ export * from './Matrix4';
 export * from './Mesh';
 export * from './NumberUtils';
 export * from './PolygonBatcher';
+export * from './Quaternion';
 export * from './Shader';
 export * from './ShapeRenderer';
 export * from './Sprite';
