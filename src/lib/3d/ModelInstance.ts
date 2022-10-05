@@ -1,8 +1,8 @@
+import { BoundingBox } from '../BoundingBox';
 import { Matrix4 } from '../Matrix4';
 import { Quaternion } from '../Quaternion';
 import { Pool } from '../Utils';
 import { Vector3 } from '../Vector3';
-import { BoundingBox } from './BoundingBox';
 import { Material } from './Material';
 import { Animation } from './model/Animation';
 import { Model } from './model/Model';

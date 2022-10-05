@@ -1,3 +1,4 @@
+import { BoundingBox } from '../BoundingBox';
 import { Matrix3 } from '../Matrix3';
 import { Matrix4 } from '../Matrix4';
 import { Shader } from '../Shader';
@@ -6,7 +7,6 @@ import { Vector2 } from '../Vector2';
 import { Vector3 } from '../Vector3';
 import { Usage, VertexAttribute } from './attributes/VertexAttribute';
 import { VertexAttributes } from './attributes/VertexAttributes';
-import { BoundingBox } from './BoundingBox';
 import { GL20 } from './GL20';
 import { IndexBufferObject } from './utils/IndexBufferObject';
 import { VertexBufferObject } from './utils/VertexBufferObject';

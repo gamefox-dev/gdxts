@@ -1,3 +1,4 @@
+import { BoundingBox } from '../../BoundingBox';
 import { Matrix3 } from '../../Matrix3';
 import { Matrix4 } from '../../Matrix4';
 import { NumberUtil } from '../../NumberUtils';
@@ -8,7 +9,6 @@ import { Vector2 } from '../../Vector2';
 import { Vector3 } from '../../Vector3';
 import { Usage, VertexAttribute } from '../attributes/VertexAttribute';
 import { VertexAttributes } from '../attributes/VertexAttributes';
-import { BoundingBox } from '../BoundingBox';
 import { GL20 } from '../GL20';
 import { Mesh } from '../Mesh';
 import { MeshPart } from '../model/MeshPart';

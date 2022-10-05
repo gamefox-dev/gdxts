@@ -1,7 +1,7 @@
+import { BoundingBox } from '../../BoundingBox';
 import { Matrix4 } from '../../Matrix4';
 import { Quaternion } from '../../Quaternion';
 import { Vector3 } from '../../Vector3';
-import { BoundingBox } from '../BoundingBox';
 import { NodePart } from './NodePart';
 
 export class Node {

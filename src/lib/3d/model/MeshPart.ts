@@ -1,7 +1,7 @@
+import { BoundingBox } from '../../BoundingBox';
 import { Shader } from '../../Shader';
 import { Disposable } from '../../Utils';
 import { Vector3 } from '../../Vector3';
-import { BoundingBox } from '../BoundingBox';
 import { Mesh } from '../Mesh';
 
 export class MeshPart implements Disposable {

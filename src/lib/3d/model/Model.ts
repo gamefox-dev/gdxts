@@ -1,3 +1,4 @@
+import { BoundingBox } from '../../BoundingBox';
 import { Matrix4 } from '../../Matrix4';
 import { Quaternion } from '../../Quaternion';
 import { Texture } from '../../Texture';
@@ -8,7 +9,6 @@ import { ColorAttribute } from '../attributes/ColorAttribute';
 import { FloatAttribute } from '../attributes/FloatAttribute';
 import { TextureAttribute } from '../attributes/TextureAttribute';
 import { VertexAttributes } from '../attributes/VertexAttributes';
-import { BoundingBox } from '../BoundingBox';
 import { GL20 } from '../GL20';
 import { Material } from '../Material';
 import { Mesh } from '../Mesh';
