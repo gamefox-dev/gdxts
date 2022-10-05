@@ -1,7 +1,9 @@
+import { BitmapFont } from './BitmapFont';
 import { Texture } from './Texture';
 import { TextureAtlas } from './TextureAtlas';
+import { TextureRegion } from './TextureRegion';
 
-export default class AssetManager {
+export class AssetManager {
   gl: WebGLRenderingContext;
   promises: Array<Promise<any>> = [];
   atlases: Map<string, TextureAtlas> = new Map();
@@ -63,19 +65,19 @@ export default class AssetManager {
   getBinaryData(name: string): ArrayBuffer {
     return this.binaryData.get(name);
   }
-  // fonts: Map<string, BitmapFont> = new Map();
-  // loadFont(path: string, name: string): Promise<BitmapFont> {
-  //   const promise = loadFont(this.gl, path, {}).then(font => {
-  //     this.fonts.set(name, font);
-  //     this.reportDone();
-  //     return font;
-  //   });
-  //   this.promises.push(promise);
-  //   return promise;
-  // }
-  // getFont(name: string): BitmapFont | undefined {
-  //   return this.fonts.get(name);
-  // }
+  fonts: Map<string, BitmapFont> = new Map();
+  loadFont(path: string, name: string, flip = false): Promise<BitmapFont> {
+    const promise = BitmapFont.load(this.gl, path, flip).then(font => {
+      this.fonts.set(name, font);
+      this.reportDone();
+      return font;
+    });
+    this.promises.push(promise);
+    return promise;
+  }
+  getFont(name: string): BitmapFont | undefined {
+    return this.fonts.get(name);
+  }
   loadTexture(path: string, name: string): Promise<Texture> {
     const promise = Texture.load(this.gl, path).then(texture => {
       this.textures.set(name, texture);
@@ -113,14 +115,15 @@ export default class AssetManager {
       this.textures.delete(key);
     });
 
-    // const fontMapKeys = [...this.fonts.keys()];
-    // fontMapKeys.forEach(key => {
-    //   const textureRegions =
-    //     ((this.fonts.get(key) as any)?.getRegions() as TextureRegion[]) || [];
-    //   textureRegions.forEach(texture => {
-    //     (texture.texture as any)?.destroy();
-    //   });
-    //   this.fonts.delete(key);
-    // });
+    const fontMapKeys = [...this.fonts.keys()];
+    fontMapKeys.forEach(key => {
+      const textureRegions = ((this.fonts.get(key) as any)?.getRegions() as TextureRegion[]) || [];
+      textureRegions.forEach(texture => {
+        (texture.texture as any)?.destroy();
+      });
+      this.fonts.delete(key);
+    });
   }
 }
+
+export default AssetManager;

@@ -1,3 +1,4 @@
+export const YDOWN = true;
 import {
   Color,
   createGameLoop,

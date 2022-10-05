@@ -2,33 +2,7 @@ import { Glyph, PAGE_SIZE } from './Glyph';
 import { GlyphRun } from './GlyphRun';
 import { Texture } from './Texture';
 import { TextureRegion } from './TextureRegion';
-
-function concatAndResolveUrl(url: string, concat: string) {
-  let url1 = url.split('/');
-  let url2 = concat.split('/');
-  let url3 = [];
-
-  for (let i = 0, l = url1.length; i < l; i++) {
-    if (url1[i] === '..') {
-      url3.pop();
-    } else if (url1[i] === '.') {
-      continue;
-    } else {
-      url3.push(url1[i]);
-    }
-  }
-
-  for (let i = 0, l = url2.length; i < l; i++) {
-    if (url2[i] === '..') {
-      url3.pop();
-    } else if (url2[i] === '.') {
-      continue;
-    } else {
-      url3.push(url2[i]);
-    }
-  }
-  return url3.join('/');
-}
+import { concatAndResolveUrl } from './Utils';
 
 const CHARACTER_MAX_VALUE = 65535;
 
@@ -123,7 +97,7 @@ export class BitmapFontData {
 
     fileContent = await res.text();
 
-    const lines = fileContent.split('\n').map((s: string) => s.trim());
+    const lines = fileContent.split(/\r?\n/).map((s: string) => s.trim());
 
     try {
       let line: string = lines[i];

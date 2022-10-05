@@ -128,7 +128,7 @@ const texture = await Texture.load(gl, '<your texture url>');
 
 ```Javascript
 // somewhere inside your game loop
-batch.setProjection(camera.projectionView.values);
+batch.setProjection(camera.combined);
 batch.begin();
 batch.draw(
   texture,
@@ -150,7 +150,7 @@ You can rotate and scale your texture while drawing to the screen.
 
 ```Javascript
 // somewhere inside your game loop
-batch.setProjection(camera.projectionView.values);
+batch.setProjection(camera.combined);
 batch.begin();
 batch.draw(
   texture,

@@ -17,17 +17,19 @@ export class GlyphLayout implements Poolable {
   height: number;
 
   constructor(
-    font: BitmapFont,
-    str: string,
-    start: number,
-    end: number,
-    color: Color,
-    targetWidth: number,
-    hAlign: number,
-    wrap: boolean,
+    font?: BitmapFont,
+    str?: string,
+    start = 0,
+    end = str?.length || 0,
+    color = Color.WHITE,
+    targetWidth = 0,
+    hAlign = Align.left,
+    wrap = true,
     truncate?: string
   ) {
-    this.setText(font, str, start, end, color, targetWidth, hAlign, wrap, truncate);
+    if (font && str) {
+      this.setText(font, str, start, end, color, targetWidth, hAlign, wrap, truncate);
+    }
   }
 
   setText = (

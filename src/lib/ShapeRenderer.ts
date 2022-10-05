@@ -2,7 +2,6 @@ import { Mesh, Position2Attribute, ColorAttribute } from './Mesh';
 import { Shader } from './Shader';
 import { Disposable, Color, MathUtils } from './Utils';
 import { Vector2 } from './Vector2';
-import { ManagedWebGLRenderingContext } from './WebGL';
 
 export enum ShapeType {
   Point = 0x0000,
@@ -11,7 +10,7 @@ export enum ShapeType {
 }
 
 export class ShapeRenderer implements Disposable {
-  private context: ManagedWebGLRenderingContext;
+  private context: WebGLRenderingContext;
   private isDrawing = false;
   private mesh: Mesh;
   private shapeType = ShapeType.Filled;
@@ -24,12 +23,11 @@ export class ShapeRenderer implements Disposable {
   private dstBlend: number;
   projectionValues: Float32Array = new Float32Array(16);
 
-  constructor(context: ManagedWebGLRenderingContext | WebGLRenderingContext, maxVertices: number = 10920) {
+  constructor(context: WebGLRenderingContext, maxVertices: number = 10920) {
     if (maxVertices > 10920) throw new Error("Can't have more than 10920 triangles per batch: " + maxVertices);
-    this.context =
-      context instanceof ManagedWebGLRenderingContext ? context : new ManagedWebGLRenderingContext(context);
+    this.context = context;
     this.mesh = new Mesh(context, [new Position2Attribute(), new ColorAttribute()], maxVertices, 0);
-    let gl = this.context.gl;
+    let gl = this.context;
     this.srcColorBlend = gl.SRC_ALPHA;
     this.srcAlphaBlend = gl.ONE;
     this.dstBlend = gl.ONE_MINUS_SRC_ALPHA;
@@ -49,7 +47,7 @@ export class ShapeRenderer implements Disposable {
     this.shader.bind();
     this.shader.setUniform4x4f(Shader.MVP_MATRIX, this.projectionValues);
 
-    let gl = this.context.gl;
+    let gl = this.context;
     gl.enable(gl.BLEND);
     gl.blendFuncSeparate(this.srcColorBlend, this.dstBlend, this.srcAlphaBlend, this.dstBlend);
   }
@@ -60,7 +58,7 @@ export class ShapeRenderer implements Disposable {
     this.dstBlend = dstBlend;
     if (this.isDrawing) {
       this.flush();
-      let gl = this.context.gl;
+      let gl = this.context;
       gl.blendFuncSeparate(srcColorBlend, dstBlend, srcAlphaBlend, dstBlend);
     }
   }
@@ -341,7 +339,7 @@ export class ShapeRenderer implements Disposable {
   end() {
     if (!this.isDrawing) throw new Error('ShapeRenderer.begin() has not been called');
     this.flush();
-    let gl = this.context.gl;
+    let gl = this.context;
     gl.disable(gl.BLEND);
     this.isDrawing = false;
   }

@@ -113,6 +113,13 @@ export class Color {
 
   constructor(public r: number = 0, public g: number = 0, public b: number = 0, public a: number = 0) {}
 
+  unsafeSet(r: number, g: number, b: number, a: number) {
+    this.r = r;
+    this.g = g;
+    this.b = b;
+    this.a = a;
+  }
+
   set(r: number, g: number, b: number, a: number) {
     this.r = r;
     this.g = g;
@@ -749,4 +756,31 @@ export class ArrayMap<K, V> {
     this.values.length = 0;
     this.size = 0;
   }
+}
+
+export function concatAndResolveUrl(url: string, concat: string): string {
+  let url1 = url.split('/');
+  let url2 = concat.split('/');
+  let url3: string[] = [];
+
+  for (let i = 0, l = url1.length; i < l; i++) {
+    if (url1[i] === '..') {
+      url3.pop();
+    } else if (url1[i] === '.') {
+      continue;
+    } else {
+      url3.push(url1[i]);
+    }
+  }
+
+  for (let i = 0, l = url2.length; i < l; i++) {
+    if (url2[i] === '..') {
+      url3.pop();
+    } else if (url2[i] === '.') {
+      continue;
+    } else {
+      url3.push(url2[i]);
+    }
+  }
+  return url3.join('/');
 }
