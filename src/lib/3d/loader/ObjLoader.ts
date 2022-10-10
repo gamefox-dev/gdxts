@@ -194,10 +194,10 @@ export class ObjLoader {
   private groups: Group[] = [];
 
   public async load(gl: WebGLRenderingContext, fileName: string): Promise<Model> {
-    const shipData = await this.loadModelData(fileName);
-    const shipModel = new Model(gl);
-    await shipModel.load(shipData);
-    return shipModel;
+    const data = await this.loadModelData(fileName);
+    const model = new Model(gl);
+    await model.load(data);
+    return model;
   }
 
   public async loadModelData(fileName: string, flipV: boolean = false): Promise<ModelData> {
