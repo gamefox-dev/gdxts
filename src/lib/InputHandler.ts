@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { OrthoCamera } from './Camera';
+import { OrthoCamera } from './OrthoCamera';
 import { Vector2 } from './Vector2';
 
 export enum InputEvent {

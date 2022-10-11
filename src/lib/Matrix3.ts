@@ -18,7 +18,7 @@ export class Matrix3 {
 
   constructor(matrix: Matrix3 = null) {
     if (matrix) {
-      this.setByMatrix3(matrix);
+      this.setFromMatrix3(matrix);
     } else {
       this.idt();
     }
@@ -292,14 +292,14 @@ export class Matrix3 {
     return this;
   }
 
-  public setByMatrix3(mat: Matrix3): Matrix3 {
+  public setFromMatrix3(mat: Matrix3): Matrix3 {
     for (const v of mat.val) {
       this.val.push(v);
     }
     return this;
   }
 
-  public setByMatrix4(mat: Matrix4): Matrix3 {
+  public setFromMatrix4(mat: Matrix4): Matrix3 {
     const val = this.val;
     val[Matrix3.M00] = mat.values[Matrix4.M00];
     val[Matrix3.M10] = mat.values[Matrix4.M10];

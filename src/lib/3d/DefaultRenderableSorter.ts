@@ -1,15 +1,15 @@
 import { Matrix4 } from '../Matrix4';
 import { Vector3 } from '../Vector3';
 import { BlendingAttribute } from './attributes/BlendingAttribute';
-import { PerspectiveCamera } from './PerspectiveCamera';
+import { Camera } from './Camera';
 import { Renderable } from './Renderable';
 
 export class DefaultRenderableSorter {
-  private camera: PerspectiveCamera;
+  private camera: Camera;
   private tmpV1: Vector3 = new Vector3();
   private tmpV2: Vector3 = new Vector3();
 
-  public sort(camera: PerspectiveCamera, renderables: Renderable[]) {
+  public sort(camera: Camera, renderables: Renderable[]) {
     this.camera = camera;
     //renderables.sort(this.compare.bind(this));
   }

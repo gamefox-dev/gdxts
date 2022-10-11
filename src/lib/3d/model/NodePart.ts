@@ -23,7 +23,7 @@ export class NodePart {
 
   public setRenderable(out: Renderable): Renderable {
     out.material = this.material;
-    out.meshPart.setByMeshPart(this.meshPart);
+    out.meshPart.setFrom(this.meshPart);
     out.bones = this.bones;
     return out;
   }

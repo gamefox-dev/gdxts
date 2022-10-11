@@ -125,6 +125,16 @@ export class Shader implements Disposable, Restorable {
     this.context.uniform4f(this.getUniformLocation(uniform), value, value2, value3, value4);
   }
 
+  public setUniform4fWithLocation(
+    location: WebGLUniformLocation,
+    value: number,
+    value2: number,
+    value3: number,
+    value4: number
+  ) {
+    this.context.uniform4f(location, value, value2, value3, value4);
+  }
+
   public setUniform2x2f(uniform: string, value: ArrayLike<number>) {
     this.tmp2x2.set(value);
     this.context.uniformMatrix2fv(this.getUniformLocation(uniform), false, this.tmp2x2);
@@ -133,6 +143,11 @@ export class Shader implements Disposable, Restorable {
   public setUniform3x3f(uniform: string, value: ArrayLike<number>) {
     this.tmp3x3.set(value);
     this.context.uniformMatrix3fv(this.getUniformLocation(uniform), false, this.tmp3x3);
+  }
+
+  public setUniform3x3fWithLocation(location: WebGLUniformLocation, value: ArrayLike<number>) {
+    this.tmp3x3.set(value);
+    this.context.uniformMatrix3fv(location, false, this.tmp3x3);
   }
 
   public setUniform4x4f(uniform: string, value: ArrayLike<number>) {

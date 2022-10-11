@@ -1,4 +1,4 @@
-import { OrthoCamera } from './Camera';
+import { OrthoCamera } from './OrthoCamera';
 import { resizeCanvas } from './Utils';
 
 export interface ViewportInfo {

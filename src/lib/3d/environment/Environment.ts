@@ -5,9 +5,12 @@ import { SpotLightsAttribute } from '../attributes/SpotLightAttribute';
 import { BaseLight } from './BaseLight';
 import { DirectionalLight } from './DirectionalLight';
 import { PointLight } from './PointLight';
+import { ShadowMap } from './ShadowMap';
 import { SpotLight } from './SpotLight';
 
 export class Environment extends Attributes {
+  public shadowMap: ShadowMap;
+
   public addLights(lights: BaseLight[]): Environment {
     for (const light of lights) this.addLight(light);
     return this;

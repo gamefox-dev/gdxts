@@ -11,8 +11,9 @@ import { NodeAnimation } from './model/NodeAnimation';
 import { NodeKeyframe } from './model/NodeKeyframe';
 import { NodePart } from './model/NodePart';
 import { Renderable } from './Renderable';
+import { RenderableProvider } from './RenderableProvider';
 
-export class ModelInstance {
+export class ModelInstance extends RenderableProvider {
   public static defaultShareKeyframes = true;
   public materials: Material[] = [];
   public nodes: Node[] = [];
@@ -21,6 +22,7 @@ export class ModelInstance {
   public transform: Matrix4;
 
   public constructor(model: Model, transform: Matrix4 = null, rootNodeIds: string[] = null) {
+    super();
     this.model = model;
     this.transform = !transform ? new Matrix4() : transform;
     if (!rootNodeIds) this.copyNodes(model.nodes);

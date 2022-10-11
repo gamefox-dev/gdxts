@@ -19,11 +19,11 @@ export class MeshPart implements Disposable {
 
   constructor(other: MeshPart = null) {
     if (!!other) {
-      this.setByMeshPart(other);
+      this.setFrom(other);
     }
   }
 
-  public setByMeshPart(other: MeshPart): MeshPart {
+  public setFrom(other: MeshPart): MeshPart {
     this.id = other.id;
     this.mesh = other.mesh;
     this.offset = other.offset;

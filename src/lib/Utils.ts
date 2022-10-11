@@ -269,6 +269,10 @@ export class MathUtils {
   static isZero(value: number): boolean {
     return Math.abs(value) <= MathUtils.FLOAT_ROUNDING_ERROR;
   }
+
+  static lerp(fromValue: number, toValue: number, progress: number): number {
+    return fromValue + (toValue - fromValue) * progress;
+  }
 }
 
 export abstract class Interpolation {

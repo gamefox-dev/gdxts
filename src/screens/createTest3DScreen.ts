@@ -33,7 +33,15 @@ const KNIGHT_Y_OFFSET = 2.4;
 export const create3DTestScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
   const canvas = viewport.getCanvas();
-  const cam = new PerspectiveCamera(67, canvas.width, canvas.height);
+
+  const viewportInfo = viewport.getViewportInfo();
+  const cam = new PerspectiveCamera(
+    67,
+    viewportInfo.width,
+    viewportInfo.height,
+    viewportInfo.worldWidth,
+    viewportInfo.worldHeight
+  );
   cam.position.set(0, 15, 10);
   cam.lookAt(0, 0, 0);
   cam.near = 1;

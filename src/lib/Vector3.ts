@@ -96,6 +96,22 @@ export class Vector3 {
     );
   }
 
+  multiplyMat4(matrix: Matrix4): Vector3 {
+    const l_mat = matrix.values;
+    return this.set(
+      this.x * l_mat[Matrix4.M00] + this.y * l_mat[Matrix4.M01] + this.z * l_mat[Matrix4.M02] + l_mat[Matrix4.M03],
+      this.x * l_mat[Matrix4.M10] + this.y * l_mat[Matrix4.M11] + this.z * l_mat[Matrix4.M12] + l_mat[Matrix4.M13],
+      this.x * l_mat[Matrix4.M20] + this.y * l_mat[Matrix4.M21] + this.z * l_mat[Matrix4.M22] + l_mat[Matrix4.M23]
+    );
+  }
+
+  public mulAdd(vec: Vector3, scalar: number): Vector3 {
+    this.x += vec.x * scalar;
+    this.y += vec.y * scalar;
+    this.z += vec.z * scalar;
+    return this;
+  }
+
   project(matrix: Matrix4): Vector3 {
     let l_mat = matrix.values;
     let l_w =
@@ -166,5 +182,21 @@ export class Vector3 {
   equals(other: Vector3): boolean {
     if (this === other) return true;
     return this.x === other.x && this.y === other.y && this.z === other.z;
+  }
+
+  rot(matrix: Matrix4): Vector3 {
+    return this.set(
+      this.x * matrix.values[Matrix4.M00] + this.y * matrix.values[Matrix4.M01] + this.z * matrix.values[Matrix4.M02],
+      this.x * matrix.values[Matrix4.M10] + this.y * matrix.values[Matrix4.M11] + this.z * matrix.values[Matrix4.M12],
+      this.x * matrix.values[Matrix4.M20] + this.y * matrix.values[Matrix4.M21] + this.z * matrix.values[Matrix4.M22]
+    );
+  }
+
+  unrotate(matrix: Matrix4) {
+    return this.set(
+      this.x * matrix.values[Matrix4.M00] + this.y * matrix.values[Matrix4.M10] + this.z * matrix.values[Matrix4.M20],
+      this.x * matrix.values[Matrix4.M01] + this.y * matrix.values[Matrix4.M11] + this.z * matrix.values[Matrix4.M21],
+      this.x * matrix.values[Matrix4.M02] + this.y * matrix.values[Matrix4.M12] + this.z * matrix.values[Matrix4.M22]
+    );
   }
 }

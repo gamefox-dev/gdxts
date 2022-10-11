@@ -10,7 +10,7 @@ export class DirectionalLight extends BaseLight {
     return this;
   }
 
-  public setFrom(color: Color, direction: Vector3) {
+  public setFromValue(color: Color, direction: Vector3) {
     if (!!color) this.color.set(color.r, color.g, color.b, color.a);
     if (!!direction) this.direction.setFrom(direction).normalize();
     return this;

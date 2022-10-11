@@ -61,7 +61,7 @@ export class BaseAnimationController {
   });
 
   private static transforms = new Map<Node, Transform>();
-  private applying = false;
+  protected applying = false;
   public target: ModelInstance;
 
   constructor(target: ModelInstance) {

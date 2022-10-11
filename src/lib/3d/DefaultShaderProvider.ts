@@ -1,19 +1,19 @@
 import { Disposable } from '../Utils';
 import { Renderable } from './Renderable';
-import { Config, DefaultShader } from './shaders/DefaultShader';
+import { DefaultShader, DefaultShaderConfig } from './shaders/DefaultShader';
 import { Shader3D } from './shaders/Shader3D';
 
 export class DefaultShaderProvider implements Disposable {
-  public config: Config;
+  public config: DefaultShaderConfig;
   protected shaders: Shader3D[] = [];
 
   constructor(
     private gl: WebGLRenderingContext,
-    config: Config = null,
+    config: DefaultShaderConfig = null,
     vertexShader: string = '',
     fragmentShader: string = ''
   ) {
-    this.config = !config ? new Config(vertexShader, fragmentShader) : config;
+    this.config = !config ? new DefaultShaderConfig(vertexShader, fragmentShader) : config;
   }
   dispose(): void {}
 

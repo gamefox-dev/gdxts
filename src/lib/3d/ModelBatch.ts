@@ -1,11 +1,11 @@
 import { Disposable, FlushablePool } from '../Utils';
+import { Camera } from './Camera';
 import { DefaultRenderableSorter } from './DefaultRenderableSorter';
 import { DefaultShaderProvider } from './DefaultShaderProvider';
 import { DefaultTextureBinder } from './DefaultTextureBinder';
 import { Environment } from './environment/Environment';
-import { ModelInstance } from './ModelInstance';
-import { PerspectiveCamera } from './PerspectiveCamera';
 import { Renderable } from './Renderable';
+import { RenderableProvider } from './RenderableProvider';
 import { RenderContext } from './RenderContext';
 import { Shader3D } from './shaders/Shader3D';
 
@@ -26,7 +26,7 @@ export class ModelBatch implements Disposable {
     this.shaderProvider.dispose();
   }
 
-  protected camera: PerspectiveCamera = null;
+  protected camera: Camera = null;
   protected renderablesPool: RenderablePool = new RenderablePool((): Renderable => {
     return new Renderable();
   });
@@ -43,19 +43,19 @@ export class ModelBatch implements Disposable {
     this.shaderProvider = !this.shaderProvider ? new DefaultShaderProvider(gl) : this.shaderProvider;
   }
 
-  public begin(cam: PerspectiveCamera) {
+  public begin(cam: Camera) {
     if (!!this.camera) throw new Error('Call end() first.');
     this.camera = cam;
     if (this.ownContext) this.context.begin();
   }
 
-  public setCamera(cam: PerspectiveCamera) {
+  public setCamera(cam: Camera) {
     if (!this.camera) throw new Error('Call begin() first.');
     if (this.renderables.length > 0) this.flush();
     this.camera = cam;
   }
 
-  public getCamera(): PerspectiveCamera {
+  public getCamera(): Camera {
     return this.camera;
   }
 
@@ -101,7 +101,7 @@ export class ModelBatch implements Disposable {
     this.renderables.push(renderable);
   }
 
-  public render(renderableProvider: ModelInstance, environment: Environment = null) {
+  public render(renderableProvider: RenderableProvider, environment: Environment = null) {
     const offset = this.renderables.length;
     renderableProvider.getRenderables(this.renderables, this.renderablesPool);
     for (let i = offset; i < this.renderables.length; i++) {
@@ -110,6 +110,12 @@ export class ModelBatch implements Disposable {
         renderable.environment = environment;
       }
       renderable.shader = this.shaderProvider.getShader(renderable);
+    }
+  }
+
+  public renderWithRenderableProviders(renderableProvider: RenderableProvider[]) {
+    for (const provider of renderableProvider) {
+      this.render(provider);
     }
   }
 }

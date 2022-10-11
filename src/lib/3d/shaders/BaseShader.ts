@@ -7,8 +7,8 @@ import { Vector2 } from '../../Vector2';
 import { Vector3 } from '../../Vector3';
 import { Attributes } from '../attributes/Attributes';
 import { VertexAttributes } from '../attributes/VertexAttributes';
+import { Camera } from '../Camera';
 import { Mesh3D } from '../Mesh';
-import { PerspectiveCamera } from '../PerspectiveCamera';
 import { Renderable } from '../Renderable';
 import { RenderContext } from '../RenderContext';
 import { Shader3D } from './Shader3D';
@@ -79,7 +79,7 @@ export class BaseShader implements Shader3D {
 
   program: Shader;
   context: RenderContext;
-  camera: PerspectiveCamera;
+  camera: Camera;
   currentMesh: Mesh3D;
 
   register(alias: string, validator: Validator = null, setter: Setter = null): number {
@@ -142,7 +142,7 @@ export class BaseShader implements Shader3D {
     }
   }
 
-  begin(camera: PerspectiveCamera, context: RenderContext) {
+  begin(camera: Camera, context: RenderContext) {
     this.camera = camera;
     this.context = context;
     this.program.bind();

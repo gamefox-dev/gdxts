@@ -10,18 +10,18 @@ export class Renderable {
 
   material: Material;
   environment: Environment;
-  //   userData: Object;
+  userData: any;
   bones: Matrix4[] = null;
   shader: Shader3D;
 
   public set(renderable: Renderable): Renderable {
     this.worldTransform.set(renderable.worldTransform.values);
     this.material = renderable.material;
-    this.meshPart.setByMeshPart(renderable.meshPart);
+    this.meshPart.setFrom(renderable.meshPart);
     this.bones = renderable.bones;
     this.environment = renderable.environment;
     this.shader = renderable.shader;
-    //this.userData = renderable.userData;
+    this.userData = renderable.userData;
     return this;
   }
 }

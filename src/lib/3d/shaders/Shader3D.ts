@@ -1,5 +1,5 @@
 import { Disposable } from '../../Utils';
-import { PerspectiveCamera } from '../PerspectiveCamera';
+import { Camera } from '../Camera';
 import { Renderable } from '../Renderable';
 import { RenderContext } from '../RenderContext';
 
@@ -8,7 +8,7 @@ export interface Shader3D extends Disposable {
   compareTo(other: Shader3D): void;
   canRender(instance: Renderable): boolean;
 
-  begin(camera: PerspectiveCamera, context: RenderContext): void;
+  begin(camera: Camera, context: RenderContext): void;
 
   render(renderable: Renderable): void;
   end(): void;

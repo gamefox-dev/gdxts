@@ -13,17 +13,17 @@ import { PointLightsAttribute } from '../attributes/PointLightAttribute';
 import { SpotLightsAttribute } from '../attributes/SpotLightAttribute';
 import { TextureAttribute } from '../attributes/TextureAttribute';
 import { Usage } from '../attributes/VertexAttribute';
+import { Camera } from '../Camera';
 import { AmbientCubemap } from '../environment/AmbientCubemap';
 import { DirectionalLight } from '../environment/DirectionalLight';
 import { PointLight } from '../environment/PointLight';
 import { SpotLight } from '../environment/SpotLight';
 import { GL20 } from '../GL20';
-import { PerspectiveCamera } from '../PerspectiveCamera';
 import { Renderable } from '../Renderable';
 import { RenderContext } from '../RenderContext';
 import { BaseShader, GlobalSetter, LocalSetter, Uniform } from './BaseShader';
 
-export class Config {
+export class DefaultShaderConfig {
   vertexShader: string = null;
   fragmentShader: string = null;
   numDirectionalLights = 2;
@@ -207,7 +207,7 @@ export class Setters {
   public static normalMatrix = new (class extends LocalSetter {
     public tmpM = new Matrix3();
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
-      shader.setMatrix3(inputID, this.tmpM.setByMatrix4(renderable.worldTransform).inv().transpose());
+      shader.setMatrix3(inputID, this.tmpM.setFromMatrix4(renderable.worldTransform).inv().transpose());
     }
   })();
   public static shininess = new (class extends LocalSetter {
@@ -322,7 +322,7 @@ export class Setters {
 }
 
 export class DefaultShader extends BaseShader {
-  public static defaultVertexShader = `
+  private static defaultVertexShader = `
   #if defined(diffuseTextureFlag) || defined(specularTextureFlag) || defined(emissiveTextureFlag)
   #define textureFlag
   #endif
@@ -670,7 +670,7 @@ export class DefaultShader extends BaseShader {
   }
   `;
 
-  public static defaultFragmentShader = `
+  private static defaultFragmentShader = `
   #ifdef GL_ES
   #define LOWP lowp
   #define MED mediump
@@ -979,7 +979,7 @@ export class DefaultShader extends BaseShader {
   private renderable: Renderable;
   protected attributesMask: number;
   private vertexMask: number;
-  protected config: Config;
+  protected config: DefaultShaderConfig;
 
   //private static optionalAttributes: number = IntAttribute.CullFace | DepthTestAttribute.Type;
   private static optionalAttributes: number = IntAttribute.CullFace;
@@ -987,7 +987,7 @@ export class DefaultShader extends BaseShader {
   constructor(
     private gl: WebGLRenderingContext,
     renderable: Renderable,
-    config: Config = null,
+    config: DefaultShaderConfig = null,
     prefix: string = '',
     vertexShader: string = '',
     fragmentShader: string = ''
@@ -996,7 +996,7 @@ export class DefaultShader extends BaseShader {
     if (vertexShader.length === 0) vertexShader = DefaultShader.defaultVertexShader;
     if (fragmentShader.length === 0) fragmentShader = DefaultShader.defaultFragmentShader;
     if (!config) {
-      config = new Config();
+      config = new DefaultShaderConfig();
     } else {
       prefix = DefaultShader.createPrefix(renderable, config);
     }
@@ -1004,7 +1004,7 @@ export class DefaultShader extends BaseShader {
     this.createShader(renderable, config, new Shader(this.gl, prefix + vertexShader, prefix + fragmentShader));
   }
 
-  public createShader(renderable: Renderable, config: Config, shaderProgram: Shader) {
+  public createShader(renderable: Renderable, config: DefaultShaderConfig, shaderProgram: Shader) {
     const attributes = DefaultShader.combineAttributes(renderable);
     this.config = config;
     this.program = shaderProgram;
@@ -1132,7 +1132,7 @@ export class DefaultShader extends BaseShader {
     return (mask & flag) !== 0;
   }
 
-  private static tmpAttributes: Attributes = new Attributes();
+  protected static tmpAttributes: Attributes = new Attributes();
 
   private static combineAttributes(renderable: Renderable): Attributes {
     this.tmpAttributes.clear();
@@ -1148,7 +1148,7 @@ export class DefaultShader extends BaseShader {
     return mask;
   }
 
-  public static createPrefix(renderable: Renderable, config: Config): string {
+  public static createPrefix(renderable: Renderable, config: DefaultShaderConfig): string {
     const attributes = this.combineAttributes(renderable);
     let prefix = '';
     const attributesMask = attributes.getMask();
@@ -1233,7 +1233,7 @@ export class DefaultShader extends BaseShader {
 
   private lightsSet: boolean;
 
-  public begin(camera: PerspectiveCamera, context: RenderContext) {
+  public begin(camera: Camera, context: RenderContext) {
     super.begin(camera, context);
 
     for (const dirLight of this.directionalLights) dirLight.set(0, 0, 0, 0, -1, 0);
@@ -1313,7 +1313,7 @@ export class DefaultShader extends BaseShader {
           this.directionalLights[i].color.set(0, 0, 0, 1);
         } else if (this.lightsSet && this.directionalLights[i].equals(dirs[i])) {
           continue;
-        } else this.directionalLights[i].setFrom(dirs[i].color, dirs[i].direction);
+        } else this.directionalLights[i].setFromValue(dirs[i].color, dirs[i].direction);
         const idx = this.dirLightsLoc + i * this.dirLightsSize;
         this.program.setUniform3fWithLocation(
           this.lightLocs[idx + this.dirLightsColorOffset],

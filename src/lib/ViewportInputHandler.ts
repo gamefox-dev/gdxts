@@ -1,5 +1,5 @@
-import { OrthoCamera } from './Camera';
 import { InputEvent, InputHandler } from './InputHandler';
+import { OrthoCamera } from './OrthoCamera';
 import { Vector2 } from './Vector2';
 import { Viewport } from './Viewport';
 
