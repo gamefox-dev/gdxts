@@ -1,5 +1,5 @@
-import { Disposable, Restorable } from './Utils';
 import { Shader } from './Shader';
+import { Disposable, Restorable } from './Utils';
 
 export class Mesh implements Disposable, Restorable {
   private context: WebGLRenderingContext;

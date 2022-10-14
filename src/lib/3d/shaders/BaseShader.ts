@@ -85,8 +85,8 @@ export class BaseShader implements Shader3D {
   register(alias: string, validator: Validator = null, setter: Setter = null): number {
     const existing = this.getUniformID(alias);
     if (existing >= 0) {
-      this.validators.splice(existing, 0, validator);
-      this.setters.splice(existing, 0, setter);
+      this.validators[existing] = validator;
+      this.setters[existing] = setter;
       return existing;
     }
     this.uniforms.push(alias);
@@ -128,7 +128,7 @@ export class BaseShader implements Shader3D {
         }
       }
       if (!this.locations[i]) {
-        this.validators.splice(i, 0, null);
+        this.validators[i] = null;
       }
     }
     if (!!renderable) {

@@ -3,8 +3,9 @@ import { Vector3 } from '../Vector3';
 import { BlendingAttribute } from './attributes/BlendingAttribute';
 import { Camera } from './Camera';
 import { Renderable } from './Renderable';
+import { RenderableSorter } from './utils/RenderableSorter';
 
-export class DefaultRenderableSorter {
+export class DefaultRenderableSorter implements RenderableSorter {
   private camera: Camera;
   private tmpV1: Vector3 = new Vector3();
   private tmpV2: Vector3 = new Vector3();

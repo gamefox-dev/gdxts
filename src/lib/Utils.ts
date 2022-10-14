@@ -110,6 +110,7 @@ export class Color {
   public static GREEN = new Color(0, 1, 0, 1);
   public static BLUE = new Color(0, 0, 1, 1);
   public static MAGENTA = new Color(1, 0, 1, 1);
+  public static BLACK = new Color(0, 0, 0, 1);
 
   constructor(public r: number = 0, public g: number = 0, public b: number = 0, public a: number = 0) {}
 

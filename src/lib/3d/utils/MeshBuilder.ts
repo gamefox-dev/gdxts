@@ -233,7 +233,7 @@ export class MeshBuilder {
     this.vertexTransformationEnabled = !!transform;
     if (this.vertexTransformationEnabled) {
       this.positionTransform.set(transform.values);
-      this.normalTransform.setByMatrix4(transform).inv().transpose();
+      this.normalTransform.setFromMatrix4(transform).inv().transpose();
     } else {
       this.positionTransform.idt();
       this.normalTransform.idt();

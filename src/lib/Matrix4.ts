@@ -690,6 +690,86 @@ export class Matrix4 {
     return this;
   }
 
+  setToOrtho(left: number, right: number, bottom: number, top: number, near: number, far: number): Matrix4 {
+    this.idt();
+    const x_orth = 2 / (right - left);
+    const y_orth = 2 / (top - bottom);
+    const z_orth = -2 / (far - near);
+
+    const tx = -(right + left) / (right - left);
+    const ty = -(top + bottom) / (top - bottom);
+    const tz = -(far + near) / (far - near);
+
+    this.values[Matrix4.M00] = x_orth;
+    this.values[Matrix4.M10] = 0;
+    this.values[Matrix4.M20] = 0;
+    this.values[Matrix4.M30] = 0;
+    this.values[Matrix4.M01] = 0;
+    this.values[Matrix4.M11] = y_orth;
+    this.values[Matrix4.M21] = 0;
+    this.values[Matrix4.M31] = 0;
+    this.values[Matrix4.M02] = 0;
+    this.values[Matrix4.M12] = 0;
+    this.values[Matrix4.M22] = z_orth;
+    this.values[Matrix4.M32] = 0;
+    this.values[Matrix4.M03] = tx;
+    this.values[Matrix4.M13] = ty;
+    this.values[Matrix4.M23] = tz;
+    this.values[Matrix4.M33] = 1;
+
+    return this;
+  }
+
+  getScaleXSquared() {
+    return (
+      this.values[Matrix4.M00] * this.values[Matrix4.M00] +
+      this.values[Matrix4.M01] * this.values[Matrix4.M01] +
+      this.values[Matrix4.M02] * this.values[Matrix4.M02]
+    );
+  }
+
+  getScaleYSquared() {
+    return (
+      this.values[Matrix4.M10] * this.values[Matrix4.M10] +
+      this.values[Matrix4.M11] * this.values[Matrix4.M11] +
+      this.values[Matrix4.M12] * this.values[Matrix4.M12]
+    );
+  }
+
+  getScaleZSquared() {
+    return (
+      this.values[Matrix4.M20] * this.values[Matrix4.M20] +
+      this.values[Matrix4.M21] * this.values[Matrix4.M21] +
+      this.values[Matrix4.M22] * this.values[Matrix4.M22]
+    );
+  }
+
+  getScale(scale: Vector3): Vector3 {
+    return scale.set(this.getScaleX(), this.getScaleY(), this.getScaleZ());
+  }
+
+  getScaleX(): number {
+    return MathUtils.isZero(this.values[Matrix4.M01]) && MathUtils.isZero(this.values[Matrix4.M02])
+      ? Math.abs(this.values[Matrix4.M00])
+      : Math.sqrt(this.getScaleXSquared());
+  }
+
+  getScaleY(): number {
+    return MathUtils.isZero(this.values[Matrix4.M10]) && MathUtils.isZero(this.values[Matrix4.M12])
+      ? Math.abs(this.values[Matrix4.M11])
+      : Math.sqrt(this.getScaleYSquared());
+  }
+
+  getScaleZ(): number {
+    return MathUtils.isZero(this.values[Matrix4.M20]) && MathUtils.isZero(this.values[Matrix4.M21])
+      ? Math.abs(this.values[Matrix4.M22])
+      : Math.sqrt(this.getScaleZSquared());
+  }
+
+  public getRotation(rotation: Quaternion, normalizeAxes = false): Quaternion {
+    return rotation.setFromMatrix4(this, normalizeAxes);
+  }
+
   setToLookAt(position: Vector3, target: Vector3, up: Vector3) {
     if (Matrix4.tempVec === null) Matrix4.tempVec = new Vector3();
     let vec = Matrix4.tempVec;

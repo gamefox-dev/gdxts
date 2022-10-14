@@ -48,24 +48,24 @@ export class PBRShaderProvider extends DefaultShaderProvider {
     return PBRDepthShaderProvider.createDefaultConfig();
   }
 
-  public static createDefaultWithNumBones(maxBones: number): PBRShaderProvider {
+  public static createDefaultWithNumBones(gl: WebGLRenderingContext, maxBones: number): PBRShaderProvider {
     const config = this.createDefaultConfig();
     config.numBones = maxBones;
-    return this.createDefault(config);
+    return this.createDefault(gl, config);
   }
 
-  public static createDefault(config: PBRShaderConfig): PBRShaderProvider {
-    return new PBRShaderProvider(this.gl, config);
+  public static createDefault(gl: WebGLRenderingContext, config: PBRShaderConfig): PBRShaderProvider {
+    return new PBRShaderProvider(gl, config);
   }
 
-  public static createDefaultDepthtWithNumBones(maxBones: number): DepthShaderProvider {
+  public static createDefaultDepthtWithNumBones(gl: WebGLRenderingContext, maxBones: number): DepthShaderProvider {
     const config = this.createDefaultDepthConfig();
     config.numBones = maxBones;
-    return this.createDefaultDepth(config);
+    return this.createDefaultDepth(gl, config);
   }
 
-  public static createDefaultDepth(config: DepthShaderConfig): DepthShaderProvider {
-    return new PBRDepthShaderProvider(this.gl, config);
+  public static createDefaultDepth(gl: WebGLRenderingContext, config: DepthShaderConfig): DepthShaderProvider {
+    return new PBRDepthShaderProvider(gl, config);
   }
 
   constructor(gl: WebGLRenderingContext, config: PBRShaderConfig) {
@@ -125,7 +125,7 @@ export class PBRShaderProvider extends DefaultShaderProvider {
     return prefix;
   }
 
-  protected createShader(gl: WebGLRenderingContext, renderable: Renderable): Shader3D {
+  protected createShader(renderable: Renderable): Shader3D {
     const config = this.config as PBRShaderConfig;
 
     let prefix = this.createPrefixBase(renderable, config);
@@ -292,7 +292,7 @@ export class PBRShaderProvider extends DefaultShaderProvider {
         }
       }
 
-      PBRCommon.checkVertexAttributes(renderable);
+      PBRCommon.checkVertexAttributes(this.gl, renderable);
 
       if (numBoneInfluence > 8) {
         console.error('more than 8 bones influence attributes not supported: ' + numBoneInfluence + ' found.');

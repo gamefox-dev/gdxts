@@ -1,7 +1,7 @@
 export class GLTFExtras {
-  public value: Object;
+  public value: any;
 
-  public read(jsonData: Object) {
+  public read(jsonData: any) {
     this.value = jsonData;
   }
 

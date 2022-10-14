@@ -1,34 +1,36 @@
 import {
-  AnimationController,
   Color,
   ColorAttribute3D,
-  DirectionalLight,
+  DefaultShaderProvider,
   Environment,
   G3dModelLoader,
   Game,
   InputEvent,
+  Material,
   ModelBatch,
+  ModelBuilder,
   ModelInstance,
   ObjLoader,
   PerspectiveCamera,
   Quaternion,
   Screen,
+  Usage,
   Vector2,
   Vector3,
   Viewport,
   ViewportInputHandler
 } from '../lib';
+import { DirectionalLightEx } from '../lib/3d/gltf/scene3d/lights/DirectionalLightEx';
+import { SceneManager } from '../lib/3d/gltf/scene3d/scene/SceneManager';
+import { PBRShaderProvider } from '../lib/3d/gltf/scene3d/shaders/PBRShaderProvider';
 
-const modelFiles = ['Treasure.obj', 'Kings_Throne.obj', 'Thirsty_Corridor.obj', 'TrappedRoom.obj'];
+const modelFiles = ['castle.obj'];
 const modelRotations: Quaternion[] = [
   new Quaternion().setEulerAngles(90, 0, 0),
   new Quaternion(),
   new Quaternion().setEulerAngles(180, 0, 0),
   new Quaternion().setEulerAngles(-90, 0, 0)
 ];
-const MODEL_SIZE = 5;
-const KNIGHT_SCALE = 0.15;
-const KNIGHT_Y_OFFSET = 2.4;
 
 export const create3DTestScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
@@ -48,44 +50,35 @@ export const create3DTestScreen = async (viewport: Viewport): Promise<Screen> =>
   cam.far = 300;
   cam.update();
 
-  const modelBatch = new ModelBatch(gl);
+  const shaderProvider = PBRShaderProvider.createDefaultWithNumBones(gl, 24);
+  let modelBatch = new ModelBatch(gl, null, shaderProvider);
+  modelBatch = new ModelBatch(gl, null, new DefaultShaderProvider(gl));
+
   const environment = new Environment();
-  environment.set(new ColorAttribute3D(ColorAttribute3D.AmbientLight, new Color(0.8, 0.8, 0.8, 1)));
-  const directionalLight = new DirectionalLight().set(1, 1, 1, -0.3, 0.3, -0.7);
-  environment.addLight(directionalLight);
+  environment.set(new ColorAttribute3D(ColorAttribute3D.AmbientLight, new Color(1, 1, 1, 1)));
+  environment.addLight(new DirectionalLightEx().setWithInstensity(Color.WHITE, new Vector3(-1, -4, -2), 10));
 
   const instances: ModelInstance[] = [];
-  const animationControllers: AnimationController[] = [];
-  const objLoader = new ObjLoader();
-  let col = 0;
-  let row = 0;
-  for (let i = 0; i < modelFiles.length; i++) {
-    const model = await objLoader.load(gl, modelFiles[i]);
-    const instance = new ModelInstance(model);
-    instance.transform
-      .setTranslation(col * MODEL_SIZE - MODEL_SIZE / 2, 0, row * MODEL_SIZE - MODEL_SIZE / 2)
-      .rotate(modelRotations[i]);
-    instances.push(instance);
-
-    col++;
-    if (col === 2) {
-      col = 0;
-      row++;
-    }
-  }
-
   const g3dLoader = new G3dModelLoader();
-  const knightModel = await g3dLoader.load(gl, 'knight.g3dj');
+  let model = await g3dLoader.load(gl, './castle.g3dj');
 
-  for (let i = 0; i < 2; i++) {
-    const instance = new ModelInstance(knightModel);
-    instance.transform.setTranslation(1 + i * 2.7, KNIGHT_Y_OFFSET, -2).scale(KNIGHT_SCALE, KNIGHT_SCALE, KNIGHT_SCALE);
-    instances.push(instance);
+  const objLoader = new ObjLoader();
+  model = await objLoader.load(gl, './castle.obj');
 
-    const animController = new AnimationController(instance);
-    animController.setAnimation('Idle', -1);
-    animationControllers.push(animController);
-  }
+  const instance = new ModelInstance(model);
+  instances.push(instance);
+
+  const material = new Material();
+  material.setAttribute(ColorAttribute3D.createDiffuse(Color.GREEN));
+  const modelBuilder = new ModelBuilder(gl);
+  const boxModel = modelBuilder.createBox(2, 2, 2, material, Usage.Position | Usage.Normal);
+  const boxInstance = new ModelInstance(boxModel);
+  boxInstance.transform.setTranslation(-5, 0, 0);
+
+  const manager = new SceneManager(gl);
+  manager.setAmbientLight(0.01);
+  manager.environment.addLight(new DirectionalLightEx().setWithInstensity(Color.WHITE, new Vector3(-1, -4, -2), 10));
+  manager.camera = cam;
 
   const touchStartPos = new Vector2();
   let touched = false;
@@ -117,19 +110,21 @@ export const create3DTestScreen = async (viewport: Viewport): Promise<Screen> =>
   return {
     update(delta: number, game: Game) {
       gl.clear(gl.COLOR_BUFFER_BIT);
-      modelBatch.begin(cam);
 
-      for (const animController of animationControllers) {
-        animController.update(delta);
-      }
+      // modelBatch.begin(cam);
+      // for (const instance of instances) {
+      //   modelBatch.render(instance, environment);
+      // }
+      // modelBatch.end();
 
+      manager.update(delta);
       for (const instance of instances) {
-        modelBatch.render(instance, environment);
+        manager.getRenderableProviders().push(instance);
+        manager.getRenderableProviders().push(boxInstance);
       }
-      modelBatch.end();
+      manager.render();
+      manager.getRenderableProviders().length = 0;
     },
-    dispose() {
-      modelBatch.dispose();
-    }
+    dispose() {}
   };
 };

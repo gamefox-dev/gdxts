@@ -46,7 +46,7 @@ export class PBRDepthShaderProvider extends DepthShaderProvider {
 
   protected createShader(renderable: Renderable) {
     // TODO only count used attributes, depth shader only require a few of them.
-    PBRCommon.checkVertexAttributes(renderable);
+    PBRCommon.checkVertexAttributes(this.gl, renderable);
 
     return new PBRDepthShader(
       this.gl,

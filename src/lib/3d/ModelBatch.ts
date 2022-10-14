@@ -8,6 +8,8 @@ import { Renderable } from './Renderable';
 import { RenderableProvider } from './RenderableProvider';
 import { RenderContext } from './RenderContext';
 import { Shader3D } from './shaders/Shader3D';
+import { RenderableSorter } from './utils/RenderableSorter';
+import { ShaderProvider } from './utils/ShaderProvider';
 
 class RenderablePool extends FlushablePool<Renderable> {
   obtain(): Renderable {
@@ -33,14 +35,19 @@ export class ModelBatch implements Disposable {
   protected renderables: Renderable[] = [];
   protected context: RenderContext = null;
   private ownContext: boolean;
-  protected shaderProvider: DefaultShaderProvider = null;
-  protected sorter: DefaultRenderableSorter = null;
+  protected shaderProvider: ShaderProvider = null;
+  protected sorter: RenderableSorter = null;
 
-  public constructor(gl: WebGLRenderingContext, context: RenderContext = null, sorter: DefaultRenderableSorter = null) {
+  constructor(
+    gl: WebGLRenderingContext,
+    context: RenderContext = null,
+    shaderProvider: ShaderProvider = null,
+    sorter: RenderableSorter = null
+  ) {
     this.sorter = !sorter ? new DefaultRenderableSorter() : sorter;
     this.ownContext = !context;
     this.context = !context ? new RenderContext(new DefaultTextureBinder(gl, DefaultTextureBinder.LRU, 1)) : context;
-    this.shaderProvider = !this.shaderProvider ? new DefaultShaderProvider(gl) : this.shaderProvider;
+    this.shaderProvider = !shaderProvider ? new DefaultShaderProvider(gl) : shaderProvider;
   }
 
   public begin(cam: Camera) {
@@ -67,7 +74,7 @@ export class ModelBatch implements Disposable {
     return this.context;
   }
 
-  public getRenderableSorter(): DefaultRenderableSorter {
+  public getRenderableSorter(): RenderableSorter {
     return this.sorter;
   }
 
@@ -113,9 +120,9 @@ export class ModelBatch implements Disposable {
     }
   }
 
-  public renderWithRenderableProviders(renderableProvider: RenderableProvider[]) {
+  public renderWithRenderableProviders(renderableProvider: RenderableProvider[], environment: Environment = null) {
     for (const provider of renderableProvider) {
-      this.render(provider);
+      this.render(provider, environment);
     }
   }
 }

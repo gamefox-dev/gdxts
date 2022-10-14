@@ -1,7 +1,6 @@
 import { Matrix3 } from '../../../../Matrix3';
 import { Shader } from '../../../../Shader';
 import { Color } from '../../../../Utils';
-import { Vector2 } from '../../../../Vector2';
 import { Vector3 } from '../../../../Vector3';
 import { Attributes, ColorAttribute3D, DirectionalLightsAttribute, TextureAttribute, Usage } from '../../../attributes';
 import { Renderable } from '../../../Renderable';
@@ -16,8 +15,6 @@ import { DirectionalLightEx } from '../lights/DirectionalLightEx';
 import { WeightVector } from '../model/WeightVector';
 
 export class PBRShader extends DefaultShader {
-  private static v2 = new Vector2();
-
   public static baseColorTextureUniform = new Uniform('u_diffuseTexture', PBRTextureAttribute.BaseColorTexture);
   public static baseColorTextureSetter = new (class extends LocalSetter {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
