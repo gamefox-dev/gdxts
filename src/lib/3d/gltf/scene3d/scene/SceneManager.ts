@@ -58,7 +58,7 @@ export class SceneManager implements Disposable {
 
   public setEnvironmentRotation(azymuthAngleDegree: number) {
     const attribute = this.environment.get(PBRMatrixAttribute.EnvRotation) as PBRMatrixAttribute;
-    if (attribute != null) {
+    if (!!attribute) {
       attribute.set(azymuthAngleDegree);
     } else {
       this.environment.set(PBRMatrixAttribute.createEnvRotation(azymuthAngleDegree));
@@ -101,7 +101,7 @@ export class SceneManager implements Disposable {
    * @param delta
    */
   public update(delta: number) {
-    if (!this.camera) {
+    if (!!this.camera) {
       this.updateEnvironment();
       for (const r of this.renderableProviders) {
         if (r instanceof Updatable) {
@@ -131,7 +131,7 @@ export class SceneManager implements Disposable {
     this.computedEnvironement.setCache(this.environment);
     this.pointLights.lights.length = 0;
     this.spotLights.lights.length = 0;
-    if (this.environment != null) {
+    if (!!this.environment) {
       for (const a of this.environment.getAttributes()) {
         if (a instanceof PointLightsAttribute) {
           for (const light of a.lights) {
@@ -152,11 +152,11 @@ export class SceneManager implements Disposable {
   }
   protected cullLights() {
     const pla = this.environment.get(PointLightsAttribute.Type) as PointLightsAttribute;
-    if (pla != null) {
+    if (!!pla) {
       for (const light of pla.lights) {
         if (light instanceof PointLightEx) {
           const l = light as PointLightEx;
-          if (l.range != null && !this.camera.frustum.sphereInFrustum(l.position, l.range)) {
+          if (!!l.range && !this.camera.frustum.sphereInFrustum(l.position, l.range)) {
             const index = this.pointLights.lights.indexOf(l);
             if (index >= 0) {
               this.pointLights.lights.splice(index, 1);
@@ -166,11 +166,11 @@ export class SceneManager implements Disposable {
       }
     }
     const sla = this.environment.get(SpotLightsAttribute.Type) as SpotLightsAttribute;
-    if (sla != null) {
+    if (!!sla) {
       for (const light of sla.lights) {
         if (light instanceof SpotLightEx) {
           const l = light as SpotLightEx;
-          if (l.range != null && !this.camera.frustum.sphereInFrustum(l.position, l.range)) {
+          if (!!l.range && !this.camera.frustum.sphereInFrustum(l.position, l.range)) {
             const index = this.spotLights.lights.indexOf(l);
             if (index >= 0) {
               this.spotLights.lights.splice(index, 1);
@@ -190,7 +190,6 @@ export class SceneManager implements Disposable {
     if (!this.camera) return;
 
     this.renderShadows();
-
     this.renderColors();
   }
 
@@ -231,7 +230,7 @@ export class SceneManager implements Disposable {
 
   public getFirstDirectionalLight(): DirectionalLight {
     const dla = this.environment.get(DirectionalLightsAttribute.Type) as DirectionalLightsAttribute;
-    if (dla != null) {
+    if (!!dla) {
       for (const dl of dla.lights) {
         if (dl instanceof DirectionalLight) {
           return dl;
@@ -272,7 +271,7 @@ export class SceneManager implements Disposable {
   }
 
   public updateViewport(width: number, height: number) {
-    if (this.camera != null) {
+    if (!!this.camera) {
       this.camera.viewportWidth = width;
       this.camera.viewportHeight = height;
       this.camera.update(true);

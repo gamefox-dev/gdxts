@@ -9,7 +9,7 @@ export abstract class BaseShaderProvider implements ShaderProvider {
 
   public getShader(renderable: Renderable): Shader3D {
     const suggestedShader = renderable.shader;
-    if (suggestedShader != null && suggestedShader.canRender(renderable)) return suggestedShader;
+    if (!!suggestedShader && suggestedShader.canRender(renderable)) return suggestedShader;
     for (const shader of this.shaders) {
       if (shader.canRender(renderable)) return shader;
     }

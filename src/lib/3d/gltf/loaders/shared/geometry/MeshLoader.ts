@@ -172,7 +172,7 @@ export class MeshLoader {
         }
 
         // morph targets
-        if (primitive.targets != null) {
+        if (!!primitive.targets) {
           const morphTargetCount = primitive.targets.length;
           (node as NodePlus).weights = new WeightVector(morphTargetCount);
 
@@ -231,7 +231,7 @@ export class MeshLoader {
           if (!hasTangent) {
             // tangent is only needed when normal map is used
             const normalMap = material.get(PBRTextureAttribute.NormalTexture) as PBRTextureAttribute;
-            if (normalMap != null) {
+            if (!!normalMap) {
               vertexAttributes.push(new VertexAttribute3D(Usage.Tangent, 4, GL20.GL_FLOAT, false, Shader.TANGENT));
               glAccessors.push(null);
               computeTangents = true;
@@ -240,7 +240,7 @@ export class MeshLoader {
                   normalMapUVs = attribute;
                 }
               }
-              if (normalMapUVs == null) throw new Error('UVs not found for normal map');
+              if (!normalMapUVs) throw new Error('UVs not found for normal map');
             }
           }
         }
@@ -273,7 +273,7 @@ export class MeshLoader {
           const glBufferView = dataResolver.getBufferView(glAccessor.bufferView);
 
           // not used for now : used for direct mesh ....
-          if (glBufferView.target != null) {
+          if (!!glBufferView.target) {
             if (glBufferView.target == 34963) {
               // ELEMENT_ARRAY_BUFFER
             } else if (glBufferView.target == 34962) {
@@ -288,7 +288,7 @@ export class MeshLoader {
           const attributeFloats = GLTFTypes.accessorStrideSize(glAccessor) / 4;
 
           // buffer can be interleaved, so vertex stride may be different than vertex size
-          const floatStride = glBufferView.byteStride == null ? attributeFloats : glBufferView.byteStride / 4;
+          const floatStride = !glBufferView.byteStride ? attributeFloats : glBufferView.byteStride / 4;
 
           for (let j = 0; j < glAccessor.count; j++) {
             floatBuffer.position(j * floatStride);
@@ -481,15 +481,15 @@ export class MeshLoader {
       );
     }
 
-    const mesh = new Mesh3D(this.gl, true, true, vertexCount, indices == null ? 0 : indices.length, attributesGroup);
+    const mesh = new Mesh3D(this.gl, true, true, vertexCount, !indices ? 0 : indices.length, attributesGroup);
     this.meshes.push(mesh);
     mesh.setVertices(vertices);
 
-    if (indices != null) {
+    if (!!indices) {
       mesh.setIndices(indices);
     }
 
-    let len = indices == null ? vertexCount : indices.length;
+    let len = !indices ? vertexCount : indices.length;
 
     const meshPart = new MeshPart();
     meshPart.set(id, mesh, 0, len, glPrimitiveType);

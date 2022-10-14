@@ -105,7 +105,7 @@ export class GLTFTypes {
   }
 
   public static mapTextureMinFilter(filter: number): TextureFilter {
-    if (filter == null) return TextureFilter.Linear;
+    if (!filter) return TextureFilter.Linear;
     switch (filter) {
       case 9728:
         return TextureFilter.Nearest;
@@ -124,7 +124,7 @@ export class GLTFTypes {
   }
 
   public static mapTextureMagFilter(filter: number): TextureFilter {
-    if (filter == null) return TextureFilter.Linear;
+    if (!filter) return TextureFilter.Linear;
     switch (filter) {
       case 9728:
         return TextureFilter.Nearest;
@@ -135,7 +135,7 @@ export class GLTFTypes {
   }
 
   private static mapTextureWrap(wrap: number): TextureWrap {
-    if (wrap == null) return TextureWrap.Repeat;
+    if (!wrap) return TextureWrap.Repeat;
     switch (wrap) {
       case 33071:
         return TextureWrap.ClampToEdge;
@@ -171,7 +171,7 @@ export class GLTFTypes {
   }
 
   public static mapInterpolation(type: string): Interpolation {
-    if (type == null) return Interpolation.LINEAR;
+    if (!type) return Interpolation.LINEAR;
     if ('LINEAR' === type) {
       return Interpolation.LINEAR;
     } else if ('STEP' === type) {
@@ -239,11 +239,11 @@ export class GLTFTypes {
       // emulate an infinite matrix (based on 16 bits depth buffer)
       // TODO is it the proper ay to do it?
       const znear = glCamera.perspective.znear;
-      const zfar = glCamera.perspective.zfar != null ? glCamera.perspective.zfar : znear * 16384;
+      const zfar = !!glCamera.perspective.zfar ? glCamera.perspective.zfar : znear * 16384;
 
       // convert scale ratio to canvas size
       const canvasRatio = viewportWidth / viewportHeight;
-      const aspectRatio = glCamera.perspective.aspectRatio != null ? glCamera.perspective.aspectRatio : canvasRatio;
+      const aspectRatio = !!glCamera.perspective.aspectRatio ? glCamera.perspective.aspectRatio : canvasRatio;
       const yfov = Math.atan((Math.tan(glCamera.perspective.yfov * 0.5) * aspectRatio) / canvasRatio) * 2.0;
       const fieldOfView = yfov * MathUtils.radiansToDegrees;
       const camera = new PerspectiveCamera(fieldOfView, viewportWidth, viewportHeight, screenWidth, screenHeight);

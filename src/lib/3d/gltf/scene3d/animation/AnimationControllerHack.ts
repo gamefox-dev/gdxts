@@ -32,7 +32,7 @@ export class TransformPlus implements Poolable {
     this.translation.setFrom(t);
     this.rotation.setFrom(r);
     this.scale.setFrom(s);
-    if (w != null) this.weights.set(w);
+    if (!!w) this.weights.set(w);
     else this.weights.setEmpty();
     return this;
   }
@@ -51,7 +51,7 @@ export class TransformPlus implements Poolable {
     this.translation.lerp(targetT, alpha);
     this.rotation.slerp(targetR, alpha);
     this.scale.lerp(targetS, alpha);
-    if (targetW != null) this.weights.lerp(targetW, alpha);
+    if (!!targetW) this.weights.lerp(targetW, alpha);
     return this;
   }
 
@@ -130,8 +130,8 @@ export class AnimationControllerHack extends AnimationController {
 
   /** Apply two animations, blending the second onto to first using weight. */
   protected applyAnimations(anim1: Animation3D, time1: number, anim2: Animation3D, time2: number, weight: number) {
-    if (anim2 == null || weight == 0) this.applyAnimation(anim1, time1);
-    else if (anim1 == null || weight == 1) this.applyAnimation(anim2, time2);
+    if (anim2 || weight == 0) this.applyAnimation(anim1, time1);
+    else if (!anim1 || weight == 1) this.applyAnimation(anim2, time2);
     else if (this.applying) throw new Error('Call end() first');
     else {
       this.begin();
@@ -286,7 +286,7 @@ export class AnimationControllerHack extends AnimationController {
   }
 
   private static getRotationAtTimePlus(nodeAnim: NodeAnimation, time: number, out: Quaternion): Quaternion {
-    if (nodeAnim.rotation == null) return out.setFrom(nodeAnim.node.rotation);
+    if (!nodeAnim.rotation) return out.setFrom(nodeAnim.node.rotation);
     if (nodeAnim.rotation.length == 1) return out.setFrom(nodeAnim.rotation[0].value);
 
     let index = this.getFirstKeyframeIndexAtTime(nodeAnim.rotation, time);
@@ -433,7 +433,7 @@ export class AnimationControllerHack extends AnimationController {
     const transform = this.getNodeAnimationTransformPlus(nodeAnim, time);
     transform.toMatrix4(node.localTransform);
     if (node instanceof NodePlus) {
-      if (node.weights != null) {
+      if (!!node.weights) {
         node.weights.set(transform.weights);
         for (const part of node.parts) {
           (part as NodePartPlus).morphTargets.set(transform.weights);
@@ -478,7 +478,7 @@ export class AnimationControllerHack extends AnimationController {
     animation: Animation3D,
     time: number
   ) {
-    if (out == null) {
+    if (!out) {
       for (const nodeAnim of animation.nodeAnimations) this.applyNodeAnimationDirectlyPlus(nodeAnim, time);
     } else {
       for (const [key] of out) key.isAnimated = false;

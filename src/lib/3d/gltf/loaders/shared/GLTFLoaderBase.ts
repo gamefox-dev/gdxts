@@ -146,10 +146,10 @@ export class GLTFLoaderBase implements Disposable {
   }
 
   public dispose() {
-    if (this.imageResolver != null) {
+    if (!!this.imageResolver) {
       this.imageResolver.dispose();
     }
-    if (this.textureResolver != null) {
+    if (!!this.textureResolver) {
       this.textureResolver.dispose();
     }
     for (const scene of this.scenes) {
@@ -257,7 +257,7 @@ export class GLTFLoaderBase implements Disposable {
         }
       }
 
-      node.id = glNode.name == null ? 'glNode ' + id : glNode.name;
+      node.id = !glNode.name ? 'glNode ' + id : glNode.name;
 
       if (!!glNode.children) {
         for (const childId of glNode.children) {
@@ -265,18 +265,18 @@ export class GLTFLoaderBase implements Disposable {
         }
       }
 
-      if (glNode.mesh != null) {
+      if (!!glNode.mesh) {
         this.meshLoader.load(node, this.glModel.meshes[glNode.mesh], this.dataResolver, this.materialLoader);
       }
 
-      if (glNode.camera != null) {
+      if (!!glNode.camera) {
         this.cameraMap.set(node.id, glNode.camera);
       }
 
       // node extensions
-      if (glNode.extensions != null) {
+      if (!!glNode.extensions) {
         const nodeLight = glNode.extensions.get(KHRLightsPunctual.EXT) as GLTFLightNode;
-        if (nodeLight != null) {
+        if (!!nodeLight) {
           this.lightMap.set(node.id, nodeLight.light);
         }
       }

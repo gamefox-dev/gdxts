@@ -210,11 +210,11 @@ export class DepthShader extends DefaultShader {
     super(gl, renderable, config, prefix, vertexShader, fragmentShader);
     const attributes = DepthShader.combineDepthAttributes(renderable);
 
-    if (renderable.bones != null && renderable.bones.length > config.numBones) {
+    if (!!renderable.bones && renderable.bones.length > config.numBones) {
       throw new Error('too many bones: ' + renderable.bones.length + ', max configured: ' + config.numBones);
     }
 
-    this.numBones = renderable.bones == null ? 0 : config.numBones;
+    this.numBones = !renderable.bones ? 0 : config.numBones;
     let w = 0;
     const n = renderable.meshPart.mesh.getVertexAttributes().size();
     for (let i = 0; i < n; i++) {
@@ -234,7 +234,7 @@ export class DepthShader extends DefaultShader {
   }
 
   public canRender(renderable: Renderable): boolean {
-    if (renderable.bones != null && renderable.bones.length > this.numBones) return false;
+    if (!!renderable.bones && renderable.bones.length > this.numBones) return false;
     const attributes = DepthShader.combineDepthAttributes(renderable);
     if (attributes.has(BlendingAttribute.Type)) {
       if ((this.attributesMask & BlendingAttribute.Type) != BlendingAttribute.Type) return false;
@@ -264,8 +264,8 @@ export class DepthShader extends DefaultShader {
   // TODO: Move responsibility for combining attributes to RenderableProvider
   private static combineDepthAttributes(renderable: Renderable): Attributes {
     DepthShader.tmpAttributes.clear();
-    if (renderable.environment != null) DepthShader.tmpAttributes.setAttributes(renderable.environment.getAttributes());
-    if (renderable.material != null) DepthShader.tmpAttributes.setAttributes(renderable.material.getAttributes());
+    if (!!renderable.environment) DepthShader.tmpAttributes.setAttributes(renderable.environment.getAttributes());
+    if (!!renderable.material) DepthShader.tmpAttributes.setAttributes(renderable.material.getAttributes());
     return DepthShader.tmpAttributes;
   }
 }

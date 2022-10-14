@@ -41,7 +41,7 @@ export class PBRDepthShader extends DepthShader {
   }
 
   public renderWithCombinedAttributes(renderable: Renderable, combinedAttributes: Attributes) {
-    if (this.u_morphTargets1 != null) {
+    if (!!this.u_morphTargets1) {
       if (renderable.userData instanceof WeightVector) {
         const weightVector = renderable.userData as WeightVector;
         this.program.setUniform4fWithLocation(

@@ -27,9 +27,9 @@ export class PBRDepthShaderProvider extends DepthShaderProvider {
   }
 
   constructor(gl: WebGLRenderingContext, config: DepthShaderConfig) {
-    super(gl, config == null ? new DepthShaderConfig() : config);
-    if (config.vertexShader == null) config.vertexShader = PBRDepthShaderProvider.getDefaultVertexShader();
-    if (config.fragmentShader == null) config.fragmentShader = PBRDepthShaderProvider.getDefaultFragmentShader();
+    super(gl, !config ? new DepthShaderConfig() : config);
+    if (!config.vertexShader) config.vertexShader = PBRDepthShaderProvider.getDefaultVertexShader();
+    if (!config.fragmentShader) config.fragmentShader = PBRDepthShaderProvider.getDefaultFragmentShader();
   }
 
   protected morphTargetsPrefix(renderable: Renderable): string {

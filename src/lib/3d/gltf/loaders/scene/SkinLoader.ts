@@ -9,10 +9,10 @@ export class SkinLoader {
   private maxBones: number;
 
   public loads(glSkins: GLTFSkin[], glNodes: GLTFNode[], nodeResolver: NodeResolver, dataResolver: DataResolver) {
-    if (glNodes != null) {
+    if (!!glNodes) {
       for (let i = 0; i < glNodes.length; i++) {
         const glNode = glNodes[i];
-        if (glNode.skin != null) {
+        if (!!glNode.skin) {
           const glSkin = glSkins[glNode.skin];
           this.load(glSkin, glNode, nodeResolver.get(i), nodeResolver, dataResolver);
         }
@@ -47,7 +47,7 @@ export class SkinLoader {
           nodePart.bones[n] = new Matrix4().idt();
           const nodeIndex = joints[n];
           const key = nodeResolver.get(nodeIndex);
-          if (key == null) throw new Error('node not found for bone: ' + nodeIndex);
+          if (!key) throw new Error('node not found for bone: ' + nodeIndex);
           nodePart.invBoneBindTransforms.set(key, ibms[n]);
         }
       }

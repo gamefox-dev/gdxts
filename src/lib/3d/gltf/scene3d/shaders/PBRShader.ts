@@ -29,7 +29,7 @@ export class PBRShader extends DefaultShader {
   public static baseColorFactorSetter = new (class extends LocalSetter {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       const attribute = combinedAttributes.get(PBRColorAttribute.BaseColorFactor) as PBRColorAttribute;
-      const color = attribute == null ? Color.WHITE : attribute.color;
+      const color = !attribute ? Color.WHITE : attribute.color;
       shader.setColor(inputID, color);
     }
   })();
@@ -72,8 +72,8 @@ export class PBRShader extends DefaultShader {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       const metallicAttribute = combinedAttributes.get(PBRFloatAttribute.Metallic) as PBRFloatAttribute;
       const roughnessAttribute = combinedAttributes.get(PBRFloatAttribute.Roughness) as PBRFloatAttribute;
-      const metallic = metallicAttribute == null ? 1 : metallicAttribute.value;
-      const roughness = roughnessAttribute == null ? 1 : roughnessAttribute.value;
+      const metallic = !metallicAttribute ? 1 : metallicAttribute.value;
+      const roughness = !roughnessAttribute ? 1 : roughnessAttribute.value;
       shader.set2f(inputID, metallic, roughness);
     }
   })();
@@ -82,7 +82,7 @@ export class PBRShader extends DefaultShader {
   public static normalScaleSetter = new (class extends LocalSetter {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       const normalScaleAttribute = combinedAttributes.get(PBRFloatAttribute.NormalScale) as PBRFloatAttribute;
-      const normalScale = normalScaleAttribute == null ? 1 : normalScaleAttribute.value;
+      const normalScale = !normalScaleAttribute ? 1 : normalScaleAttribute.value;
       shader.setF(inputID, normalScale);
     }
   })();
@@ -93,7 +93,7 @@ export class PBRShader extends DefaultShader {
       const occlusionStrengthAttribute = combinedAttributes.get(
         PBRFloatAttribute.OcclusionStrength
       ) as PBRFloatAttribute;
-      const occlusionStrength = occlusionStrengthAttribute == null ? 1 : occlusionStrengthAttribute.value;
+      const occlusionStrength = !occlusionStrengthAttribute ? 1 : occlusionStrengthAttribute.value;
       shader.setF(inputID, occlusionStrength);
     }
   })();
@@ -139,7 +139,7 @@ export class PBRShader extends DefaultShader {
   public static brdfLUTTextureSetter = new (class extends LocalSetter {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       const attribute = combinedAttributes.get(PBRTextureAttribute.BRDFLUTTexture) as PBRTextureAttribute;
-      if (attribute != null) {
+      if (!!attribute) {
         const unit = shader.context.textureBinder.bindTexture(attribute.texture);
         shader.setI(inputID, unit);
       }
@@ -150,7 +150,7 @@ export class PBRShader extends DefaultShader {
   public static shadowBiasSetter = new (class extends LocalSetter {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       const attribute = combinedAttributes.get(PBRFloatAttribute.ShadowBias) as PBRFloatAttribute;
-      const value = attribute == null ? 0 : attribute.value;
+      const value = !attribute ? 0 : attribute.value;
       shader.setF(inputID, value);
     }
   })();
@@ -159,7 +159,7 @@ export class PBRShader extends DefaultShader {
   public static fogEquationSetter = new (class extends LocalSetter {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       const attribute = combinedAttributes.get(FogAttribute.FogEquation) as FogAttribute;
-      const value = attribute == null ? Vector3.Zero : attribute.value;
+      const value = !attribute ? Vector3.Zero : attribute.value;
       shader.set3f(inputID, value.x, value.y, value.z);
     }
   })();
@@ -169,7 +169,7 @@ export class PBRShader extends DefaultShader {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       const emissive = combinedAttributes.get(ColorAttribute3D.Emissive) as ColorAttribute3D;
       const emissiveIntensity = combinedAttributes.get(PBRFloatAttribute.EmissiveIntensity) as PBRFloatAttribute;
-      if (emissiveIntensity != null) {
+      if (!!emissiveIntensity) {
         shader.set4f(
           inputID,
           emissive.color.r * emissiveIntensity.value,
@@ -345,7 +345,7 @@ export class PBRShader extends DefaultShader {
     let maskShift = 0;
     for (const textureType of PBRShader.allTextureTypes) {
       const attribute = attributes.get(textureType) as PBRTextureAttribute;
-      if (attribute != null) {
+      if (!!attribute) {
         mask |= (attribute.uvIndex & 1) << maskShift;
       }
       maskShift++;
@@ -376,13 +376,13 @@ export class PBRShader extends DefaultShader {
 
     for (const textureType of PBRShader.allTextureTypes) {
       const attribute = attributes.get(textureType) as PBRTextureAttribute;
-      if (attribute != null) {
+      if (!!attribute) {
         PBRShader.transformTexture[attribute.uvIndex] = attribute;
       }
     }
 
     if (this.u_texCoord0Transform >= 0) {
-      if (PBRShader.transformTexture[0] != null) {
+      if (!!PBRShader.transformTexture[0]) {
         const attribute = PBRShader.transformTexture[0];
         PBRShader.textureTransform.idt();
         PBRShader.textureTransform.translate(attribute.offsetU, attribute.offsetV);
@@ -394,7 +394,7 @@ export class PBRShader extends DefaultShader {
       this.program.setUniform3x3fWithLocation(this.u_texCoord0Transform, PBRShader.textureTransform.getValues());
     }
     if (this.u_texCoord1Transform >= 0) {
-      if (PBRShader.transformTexture[1] != null) {
+      if (!!PBRShader.transformTexture[1]) {
         const attribute = PBRShader.transformTexture[1];
         PBRShader.textureTransform.setToTranslation(attribute.offsetU, attribute.offsetV);
         PBRShader.textureTransform.rotateRad(attribute.rotationUV);
@@ -453,7 +453,7 @@ export class PBRShader extends DefaultShader {
   protected bindLights(renderable: Renderable, attributes: Attributes) {
     // XXX update color (to apply intensity) before default binding
     const dla = attributes.get(DirectionalLightsAttribute.Type) as DirectionalLightsAttribute;
-    if (dla != null) {
+    if (!!dla) {
       for (const light of dla.lights) {
         if (light instanceof DirectionalLightEx) {
           light.updateColor();
@@ -465,7 +465,7 @@ export class PBRShader extends DefaultShader {
 
     // XXX
     const ambiantLight = attributes.get(ColorAttribute3D.AmbientLight) as ColorAttribute3D;
-    if (ambiantLight != null) {
+    if (!!ambiantLight) {
       this.program.setUniform3fWithLocation(
         this.u_ambientLight,
         ambiantLight.color.r,

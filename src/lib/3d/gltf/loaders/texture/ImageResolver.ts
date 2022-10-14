@@ -13,7 +13,7 @@ export class ImageResolver implements Disposable {
   }
 
   public load(glImages: GLTFImage[]) {
-    if (glImages != null) {
+    if (!!glImages) {
       for (let i = 0; i < glImages.length; i++) {
         const pixmap = this.dataFileResolver.loadGLTFImage(glImages[i]);
         this.pixmaps.push(pixmap);

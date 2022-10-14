@@ -19,9 +19,9 @@ export class BlenderShapeKeys {
         </pre>
 	 */
   public static parse(glMesh: GLTFMesh): string[] {
-    if (glMesh.extras == null) return null;
+    if (!glMesh.extras) return null;
     const targetNames = glMesh.extras.value['targetNames'];
-    if (targetNames != undefined && Array.isArray(targetNames)) {
+    if (!!targetNames && Array.isArray(targetNames)) {
       return targetNames;
     }
     return null;

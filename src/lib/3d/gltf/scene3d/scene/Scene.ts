@@ -29,7 +29,7 @@ export class Scene implements RenderableProvider, Updatable {
   private static transform = new Matrix4();
 
   setSceneModel(sceneModel: SceneModel, rootNodeIds: string[] = null) {
-    if (rootNodeIds === null) {
+    if (!rootNodeIds) {
       this.setWithInstanceAndModel(new ModelInstanceHack(sceneModel.model), sceneModel);
     } else {
       this.setWithInstanceAndModel(new ModelInstanceHack(sceneModel.model, rootNodeIds), sceneModel);
@@ -41,13 +41,13 @@ export class Scene implements RenderableProvider, Updatable {
 
     for (const [key, value] of sceneModel.cameras) {
       const node = modelInstance.getNode(key.id, true);
-      if (node != null) {
+      if (!!node) {
         this.cameras.set(node, this.createCamera(value));
       }
     }
     for (const [key, value] of sceneModel.lights) {
       const node = modelInstance.getNode(key.id, true);
-      if (node != null) {
+      if (!!node) {
         this.lights.set(node, this.createLight(value));
       }
     }

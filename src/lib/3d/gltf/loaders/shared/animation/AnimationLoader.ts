@@ -16,12 +16,12 @@ export class AnimationLoader {
   public animations = new Array<Animation3D>();
 
   public loads(glAnimations: GLTFAnimation[], nodeResolver: NodeResolver, dataResolver: DataResolver) {
-    if (glAnimations != null) {
+    if (!!glAnimations) {
       for (let i = 0; i < glAnimations.length; i++) {
         const glAnimation = glAnimations[i];
 
         const animation = this.load(glAnimation, nodeResolver, dataResolver);
-        animation.id = glAnimation.name == null ? 'animation' + i : glAnimation.name;
+        animation.id = !glAnimation.name ? 'animation' + i : glAnimation.name;
 
         this.animations.push(animation);
       }

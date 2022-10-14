@@ -19,11 +19,11 @@ export class LightUtils {
   public static getLightsInfoFromEnvironment(info: LightsInfo, environment: Environment): LightsInfo {
     info.reset();
     const dla = environment.get(DirectionalLightsAttribute.Type) as DirectionalLightsAttribute;
-    if (dla != null) info.dirLights = dla.lights.length;
+    if (!!dla) info.dirLights = dla.lights.length;
     const pla = environment.get(PointLightsAttribute.Type) as PointLightsAttribute;
-    if (pla != null) info.pointLights = pla.lights.length;
+    if (!!pla) info.pointLights = pla.lights.length;
     const sla = environment.get(SpotLightsAttribute.Type) as SpotLightsAttribute;
-    if (sla != null) info.spotLights = sla.lights.length;
+    if (!!sla) info.spotLights = sla.lights.length;
     return info;
   }
 

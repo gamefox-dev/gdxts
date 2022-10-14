@@ -168,7 +168,7 @@ export class DirectionalShadowLight extends DirectionalLightEx implements Shadow
 
   public equals(other: DirectionalLightEx): boolean {
     if (other instanceof DirectionalShadowLight) {
-      return other !== null && other === this;
+      return !!other && other === this;
     } else return false;
   }
 }

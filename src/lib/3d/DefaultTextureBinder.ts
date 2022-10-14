@@ -33,7 +33,7 @@ export class DefaultTextureBinder {
   public begin() {
     for (let i = 0; i < this.count; i++) {
       this.textures[i] = null;
-      if (this.unitsLRU != null) this.unitsLRU[i] = i;
+      if (!!this.unitsLRU) this.unitsLRU[i] = i;
     }
   }
 

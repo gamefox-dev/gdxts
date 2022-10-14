@@ -23,15 +23,15 @@ export class PBRMaterialLoader extends MaterialLoaderBase {
 
   public loadMaterial(glMaterial: GLTFMaterial): Material {
     const material = new Material();
-    if (glMaterial.name != null) material.id = glMaterial.name;
+    if (!!glMaterial.name) material.id = glMaterial.name;
 
-    if (glMaterial.emissiveFactor != null) {
+    if (!!glMaterial.emissiveFactor) {
       material.set(
         new ColorAttribute3D(ColorAttribute3D.Emissive, GLTFTypes.mapColor(glMaterial.emissiveFactor, Color.BLACK))
       );
     }
 
-    if (glMaterial.emissiveTexture != null) {
+    if (!!glMaterial.emissiveTexture) {
       material.set(this.getTexureMap(PBRTextureAttribute.EmissiveTexture, glMaterial.emissiveTexture));
     }
 
@@ -39,12 +39,12 @@ export class PBRMaterialLoader extends MaterialLoaderBase {
       material.set(IntAttribute.createCullFace(0)); // 0 to disable culling
     }
 
-    if (glMaterial.normalTexture != null) {
+    if (!!glMaterial.normalTexture) {
       material.set(this.getTexureMap(PBRTextureAttribute.NormalTexture, glMaterial.normalTexture));
       material.set(PBRFloatAttribute.createNormalScale(glMaterial.normalTexture.scale));
     }
 
-    if (glMaterial.occlusionTexture != null) {
+    if (!!glMaterial.occlusionTexture) {
       material.set(this.getTexureMap(PBRTextureAttribute.OcclusionTexture, glMaterial.occlusionTexture));
       material.set(PBRFloatAttribute.createOcclusionStrength(glMaterial.occlusionTexture.strength));
     }
@@ -53,17 +53,17 @@ export class PBRMaterialLoader extends MaterialLoaderBase {
     if ('OPAQUE' === glMaterial.alphaMode) {
       // nothing to do
     } else if ('MASK' === glMaterial.alphaMode) {
-      const value = glMaterial.alphaCutoff == null ? 0.5 : glMaterial.alphaCutoff;
+      const value = !glMaterial.alphaCutoff ? 0.5 : glMaterial.alphaCutoff;
       material.set(FloatAttribute.createAlphaTest(value));
       material.set(new BlendingAttribute()); // necessary
     } else if ('BLEND' === glMaterial.alphaMode) {
       material.set(new BlendingAttribute()); // opacity is set by pbrMetallicRoughness below
       alphaBlend = true;
-    } else if (glMaterial.alphaMode != null) {
+    } else if (!!glMaterial.alphaMode) {
       throw new Error('unknow alpha mode : ' + glMaterial.alphaMode);
     }
 
-    if (glMaterial.pbrMetallicRoughness != null) {
+    if (!!glMaterial.pbrMetallicRoughness) {
       const p = glMaterial.pbrMetallicRoughness;
 
       const baseColorFactor = GLTFTypes.mapColor(p.baseColorFactor, Color.WHITE);
@@ -73,11 +73,11 @@ export class PBRMaterialLoader extends MaterialLoaderBase {
       material.set(PBRFloatAttribute.createMetallic(p.metallicFactor));
       material.set(PBRFloatAttribute.createRoughness(p.roughnessFactor));
 
-      if (p.metallicRoughnessTexture != null) {
+      if (!!p.metallicRoughnessTexture) {
         material.set(this.getTexureMap(PBRTextureAttribute.MetallicRoughnessTexture, p.metallicRoughnessTexture));
       }
 
-      if (p.baseColorTexture != null) {
+      if (!!p.baseColorTexture) {
         material.set(this.getTexureMap(PBRTextureAttribute.BaseColorTexture, p.baseColorTexture));
       }
 
@@ -87,7 +87,7 @@ export class PBRMaterialLoader extends MaterialLoaderBase {
     }
 
     // can have both PBR base and ext
-    if (glMaterial.extensions != null) {
+    if (!!glMaterial.extensions) {
       {
         const ext = glMaterial.extensions.get(KHRMaterialsPBRSpecularGlossiness.EXT);
         if (ext != undefined) {
@@ -106,10 +106,10 @@ export class PBRMaterialLoader extends MaterialLoaderBase {
 
           // not sure how to map normalized gloss to exponent ...
           material.set(new FloatAttribute(FloatAttribute.Shininess, MathUtils.lerp(1, 100, ext.glossinessFactor)));
-          if (ext.diffuseTexture != null) {
+          if (!!ext.diffuseTexture) {
             material.set(this.getTexureMap(PBRTextureAttribute.Diffuse, ext.diffuseTexture));
           }
-          if (ext.specularGlossinessTexture != null) {
+          if (!!ext.specularGlossinessTexture) {
             material.set(this.getTexureMap(PBRTextureAttribute.Specular, ext.specularGlossinessTexture));
           }
         }
@@ -132,10 +132,10 @@ export class PBRMaterialLoader extends MaterialLoaderBase {
     attribute.setTexture(texture);
     attribute.uvIndex = glMap.texCoord;
 
-    if (glMap.extensions != null) {
+    if (!!glMap.extensions) {
       {
         const ext = glMap.extensions.get(KHRTextureTransform.EXT);
-        if (ext != null) {
+        if (!!ext) {
           attribute.offsetU = ext.offset[0];
           attribute.offsetV = ext.offset[1];
           attribute.scaleU = ext.scale[0];

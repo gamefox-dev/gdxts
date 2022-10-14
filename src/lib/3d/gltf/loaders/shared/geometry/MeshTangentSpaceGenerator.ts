@@ -19,7 +19,7 @@ export class MeshTangentSpaceGenerator {
     mesh.getIndices(0, -1, indices, 0);
 
     const normalMap = material.get(PBRTextureAttribute.NormalTexture) as PBRTextureAttribute;
-    if (normalMap == null) throw new Error('normal map not found in material');
+    if (!normalMap) throw new Error('normal map not found in material');
 
     const attributesGroup = mesh.getVertexAttributes();
     let normalMapUVs: VertexAttribute3D = null;
@@ -29,7 +29,7 @@ export class MeshTangentSpaceGenerator {
       }
     }
 
-    if (normalMapUVs == null) throw new Error('texture coordinates not found');
+    if (!normalMapUVs) throw new Error('texture coordinates not found');
 
     this.computeTangentSpaceWithData(vertices, indices, attributesGroup, computeNormals, computeTangents, normalMapUVs);
 
@@ -57,7 +57,7 @@ export class MeshTangentSpaceGenerator {
 
     const vab = new Vector3();
     const vac = new Vector3();
-    if (indices != null) {
+    if (!!indices) {
       for (let index = 0, count = indices.length; index < count; ) {
         const vIndexA = indices[index++] & 0xffff;
         const ax = vertices[vIndexA * stride + posOffset];

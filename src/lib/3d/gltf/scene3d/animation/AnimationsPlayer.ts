@@ -25,7 +25,7 @@ export class AnimationsPlayer {
   }
   public removeAnimation(animation: Animation3D) {
     for (let i = this.controllers.length - 1; i >= 0; i--) {
-      if (this.controllers[i].current != null && this.controllers[i].current.animation == animation) {
+      if (!!this.controllers[i].current && this.controllers[i].current.animation == animation) {
         this.controllers.splice(i, 1);
       }
     }
@@ -33,7 +33,7 @@ export class AnimationsPlayer {
 
   public clearAnimations() {
     this.controllers.length = 0;
-    if (this.scene.animationController != null) {
+    if (!!this.scene.animationController) {
       this.scene.animationController.setAnimation(null);
     }
   }
@@ -62,7 +62,7 @@ export class AnimationsPlayer {
       }
       this.scene.modelInstance.calculateTransforms();
     } else {
-      if (this.scene.animationController != null) {
+      if (!!this.scene.animationController) {
         this.scene.animationController.update(delta);
       }
     }

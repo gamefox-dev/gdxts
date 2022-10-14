@@ -23,7 +23,7 @@ export abstract class MaterialLoaderBase extends MaterialLoader {
   }
 
   public loadMaterials(glMaterials: GLTFMaterial[]) {
-    if (glMaterials != null) {
+    if (!!glMaterials) {
       for (let i = 0; i < glMaterials.length; i++) {
         const glMaterial = glMaterials[i];
         const material = this.loadMaterial(glMaterial);

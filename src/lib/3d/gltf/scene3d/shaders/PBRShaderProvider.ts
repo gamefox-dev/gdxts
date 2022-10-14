@@ -26,14 +26,14 @@ export class PBRShaderProvider extends DefaultShaderProvider {
   private static gl: WebGLRenderingContext;
 
   public static getDefaultVertexShader(): string {
-    if (PBRShaderProvider.defaultVertexShader == null) PBRShaderProvider.defaultVertexShader = vertex;
+    if (!PBRShaderProvider.defaultVertexShader) PBRShaderProvider.defaultVertexShader = vertex;
     return PBRShaderProvider.defaultVertexShader;
   }
 
   private static defaultFragmentShader: string = null;
 
   public static getDefaultFragmentShader(): string {
-    if (this.defaultFragmentShader == null) this.defaultFragmentShader = fragment;
+    if (!this.defaultFragmentShader) this.defaultFragmentShader = fragment;
     return this.defaultFragmentShader;
   }
 
@@ -70,9 +70,9 @@ export class PBRShaderProvider extends DefaultShaderProvider {
 
   constructor(gl: WebGLRenderingContext, config: PBRShaderConfig) {
     PBRShaderProvider.gl = gl;
-    super(gl, config == null ? PBRShaderProvider.createDefaultConfig() : config);
-    if (this.config.vertexShader == null) this.config.vertexShader = PBRShaderProvider.getDefaultVertexShader();
-    if (this.config.fragmentShader == null) this.config.fragmentShader = PBRShaderProvider.getDefaultFragmentShader();
+    super(gl, !config ? PBRShaderProvider.createDefaultConfig() : config);
+    if (!this.config.vertexShader) this.config.vertexShader = PBRShaderProvider.getDefaultVertexShader();
+    if (!this.config.fragmentShader) this.config.fragmentShader = PBRShaderProvider.getDefaultFragmentShader();
   }
 
   public getShaderCount(): number {
@@ -105,8 +105,8 @@ export class PBRShaderProvider extends DefaultShaderProvider {
     const defaultPrefix = DefaultShader.createPrefix(renderable, config);
     const version = config.glslVersion;
     let prefix = '';
-    if (version != null) prefix += version;
-    if (config.prefix != null) prefix += config.prefix;
+    if (!!version) prefix += version;
+    if (!!config.prefix) prefix += config.prefix;
     prefix += defaultPrefix;
     return prefix;
   }
@@ -148,7 +148,7 @@ export class PBRShaderProvider extends DefaultShaderProvider {
     const unlit =
       isLineOrPoint ||
       renderable.material.has(PBRFlagAttribute.Unlit) ||
-      renderable.meshPart.mesh.getVertexAttribute(Usage.Normal) == null;
+      !renderable.meshPart.mesh.getVertexAttribute(Usage.Normal);
 
     if (unlit) {
       prefix += '#define unlitFlag\n';
@@ -214,35 +214,35 @@ export class PBRShaderProvider extends DefaultShaderProvider {
 
       {
         const attribute = renderable.material.get(TextureAttribute.Diffuse) as TextureAttribute;
-        if (attribute != null) {
+        if (!!attribute) {
           prefix += '#define v_diffuseUV v_texCoord' + attribute.uvIndex + '\n';
           maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
         }
       }
       {
         const attribute = renderable.material.get(TextureAttribute.Emissive) as TextureAttribute;
-        if (attribute != null) {
+        if (!!attribute) {
           prefix += '#define v_emissiveUV v_texCoord' + attribute.uvIndex + '\n';
           maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
         }
       }
       {
         const attribute = renderable.material.get(TextureAttribute.Normal) as TextureAttribute;
-        if (attribute != null) {
+        if (!!attribute) {
           prefix += '#define v_normalUV v_texCoord' + attribute.uvIndex + '\n';
           maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
         }
       }
       {
         const attribute = renderable.material.get(PBRTextureAttribute.MetallicRoughnessTexture) as TextureAttribute;
-        if (attribute != null) {
+        if (!!attribute) {
           prefix += '#define v_metallicRoughnessUV v_texCoord' + attribute.uvIndex + '\n';
           maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
         }
       }
       {
         const attribute = renderable.material.get(PBRTextureAttribute.OcclusionTexture) as TextureAttribute;
-        if (attribute != null) {
+        if (!!attribute) {
           prefix += '#define v_occlusionUV v_texCoord' + attribute.uvIndex + '\n';
           maxUVIndex = Math.max(maxUVIndex, attribute.uvIndex);
         }
@@ -259,7 +259,7 @@ export class PBRShaderProvider extends DefaultShaderProvider {
 
       // Fog
 
-      if (renderable.environment != null && renderable.environment.has(FogAttribute.FogEquation)) {
+      if (!!renderable.environment && renderable.environment.has(FogAttribute.FogEquation)) {
         prefix += '#define fogEquationFlag\n';
       }
 
@@ -306,7 +306,7 @@ export class PBRShaderProvider extends DefaultShaderProvider {
         );
       }
 
-      if (renderable.environment != null) {
+      if (!!renderable.environment) {
         LightUtils.getLightsInfoFromEnvironment(PBRShaderProvider.lightsInfo, renderable.environment);
         if (PBRShaderProvider.lightsInfo.dirLights > config.numDirectionalLights) {
           console.error(
