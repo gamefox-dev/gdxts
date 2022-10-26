@@ -1,7 +1,6 @@
 import { BitmapFont } from './BitmapFont';
 import { Texture } from './Texture';
 import { TextureAtlas } from './TextureAtlas';
-import { TextureRegion } from './TextureRegion';
 
 export class AssetManager {
   gl: WebGLRenderingContext;
@@ -102,10 +101,7 @@ export class AssetManager {
   disposeAll(): void {
     const atlasKeys = [...this.atlases.keys()];
     atlasKeys.forEach(key => {
-      const textureRegions = this.atlases.get(key)?.getRegions() || [];
-      textureRegions.forEach(texture => {
-        (texture.texture as any)?.destroy();
-      });
+      this.atlases.get(key).dispose();
       this.atlases.delete(key);
     });
 
@@ -117,10 +113,7 @@ export class AssetManager {
 
     const fontMapKeys = [...this.fonts.keys()];
     fontMapKeys.forEach(key => {
-      const textureRegions = ((this.fonts.get(key) as any)?.getRegions() as TextureRegion[]) || [];
-      textureRegions.forEach(texture => {
-        (texture.texture as any)?.destroy();
-      });
+      this.fonts.get(key).dispose();
       this.fonts.delete(key);
     });
   }
