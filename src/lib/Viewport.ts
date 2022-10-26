@@ -50,7 +50,10 @@ export const createViewport = (canvas: HTMLCanvasElement, width: number, height:
     ...contextOption,
     ...options.contextOption
   };
-  const gl = canvas.getContext('webgl2', contextOption) as WebGLRenderingContext;
+  let gl = canvas.getContext('webgl2', contextOption) as WebGLRenderingContext;
+  if (!gl) {
+    gl = canvas.getContext('webgl', contextOption) as WebGLRenderingContext;
+  }
   const additionalCameras = [];
   let { autoUpdate, pixelRatio, crop } = options;
   pixelRatio = pixelRatio || window.devicePixelRatio || 1;
