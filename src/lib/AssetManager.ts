@@ -107,7 +107,7 @@ export class AssetManager {
 
     const localTextureKeys = [...this.textures.keys()];
     localTextureKeys.forEach(key => {
-      (this.textures.get(key) as any)?.destroy();
+      this.textures.get(key).dispose();
       this.textures.delete(key);
     });
 
