@@ -113,7 +113,8 @@ export class GlyphLayout implements Poolable {
 
         if (run.glyphs.length === 0) {
           this.glyphRunPool.free(run);
-          if (!lineRun) break; // Otherwise wrap and truncate must still be processed for lineRun.
+          // eslint-disable-next-line no-labels
+          if (!lineRun) break runEnded; // Otherwise wrap and truncate must still be processed for lineRun.
         } else if (!lineRun) {
           lineRun = run;
           this.runs.push(lineRun);

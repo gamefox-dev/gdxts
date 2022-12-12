@@ -37,6 +37,6 @@ export class Glyph {
     if (!page) {
       this.kerning[ch >>> LOG2_PAGE_SIZE] = page = new Uint32Array(new ArrayBuffer(PAGE_SIZE));
     }
-    page[ch & (PAGE_SIZE - 1)] = value;
+    page[(ch & PAGE_SIZE) - 1] = value;
   }
 }
