@@ -1,5 +1,5 @@
 import { OrthoCamera } from './Camera';
-import { InputEvent, InputHandler } from './InputHandler';
+import { InputEvent, InputHandler, TouchData } from './InputHandler';
 import { Vector2 } from './Vector2';
 import { Viewport } from './Viewport';
 
@@ -50,5 +50,9 @@ export class ViewportInputHandler {
     this.screenCoord.set(this.getX(), this.getY());
     camera.unprojectVector2(this.worldCoord, this.screenCoord);
     return this.worldCoord;
+  }
+
+  getTotalTouched(): TouchData[] {
+    return this.inputHandler.touches;
   }
 }

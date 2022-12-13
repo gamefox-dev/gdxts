@@ -8,12 +8,34 @@ export enum InputEvent {
   TouchMove = 'touchMove'
 }
 
+export interface TouchData {
+  x: number;
+  y: number;
+  id: number;
+}
+
+const eventMaps = {
+  [InputEvent.TouchStart]: 'mousedown',
+  [InputEvent.TouchEnd]: 'mouseup',
+  [InputEvent.TouchMove]: 'mousemove'
+};
+
+const getMouseEvent = (inputEvent: InputEvent, touch: TouchData): MouseEvent => {
+  const mevt = new MouseEvent(eventMaps[inputEvent], {
+    clientX: touch.x,
+    clientY: touch.y
+  });
+  (mevt as any).id = touch.id;
+  return mevt;
+};
+
 export class InputHandler {
   canvas: HTMLCanvasElement;
+  emitter: EventEmitter;
   lastX: number;
   lastY: number;
   touched: boolean;
-  emitter: EventEmitter;
+  touches: TouchData[];
 
   mouseDownHandler: (evt: any) => void;
   mouseUpHandler: (evt: any) => void;
@@ -27,44 +49,60 @@ export class InputHandler {
     this.lastX = 0;
     this.lastY = 0;
     this.touched = false;
+    this.touches = [];
     const emitter = (this.emitter = new EventEmitter());
     this.mouseDownHandler = evt => {
       this.touched = true;
       this.handleMove(evt);
-      emitter.emit('touchStart', this.getX(), this.getY());
+      emitter.emit(InputEvent.TouchStart, this.getX(), this.getY());
     };
     this.mouseUpHandler = evt => {
       this.touched = false;
-      emitter.emit('touchEnd', this.getX(), this.getY());
+      emitter.emit(InputEvent.TouchEnd, this.getX(), this.getY());
     };
     this.mouseMoveHandler = evt => {
       this.handleMove(evt);
-      emitter.emit('touchMove', this.getX(), this.getY());
+      emitter.emit(InputEvent.TouchMove, this.getX(), this.getY());
     };
-    this.touchStartHandler = evt => {
+    this.touchStartHandler = (evt: TouchEvent) => {
       evt.preventDefault();
-      // TODO: handle multi touch
-      let touch = evt.touches[0];
-      this.canvas.dispatchEvent(
-        new MouseEvent('mousedown', {
-          clientX: touch.clientX,
-          clientY: touch.clientY
-        })
-      );
+      for (const changeTouch of evt.changedTouches) {
+        const touch: TouchData = {
+          x: changeTouch.clientX,
+          y: changeTouch.clientY,
+          id: changeTouch.identifier
+        };
+        this.touches.push(touch);
+        const mevt = getMouseEvent(InputEvent.TouchStart, touch);
+        this.canvas.dispatchEvent(mevt);
+      }
     };
-    this.touchEndHandler = evt => {
+    this.touchEndHandler = (evt: TouchEvent) => {
       evt.preventDefault();
-      this.canvas.dispatchEvent(new MouseEvent('mouseup'));
+      for (const changeTouch of evt.changedTouches) {
+        const touch = this.touches.find(element => element.id === changeTouch.identifier);
+        if (!touch) continue;
+        const mevt = getMouseEvent(InputEvent.TouchEnd, touch);
+        this.canvas.dispatchEvent(mevt);
+
+        const index = this.touches.indexOf(touch);
+        this.touches.splice(index, 1);
+      }
     };
-    this.touchMoveHandler = evt => {
+    this.touchMoveHandler = (evt: TouchEvent) => {
       evt.preventDefault();
-      let touch = evt.touches[0];
-      this.canvas.dispatchEvent(
-        new MouseEvent('mousemove', {
-          clientX: touch.clientX,
-          clientY: touch.clientY
-        })
-      );
+
+      for (const changeTouch of evt.changedTouches) {
+        for (const touch of this.touches) {
+          if (touch.id === changeTouch.identifier) {
+            touch.x = changeTouch.clientX;
+            touch.y = changeTouch.clientY;
+            const mevt = getMouseEvent(InputEvent.TouchMove, touch);
+            this.canvas.dispatchEvent(mevt);
+            break;
+          }
+        }
+      }
     };
     this.canvas.addEventListener('mousedown', this.mouseDownHandler, false);
     this.canvas.addEventListener('mouseup', this.mouseUpHandler, false);
@@ -100,7 +138,10 @@ export class InputHandler {
     return this.lastY;
   }
   isTouched(): boolean {
-    return this.touched;
+    if (this.touches.length > 0) return true;
+    else {
+      return this.touched;
+    }
   }
   private screenCoord: Vector2 = new Vector2();
   private worldCoord: Vector2 = new Vector2();
