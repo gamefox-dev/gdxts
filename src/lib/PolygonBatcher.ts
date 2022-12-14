@@ -2,6 +2,7 @@ import { Color, Disposable } from './Utils';
 import { Texture } from './Texture';
 import { Mesh, Position2Attribute, ColorAttribute, TexCoordAttribute, Color2Attribute } from './Mesh';
 import { Shader } from './Shader';
+import { Affine2 } from './Affine2';
 
 // prettier-ignore
 const quad = [
@@ -115,6 +116,125 @@ export class PolygonBatch implements Disposable {
     for (let i = this.indicesLength, j = 0; j < indices.length; i++, j++) indicesArray[i] = indices[j] + indexStart;
     this.indicesLength += indices.length;
     this.mesh.setIndicesLength(this.indicesLength);
+  }
+
+  drawTransformed(
+    texture: Texture,
+    width: number,
+    height: number,
+    transform: Affine2,
+    ou1 = 0,
+    ov1 = 1,
+    ou2 = 1,
+    ov2 = 0,
+    rotate = false
+  ) {
+    if (this.yDown) {
+      const tmpV1 = ov1;
+      ov1 = ov2;
+      ov2 = tmpV1;
+    }
+
+    let u1 = ou1;
+    let v1 = ov1;
+    let u2 = ou2;
+    let v2 = ov2;
+    let u3 = u2;
+    let v3 = v1;
+    let u4 = u1;
+    let v4 = v2;
+
+    if (rotate) {
+      if (this.yDown) {
+        u1 = ou1;
+        v1 = ov2;
+        u2 = ou2;
+        v2 = ov1;
+        u3 = ou1;
+        v3 = ov1;
+        u4 = ou2;
+        v4 = ov2;
+      } else {
+        u1 = ou2;
+        v1 = ov1;
+        u2 = ou1;
+        v2 = ov2;
+        u3 = ou2;
+        v3 = ov2;
+        u4 = ou1;
+        v4 = ov1;
+      }
+    }
+
+    const x1 = transform.m02;
+    const y1 = transform.m12;
+    const x2 = transform.m01 * height + transform.m02;
+    const y2 = transform.m11 * height + transform.m12;
+    const x3 = transform.m00 * width + transform.m01 * height + transform.m02;
+    const y3 = transform.m10 * width + transform.m11 * height + transform.m12;
+    const x4 = transform.m00 * width + transform.m02;
+    const y4 = transform.m10 * width + transform.m12;
+
+    const color = this.color;
+
+    let i = 0;
+    quad[i++] = x1;
+    quad[i++] = y1;
+    quad[i++] = color.r;
+    quad[i++] = color.g;
+    quad[i++] = color.b;
+    quad[i++] = color.a;
+    quad[i++] = u1;
+    quad[i++] = v1;
+    if (this.twoColorTint) {
+      quad[i++] = 0;
+      quad[i++] = 0;
+      quad[i++] = 0;
+      quad[i++] = 0;
+    }
+    quad[i++] = x2;
+    quad[i++] = y2;
+    quad[i++] = color.r;
+    quad[i++] = color.g;
+    quad[i++] = color.b;
+    quad[i++] = color.a;
+    quad[i++] = u3;
+    quad[i++] = v3;
+    if (this.twoColorTint) {
+      quad[i++] = 0;
+      quad[i++] = 0;
+      quad[i++] = 0;
+      quad[i++] = 0;
+    }
+    quad[i++] = x3;
+    quad[i++] = y3;
+    quad[i++] = color.r;
+    quad[i++] = color.g;
+    quad[i++] = color.b;
+    quad[i++] = color.a;
+    quad[i++] = u2;
+    quad[i++] = v2;
+    if (this.twoColorTint) {
+      quad[i++] = 0;
+      quad[i++] = 0;
+      quad[i++] = 0;
+      quad[i++] = 0;
+    }
+    quad[i++] = x4;
+    quad[i++] = y4;
+    quad[i++] = color.r;
+    quad[i++] = color.g;
+    quad[i++] = color.b;
+    quad[i++] = color.a;
+    quad[i++] = u4;
+    quad[i++] = v4;
+    if (this.twoColorTint) {
+      quad[i++] = 0;
+      quad[i++] = 0;
+      quad[i++] = 0;
+      quad[i] = 0;
+    }
+    this.drawVertices(texture, quad, PolygonBatch.QUAD_TRIANGLES);
   }
 
   flush() {
@@ -285,7 +405,7 @@ export class PolygonBatch implements Disposable {
       }
     }
 
-    var i = 0;
+    let i = 0;
     quad[i++] = x1;
     quad[i++] = y1;
     quad[i++] = color.r;
