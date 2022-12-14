@@ -1,3 +1,4 @@
+import { Affine2 } from './Affine2';
 import { PolygonBatch } from './PolygonBatcher';
 import { Texture } from './Texture';
 
@@ -122,6 +123,41 @@ export class TextureRegion {
       rotation,
       scaleX,
       scaleY,
+      this.u,
+      this.v,
+      this.u2,
+      this.v2,
+      this.rotated
+    );
+  }
+
+  tmpTransform = new Affine2();
+  drawTransformed(batch: PolygonBatch, width: number, height: number, transform: Affine2) {
+    const { originalWidth, originalHeight, offsetX, offsetY, width: regionWidth, height: regionHeight } = this;
+
+    const xRatio = width / originalWidth;
+    const yRatio = height / originalHeight;
+
+    const drawWidth = regionWidth * xRatio;
+    const drawHeight = regionHeight * yRatio;
+
+    const drawX = offsetX * xRatio;
+
+    let drawY = 0;
+    if (batch.yDown) {
+      drawY = height - offsetY * yRatio - drawHeight;
+    } else {
+      drawY = offsetY * yRatio;
+    }
+
+    this.tmpTransform.set(transform);
+    this.tmpTransform.translate(drawX, drawY);
+
+    batch.drawTransformed(
+      this.texture,
+      drawWidth,
+      drawHeight,
+      this.tmpTransform,
       this.u,
       this.v,
       this.u2,

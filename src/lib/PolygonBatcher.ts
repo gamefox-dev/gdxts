@@ -198,8 +198,8 @@ export class PolygonBatch implements Disposable {
     quad[i++] = color.g;
     quad[i++] = color.b;
     quad[i++] = color.a;
-    quad[i++] = u3;
-    quad[i++] = v3;
+    quad[i++] = u4;
+    quad[i++] = v4;
     if (this.twoColorTint) {
       quad[i++] = 0;
       quad[i++] = 0;
@@ -226,8 +226,8 @@ export class PolygonBatch implements Disposable {
     quad[i++] = color.g;
     quad[i++] = color.b;
     quad[i++] = color.a;
-    quad[i++] = u4;
-    quad[i++] = v4;
+    quad[i++] = u3;
+    quad[i++] = v3;
     if (this.twoColorTint) {
       quad[i++] = 0;
       quad[i++] = 0;
