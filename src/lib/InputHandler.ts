@@ -131,11 +131,13 @@ export class InputHandler {
     this.lastX = x;
     this.lastY = y;
   }
-  getX(): number {
-    return this.lastX;
+  getX(index = 0): number {
+    const touchedX = this.touches[index]?.x;
+    return touchedX === undefined ? this.lastX : touchedX;
   }
-  getY(): number {
-    return this.lastY;
+  getY(index = 0): number {
+    const touchedY = this.touches[index]?.y;
+    return touchedY === undefined ? this.lastY : touchedY;
   }
   isTouched(): boolean {
     if (this.touches.length > 0) return true;

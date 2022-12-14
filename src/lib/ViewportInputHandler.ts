@@ -35,13 +35,13 @@ export class ViewportInputHandler {
   addEventListener(event: InputEvent, listener: (x: number, y: number) => void) {
     this.inputHandler.addEventListener(event, createViewportAwareInputListener(listener, this.viewport));
   }
-  getX(): number {
+  getX(index = 0): number {
     const { x: vX, pixelRatio } = this.viewport.getViewportInfo();
-    return this.inputHandler.getX() * pixelRatio - vX;
+    return this.inputHandler.getX(index) * pixelRatio - vX;
   }
-  getY(): number {
+  getY(index = 0): number {
     const { y: vY, pixelRatio } = this.viewport.getViewportInfo();
-    return this.inputHandler.getY() * pixelRatio - vY;
+    return this.inputHandler.getY(index) * pixelRatio - vY;
   }
   getTouchedWorldCoord(camera?: OrthoCamera): Vector2 {
     if (!camera) {
