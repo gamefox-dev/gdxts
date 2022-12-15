@@ -42,7 +42,13 @@ export const createTestDrawAffine = async (viewport: Viewport): Promise<Screen> 
       parentAffine.setToTrnRotRadScl(20 + PARENT_WIDTH / 2, 400 + PARENT_HEIGHT / 2, 0, parentScale, parentScale);
       parentAffine.translate(-PARENT_WIDTH / 2, -PARENT_HEIGHT / 2);
 
-      childAffine.setToTrnRotRadScl(PARENT_WIDTH - CHILD_WIDTH + CHILD_WIDTH / 2, 0 + CHILD_HEIGHT / 2, 0, 1, 1);
+      childAffine.setToTrnRotRadScl(
+        PARENT_WIDTH - CHILD_WIDTH + CHILD_WIDTH / 2,
+        0 + CHILD_HEIGHT / 2,
+        childRotation,
+        1,
+        1
+      );
       childAffine.translate(-CHILD_WIDTH / 2, -CHILD_HEIGHT / 2);
       childAffine.preMul(parentAffine);
 

@@ -1,4 +1,5 @@
 export * from './3d';
+export * from './Affine2';
 export * from './Animation';
 export * from './AssetManager';
 export * from './BitmapFont';
