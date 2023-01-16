@@ -66,10 +66,12 @@ export class InputHandler {
     };
     this.touchStartHandler = (evt: TouchEvent) => {
       evt.preventDefault();
+
+      const rect = this.canvas.getBoundingClientRect();
       for (const changeTouch of evt.changedTouches) {
         const touch: TouchData = {
-          x: changeTouch.clientX,
-          y: changeTouch.clientY,
+          x: changeTouch.clientX - rect.left,
+          y: changeTouch.clientY - rect.top,
           id: changeTouch.identifier
         };
         this.touches.push(touch);
@@ -88,15 +90,18 @@ export class InputHandler {
         const index = this.touches.indexOf(touch);
         this.touches.splice(index, 1);
       }
+
+      console.log(this.touches.length);
     };
     this.touchMoveHandler = (evt: TouchEvent) => {
       evt.preventDefault();
 
+      const rect = this.canvas.getBoundingClientRect();
       for (const changeTouch of evt.changedTouches) {
         for (const touch of this.touches) {
           if (touch.id === changeTouch.identifier) {
-            touch.x = changeTouch.clientX;
-            touch.y = changeTouch.clientY;
+            touch.x = changeTouch.clientX - rect.left;
+            touch.y = changeTouch.clientY - rect.top;
             const mevt = getMouseEvent(InputEvent.TouchMove, touch);
             this.canvas.dispatchEvent(mevt);
             break;
