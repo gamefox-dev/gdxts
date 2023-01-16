@@ -1,5 +1,17 @@
 import { YDOWN } from '..';
-import { Viewport, PolygonBatch, Game, Color, Screen, Texture, TextureAtlas, Animation, PlayMode } from '../lib';
+import {
+  Viewport,
+  PolygonBatch,
+  Game,
+  Color,
+  Screen,
+  Texture,
+  TextureAtlas,
+  Animation,
+  PlayMode,
+  BitmapFont,
+  Align
+} from '../lib';
 import { Affine2 } from '../lib/Affine2';
 
 export const createTestDrawAffine = async (viewport: Viewport): Promise<Screen> => {
@@ -14,6 +26,8 @@ export const createTestDrawAffine = async (viewport: Viewport): Promise<Screen> 
   const texture = await Texture.load(gl, 'test.jpg');
   const atlas = await TextureAtlas.load(gl, './kit-garden.atlas');
   const animation = new Animation(atlas.findRegions('Char_pick_item'), 1 / 30);
+
+  const font = await BitmapFont.load(gl, './number.fnt', YDOWN);
 
   const parentAffine = new Affine2();
   parentAffine.setToTrnRotScl(20, 400, 0, 1, 1);
@@ -37,7 +51,7 @@ export const createTestDrawAffine = async (viewport: Viewport): Promise<Screen> 
       childRotation -= 3 * Math.PI * delta;
       stateTime += delta;
 
-      const parentScale = scale + (Math.sin(parentRotation) + 1);
+      let parentScale = scale + (Math.sin(parentRotation) + 1);
 
       parentAffine.setToTrnRotRadScl(20 + PARENT_WIDTH / 2, 400 + PARENT_HEIGHT / 2, 0, parentScale, parentScale);
       parentAffine.translate(-PARENT_WIDTH / 2, -PARENT_HEIGHT / 2);
@@ -61,6 +75,9 @@ export const createTestDrawAffine = async (viewport: Viewport): Promise<Screen> 
       animation.getKeyFrame(stateTime, PlayMode.LOOP).draw(batch, 0, 0, CHILD_WIDTH, CHILD_HEIGHT);
 
       batch.setColor(Color.WHITE);
+
+      font.drawTransformed(batch, 'One Two Three Four Five Six Seven', childAffine, 400, Align.center);
+
       batch.end();
     },
     dispose() {

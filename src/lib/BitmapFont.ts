@@ -1,3 +1,4 @@
+import { Affine2 } from './Affine2';
 import { BitmapFontCache } from './BitmapFontCache';
 import { BitmapFontData } from './BitmapFontData';
 import { Glyph } from './Glyph';
@@ -81,6 +82,22 @@ export class BitmapFont {
     this.cache.addText(str, x, y, start, end, targetWidth, halign, wrap, truncate);
     this.cache.draw(batch);
   };
+
+  drawTransformed(
+    batch: PolygonBatch,
+    str: string,
+    transform: Affine2,
+    targetWidth: number,
+    halign: number = Align.left,
+    wrap: boolean = true,
+    start: number = 0,
+    end: number = str.length,
+    truncate?: string
+  ) {
+    this.cache.clear();
+    this.cache.addText(str, 0, 0, start, end, targetWidth, halign, wrap, truncate);
+    this.cache.drawTransformed(batch, transform);
+  }
 
   /** Returns the color of text drawn with this font. */
   getColor = (): Color => {
