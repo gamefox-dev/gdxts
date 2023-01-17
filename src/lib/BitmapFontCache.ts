@@ -200,17 +200,17 @@ export class BitmapFontCache {
           const region = regions.find(item => (item as any).id === this.drawingTexts?.[j]);
           if (region) {
             transform.getTranslation(this.temVec2);
-            const det = transform.det();
+            const scale = Math.sqrt(transform.det());
 
-            const x = vertices[0 + offset] * det;
-            const y = vertices[1 + offset] * det;
+            const x = vertices[0 + offset] * scale;
+            const y = vertices[1 + offset] * scale;
 
             region.draw(
               batch,
               x + this.temVec2.x,
               y + this.temVec2.y,
-              (vertices[10 + offset] - vertices[0 + offset]) * det,
-              (vertices[11 + offset] - vertices[1 + offset]) * det
+              (vertices[10 + offset] - vertices[0 + offset]) * scale,
+              (vertices[11 + offset] - vertices[1 + offset]) * scale
             );
           }
         }
