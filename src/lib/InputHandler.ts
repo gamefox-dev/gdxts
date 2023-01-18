@@ -90,8 +90,6 @@ export class InputHandler {
         const index = this.touches.indexOf(touch);
         this.touches.splice(index, 1);
       }
-
-      console.log(this.touches.length);
     };
     this.touchMoveHandler = (evt: TouchEvent) => {
       evt.preventDefault();
