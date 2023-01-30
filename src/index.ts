@@ -23,7 +23,7 @@ import { createTestScreen } from './screens/createTestScreen';
 import { createTestSpriteScreen } from './screens/createTestSpriteScreen';
 
 export const YDOWN = true;
-const FIRST_TEST_INDEX = 7;
+const FIRST_TEST_INDEX = 0;
 
 const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Basic rendering 01': createMainScreen,

@@ -67,11 +67,10 @@ export class InputHandler {
     this.touchStartHandler = (evt: TouchEvent) => {
       evt.preventDefault();
 
-      const rect = this.canvas.getBoundingClientRect();
       for (const changeTouch of evt.changedTouches) {
         const touch: TouchData = {
-          x: changeTouch.clientX - rect.left,
-          y: changeTouch.clientY - rect.top,
+          x: changeTouch.clientX,
+          y: changeTouch.clientY,
           id: changeTouch.identifier
         };
         this.touches.push(touch);
@@ -94,12 +93,11 @@ export class InputHandler {
     this.touchMoveHandler = (evt: TouchEvent) => {
       evt.preventDefault();
 
-      const rect = this.canvas.getBoundingClientRect();
       for (const changeTouch of evt.changedTouches) {
         for (const touch of this.touches) {
           if (touch.id === changeTouch.identifier) {
-            touch.x = changeTouch.clientX - rect.left;
-            touch.y = changeTouch.clientY - rect.top;
+            touch.x = changeTouch.clientX;
+            touch.y = changeTouch.clientY;
             const mevt = getMouseEvent(InputEvent.TouchMove, touch);
             this.canvas.dispatchEvent(mevt);
             break;
@@ -135,12 +133,14 @@ export class InputHandler {
     this.lastY = y;
   }
   getX(index = 0): number {
+    const rect = this.canvas.getBoundingClientRect();
     const touchedX = this.touches[index]?.x;
-    return touchedX === undefined ? this.lastX : touchedX;
+    return touchedX === undefined ? this.lastX : touchedX - rect.left;
   }
   getY(index = 0): number {
+    const rect = this.canvas.getBoundingClientRect();
     const touchedY = this.touches[index]?.y;
-    return touchedY === undefined ? this.lastY : touchedY;
+    return touchedY === undefined ? this.lastY : touchedY - rect.top;
   }
   isTouched(): boolean {
     if (this.touches.length > 0) return true;
