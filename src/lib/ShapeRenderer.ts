@@ -10,7 +10,10 @@ export enum ShapeType {
 }
 
 export class ShapeRenderer implements Disposable {
+  public static totalDrawCalls = 0;
+
   private context: WebGLRenderingContext;
+  private drawCalls: number;
   private isDrawing = false;
   private mesh: Mesh;
   private shapeType = ShapeType.Filled;
@@ -41,6 +44,7 @@ export class ShapeRenderer implements Disposable {
 
   begin() {
     if (this.isDrawing) throw new Error('ShapeRenderer.begin() has already been called');
+    this.drawCalls = 0;
     this.vertexIndex = 0;
     this.isDrawing = true;
 
@@ -342,6 +346,7 @@ export class ShapeRenderer implements Disposable {
     let gl = this.context;
     gl.disable(gl.BLEND);
     this.isDrawing = false;
+    ShapeRenderer.totalDrawCalls += this.drawCalls;
   }
 
   private flush() {
@@ -349,6 +354,7 @@ export class ShapeRenderer implements Disposable {
     this.mesh.setVerticesLength(this.vertexIndex);
     this.mesh.draw(this.shader, this.shapeType);
     this.vertexIndex = 0;
+    this.drawCalls++;
   }
 
   private check(shapeType: ShapeType, numVertices: number) {
@@ -360,6 +366,14 @@ export class ShapeRenderer implements Disposable {
       this.flush();
       this.shapeType = shapeType;
     }
+  }
+
+  public static resetTotalDrawCalls() {
+    ShapeRenderer.totalDrawCalls = 0;
+  }
+
+  getDrawCalls() {
+    return this.drawCalls;
   }
 
   dispose() {
