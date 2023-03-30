@@ -64,7 +64,7 @@ export class GlyphLayout implements Poolable {
 
     let isLastRun = false;
     let y = 0;
-    let down = fontData.down;
+    let down = fontData.down * fontData.scaleY;
     let lineRun: GlyphRun | null = null; // Collects glyphs for the current line.
     let lastGlyph: Glyph | null = null; // Last glyph of the previous run on the same line, used for kerning between runs.
     let runStart: number = start;
