@@ -1,6 +1,6 @@
-import { Texture, TextureWrap } from './Texture';
+import { Texture, TextureFilter, TextureWrap } from './Texture';
 import { TextureRegion } from './TextureRegion';
-import { concatAndResolveUrl, Disposable } from './Utils';
+import { Disposable, concatAndResolveUrl } from './Utils';
 
 export class TextureAtlas implements Disposable {
   pages: Texture[];
@@ -223,8 +223,12 @@ export class TextureAtlas implements Disposable {
 
     for (let page of pageData) {
       page.texture = await Texture.load(gl, page.file, textureOptions);
+      const minFilter = page.min === 'Nearest' ? TextureFilter.Nearest : TextureFilter.Linear;
+      const maxFilter = page.max === 'Nearest' ? TextureFilter.Nearest : TextureFilter.Linear;
+      page.texture.setFilters(minFilter, maxFilter);
       page.invTexWidth = 1 / page.texture.width;
       page.invTexHeight = 1 / page.texture.height;
+      pages.push(page);
     }
 
     const regions: TextureRegion[] = [];
