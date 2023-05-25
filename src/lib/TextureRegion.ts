@@ -3,7 +3,7 @@ import { PolygonBatch } from './PolygonBatcher';
 import { Texture } from './Texture';
 
 export class TextureRegion {
-  static splitTexture(texture, cols, rows): TextureRegion[] {
+  static splitTexture(texture: Texture, cols: number, rows: number): TextureRegion[] {
     const { width, height } = texture;
     const regionWidth = width / cols;
     const regionHeight = height / rows;
