@@ -10,6 +10,7 @@ import {
   Screen,
   ViewportInputHandler
 } from '../lib';
+import { ParticleEffect } from '../lib/ParticleEffect';
 
 export const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
@@ -19,6 +20,7 @@ export const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
 
   const kitGardenAtlas = await TextureAtlas.load(gl, './kit-garden.atlas');
   const atlas = await TextureAtlas.load(gl, './gem.atlas');
+  const particleAtlas = await TextureAtlas.load(gl, './particle.atlas');
 
   const kitFullRun = new Animation(kitGardenAtlas.findRegions('char_run_full'), [1 / 30]);
 
@@ -31,6 +33,12 @@ export const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
   batch.setYDown(YDOWN);
 
   const shapeRenderer = new ShapeRenderer(gl);
+
+  const particleEffect = new ParticleEffect();
+  await particleEffect.load('./Particle Park Smoke Trail.p', particleAtlas);
+
+  particleEffect.emitters[0].setPosition(500 / 2, 1000 / 2);
+  particleEffect.start();
 
   const gems: any[] = [];
 
@@ -48,6 +56,7 @@ export const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
   return {
     update(delta, game) {
       stateTime += delta;
+      particleEffect.update(delta);
 
       if (inputHandler.isTouched()) {
         const coord = inputHandler.getTouchedWorldCoord(camera);
@@ -73,7 +82,14 @@ export const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
       kitFullRun.getKeyFrame(stateTime, PlayMode.LOOP).draw(batch, 300, 100, 75, 100);
 
       kitFullHalf.getKeyFrame(stateTime, PlayMode.LOOP).draw(batch, 400, 100, 75, 100);
+
+      particleEffect.draw(batch, gl);
+
       batch.end();
+
+      if (particleEffect.isComplete()) {
+        particleEffect.reset();
+      }
     },
     dispose() {
       console.log('main screen disposed');

@@ -192,6 +192,11 @@ export class Sprite {
     this.dirty = true;
   }
 
+  public setScaleXY(scale: number) {
+    this.scale.set(scale, scale);
+    this.dirty = true;
+  }
+
   /** Sets the sprite's scale relative to the current scale. for example: original scale 2 -> sprite.scale(4) -> final scale 6.
    * The sprite scales out from the origin. This will not affect the values returned by {@link #getWidth()} and
    * {@link #getHeight()} */
@@ -213,8 +218,8 @@ export class Sprite {
     let originX = this.origin.x;
     let originY = this.origin.y;
     let rotation = this.rotation;
-    let scaleX = this.scale.x;
-    let scaleY = this.scale.y;
+    let scaleX = this.flipX ? -this.scale.x : this.scale.x;
+    let scaleY = this.flipY ? -this.scale.y : this.scale.y;
 
     let ou1 = region.u;
     let ov1 = region.v;
@@ -493,5 +498,40 @@ export class Sprite {
    * afterward. */
   public getColor(): Color {
     return this.color;
+  }
+
+  private flipX = false;
+  private flipY = false;
+
+  public isFlipX() {
+    return this.flipX;
+  }
+
+  public isFlipY() {
+    return this.flipY;
+  }
+
+  /** Set the sprite's flip state regardless of current condition
+   * @param x the desired horizontal flip state
+   * @param y the desired vertical flip state */
+  public setFlip(x: boolean, y: boolean) {
+    this.flipX = x;
+    this.flipY = y;
+    this.dirty = true;
+  }
+
+  /** boolean parameters x,y are not setting a state, but performing a flip
+   * @param x perform horizontal flip
+   * @param y perform vertical flip */
+  public flip(x: boolean, y: boolean) {
+    if (x) {
+      this.flipX = !this.flipX;
+    }
+    if (y) {
+      this.flipY = !this.flipY;
+    }
+    if (x || y) {
+      this.dirty = true;
+    }
   }
 }

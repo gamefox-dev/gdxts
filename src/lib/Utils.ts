@@ -1,3 +1,10 @@
+export function getFilenameAndExtension(pathfilename: string): [string, string] {
+  const filenameextension = pathfilename.replace(/^.*[\\\/]/, '');
+  const filename = filenameextension.substring(0, filenameextension.lastIndexOf('.'));
+  const ext = filenameextension.split('.').pop();
+
+  return [filename, ext];
+}
 export class Align {
   public static center: number = 1 << 0;
   public static top: number = 1 << 1;
