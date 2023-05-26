@@ -19,11 +19,12 @@ import { create3DTestScreen } from './screens/createTest3DScreen';
 import { createTestBitmapFontScreen } from './screens/createTestBitmapFontScreen';
 import { createTestDrawAffine } from './screens/createTestDrawAffine';
 import { createTestOutlineScreen } from './screens/createTestOutlineScreen';
+import { createTestParticleScreen } from './screens/createTestParticleScreen';
 import { createTestScreen } from './screens/createTestScreen';
 import { createTestSpriteScreen } from './screens/createTestSpriteScreen';
 
 export const YDOWN = true;
-const FIRST_TEST_INDEX = 0;
+const FIRST_TEST_INDEX = 8;
 
 const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Basic rendering 01': createMainScreen,
@@ -33,7 +34,8 @@ const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Fun with Bunnymark': createBunnyScreen,
   'Outline shader test': createTestOutlineScreen,
   'Basic 3D': create3DTestScreen,
-  'Draw Affine': createTestDrawAffine
+  'Draw Affine': createTestDrawAffine,
+  'Test Particle': createTestParticleScreen
 };
 
 const init = async () => {

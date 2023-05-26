@@ -1,4 +1,5 @@
 export function getFilenameAndExtension(pathfilename: string): [string, string] {
+  // eslint-disable-next-line
   const filenameextension = pathfilename.replace(/^.*[\\\/]/, '');
   const filename = filenameextension.substring(0, filenameextension.lastIndexOf('.'));
   const ext = filenameextension.split('.').pop();
