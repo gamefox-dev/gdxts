@@ -20,9 +20,10 @@ export const createTestParticleScreen = async (viewport: Viewport): Promise<Scre
 
   const particleEffect = new ParticleEffect();
   await particleEffect.load('./Particle Park Smoke Trail.p', particleAtlas);
+  particleEffect.setEmittersCleanUpBlendFunction(false);
+  particleEffect.flipY();
 
-  particleEffect.setPosition(500, 500);
-  particleEffect.scaleEffect(0.5, 0.5, 0.5);
+  particleEffect.setPosition(250, 500);
   particleEffect.start();
 
   return {

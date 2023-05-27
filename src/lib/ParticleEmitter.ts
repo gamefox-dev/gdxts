@@ -1,6 +1,6 @@
-import { StringBufferedReader } from './StringBufferedReader';
 import { PolygonBatch } from './PolygonBatcher';
 import { Sprite } from './Sprite';
+import { StringBufferedReader } from './StringBufferedReader';
 import { MathUtils, Utils } from './Utils';
 
 export enum SpawnShape {
@@ -955,7 +955,7 @@ export class ParticleEmitter {
     if (!this.particles.length) return;
     for (let i = 0; i < this.particles.length; i++) {
       const particle = this.particles[i];
-      if (particle !== null) particle.flip(flipX, flipY);
+      if (particle) particle.flip(flipX, flipY);
     }
   }
 
