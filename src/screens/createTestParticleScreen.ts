@@ -1,6 +1,7 @@
 import { YDOWN } from '..';
 import { Color, PolygonBatch, Screen, ShapeRenderer, TextureAtlas, Viewport, ViewportInputHandler } from '../lib';
 import { ParticleEffect } from '../lib/ParticleEffect';
+import { ParticleEffectPool, PooledEffect } from '../lib/ParticleEffectPool';
 
 export const createTestParticleScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
@@ -20,19 +21,21 @@ export const createTestParticleScreen = async (viewport: Viewport): Promise<Scre
 
   const particleEffect = new ParticleEffect();
   await particleEffect.load('./Particle Park Smoke Trail.p', particleAtlas);
-  particleEffect.setEmittersCleanUpBlendFunction(false);
   particleEffect.flipY();
+  const pool = new ParticleEffectPool(particleEffect, 10, 100);
 
-  particleEffect.setPosition(250, 500);
-  particleEffect.start();
+  const effects: ParticleEffect[] = [];
+  const effectToBeDeleted: ParticleEffect[] = [];
 
   return {
     update(delta, game) {
-      particleEffect.update(delta);
-
       if (inputHandler.isTouched()) {
         const coord = inputHandler.getTouchedWorldCoord(camera);
-        particleEffect.setPosition(coord.x, coord.y);
+        const effect = pool.obtain();
+        effect.setPosition(coord.x, coord.y);
+        effects.push(effect);
+        effect.setPosition(coord.x, coord.y);
+        effect.start();
       }
 
       shapeRenderer.setProjection(camera.combined);
@@ -42,7 +45,17 @@ export const createTestParticleScreen = async (viewport: Viewport): Promise<Scre
 
       batch.setProjection(camera.combined);
       batch.begin();
-      particleEffect.draw(batch, gl);
+      for (let effect of effects) {
+        effect.update(delta);
+        effect.draw(batch, gl);
+        if (effect.isComplete()) {
+          effectToBeDeleted.push(effect);
+        }
+      }
+      for (let effect of effectToBeDeleted) {
+        effects.splice(effects.indexOf(effect), 1);
+        pool.free(effect as PooledEffect);
+      }
       batch.end();
     },
     dispose() {
