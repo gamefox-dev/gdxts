@@ -5,7 +5,7 @@ export class ParticleEffectPool extends Pool<PooledEffect> {
   effect: ParticleEffect;
 
   constructor(effect: ParticleEffect, _initialCapacity: number, _max: number) {
-    super();
+    super(() => this.newObject());
     this.effect = effect;
   }
 
@@ -39,7 +39,7 @@ export class ParticleEffectPool extends Pool<PooledEffect> {
   }
 }
 
-class PooledEffect extends ParticleEffect {
+export class PooledEffect extends ParticleEffect {
   constructor(private pool: ParticleEffectPool, effect: ParticleEffect) {
     super(effect);
   }
