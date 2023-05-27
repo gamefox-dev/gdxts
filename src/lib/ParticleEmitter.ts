@@ -62,8 +62,8 @@ export class ParticleEmitter {
   private particles: Particle[] = [];
   private minParticleCount: number;
   private maxParticleCount = 4;
-  private x: number;
-  private y: number;
+  private x: number = 0;
+  private y: number = 0;
   private name: string;
   private imagePaths: string[] = [];
   private activeCount: number;
@@ -149,7 +149,7 @@ export class ParticleEmitter {
     this.behind = emitter.behind;
     this.additive = emitter.additive;
     this.premultipliedAlpha = emitter.premultipliedAlpha;
-    this.cleansUpBlendFunction = emitter.cleansUpBlendFunction;
+    this.cleaningUpBlendFunction = emitter.cleaningUpBlendFunction;
     this.spriteMode = emitter.spriteMode;
     this.setPosition(emitter.getX(), emitter.getY());
   }
@@ -276,14 +276,14 @@ export class ParticleEmitter {
       if (active[i]) particles[i].draw(batch);
     }
 
-    if (this.cleansUpBlendFunction && (this.additive || this.premultipliedAlpha))
+    if (this.cleaningUpBlendFunction && (this.additive || this.premultipliedAlpha))
       batch.setBlendMode(gl.SRC_ALPHA, gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   }
 
   /** Updates and draws the particles. This is slightly more efficient than calling {@link #update} and
    * {@link #draw(Batch)} separately. */
   updateAndDraw(batch: PolygonBatch, gl: WebGLRenderingContext, delta: number) {
-    this.accumulator += delta;
+    this.accumulator += delta * 1000;
     if (this.accumulator < 1) {
       this.draw(batch, gl);
       return;
@@ -314,7 +314,7 @@ export class ParticleEmitter {
     }
     this.activeCount = activeCount;
 
-    if (this.cleansUpBlendFunction && (this.additive || this.premultipliedAlpha))
+    if (this.cleaningUpBlendFunction && (this.additive || this.premultipliedAlpha))
       batch.setBlendMode(gl.SRC_ALPHA, gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
     if (this.delayTimer < this.delay) {
@@ -687,7 +687,11 @@ export class ParticleEmitter {
       let xAmount = x - this.x;
       let yAmount = y - this.y;
       const active = this.active;
-      for (let i = 0; i < active.length; i++) if (active[i]) this.particles[i].translate(xAmount, yAmount);
+      for (let i = 0; i < active.length; i++) {
+        if (active[i]) {
+          this.particles[i].translate(xAmount, yAmount);
+        }
+      }
     }
     this.x = x;
     this.y = y;

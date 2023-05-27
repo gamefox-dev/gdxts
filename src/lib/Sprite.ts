@@ -86,7 +86,7 @@ export class Sprite {
 
   public setBounds(x: number, y: number, width: number, height: number) {
     this.setPosition(x, y);
-    this.setSize(x, y);
+    this.setSize(width, height);
     this.dirty = true;
   }
 
