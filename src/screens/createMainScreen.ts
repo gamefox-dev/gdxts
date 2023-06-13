@@ -76,7 +76,6 @@ export const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
       batch.end();
     },
     dispose() {
-      console.log('main screen disposed');
       batch.dispose();
       shapeRenderer.dispose();
       atlas.dispose();

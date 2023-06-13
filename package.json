@@ -1,6 +1,6 @@
 {
   "name": "gdxts",
-  "version": "0.1.36",
+  "version": "0.1.37",
   "dependencies": {
     "events": "^3.3.0"
   },

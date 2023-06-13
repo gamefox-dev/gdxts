@@ -3,21 +3,21 @@ import { TextureRegion } from './TextureRegion';
 import { Disposable, concatAndResolveUrl } from './Utils';
 
 export class TextureAtlas implements Disposable {
-  pages: Texture[];
+  pages: { texture: Texture }[];
   regions: TextureRegion[];
 
-  constructor(pages: Texture[], regions: TextureRegion[]) {
+  constructor(pages: { texture: Texture }[], regions: TextureRegion[]) {
     this.pages = pages;
     this.regions = regions;
   }
   dispose(): void {
     for (let page of this.pages) {
-      page.dispose();
+      page.texture.dispose();
     }
   }
 
   getPages(): Texture[] {
-    return this.pages;
+    return this.pages.map(page => page.texture);
   }
   getRegions(): TextureRegion[] {
     return this.regions;
@@ -39,7 +39,7 @@ export class TextureAtlas implements Disposable {
     const packFileContent = await fetch(packFileUrl).then(res => res.text());
 
     const pageData: any[] = [];
-    const pages: Texture[] = [];
+    const pages: { texture: Texture }[] = [];
     const regionsData: any[] = [];
 
     let pageImage;
