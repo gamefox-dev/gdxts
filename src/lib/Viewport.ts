@@ -17,6 +17,7 @@ export interface ViewportOptions {
   crop?: Boolean;
   disablePremultipliedAlpha?: Boolean;
   contextOption?: WebGLContextAttributes;
+  resizeCanvasFunc?: (canvas: HTMLCanvasElement, pixelRatio: number) => [number, number];
 }
 
 export interface Viewport {
@@ -66,8 +67,11 @@ export const createViewport = (canvas: HTMLCanvasElement, width: number, height:
     worldWidth: width,
     worldHeight: height
   };
+
+  const resizeCanvasFunc = options.resizeCanvasFunc || resizeCanvas;
+
   let resizeHandler;
-  const [vWidth, vHeight] = resizeCanvas(canvas, pixelRatio);
+  const [vWidth, vHeight] = resizeCanvasFunc(canvas, pixelRatio);
   const camera = new OrthoCamera(width, height, vWidth, vHeight);
   if (autoUpdate) {
     resizeHandler = e => {
@@ -93,7 +97,7 @@ export const createViewport = (canvas: HTMLCanvasElement, width: number, height:
       return canvas;
     },
     update() {
-      let [vWidth, vHeight] = resizeCanvas(canvas, pixelRatio);
+      let [vWidth, vHeight] = resizeCanvasFunc(canvas, pixelRatio);
       const ratio = width / height;
       const vRatio = vWidth / vHeight;
 
