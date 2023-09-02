@@ -50,9 +50,9 @@ export class PolygonBatch implements Disposable {
   setColor(color: Color);
   setColor(r: number | Color, g?: number, b?: number, a?: number) {
     if (r instanceof Color) {
-      this.color.set(r.r, r.g, r.b, r.a);
+      this.color.unsafeSet(r.r, r.g, r.b, r.a);
     } else {
-      this.color.set(r, g, b, a);
+      this.color.unsafeSet(r, g, b, a);
     }
   }
 
