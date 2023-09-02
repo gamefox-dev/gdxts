@@ -1,8 +1,8 @@
-import { Color, Disposable } from './Utils';
-import { Texture } from './Texture';
-import { Mesh, Position2Attribute, ColorAttribute, TexCoordAttribute, Color2Attribute } from './Mesh';
-import { Shader } from './Shader';
 import { Affine2 } from './Affine2';
+import { Color2Attribute, ColorAttribute, Mesh, Position2Attribute, TexCoordAttribute } from './Mesh';
+import { Shader } from './Shader';
+import { Texture } from './Texture';
+import { Color, Disposable } from './Utils';
 
 // prettier-ignore
 const quad = [
@@ -11,7 +11,6 @@ const quad = [
   0, 0, 1, 1, 1, 1, 0, 0,
   0, 0, 1, 1, 1, 1, 0, 0,
 ];
-const WHITE = new Color(1, 1, 1, 1);
 
 export class PolygonBatch implements Disposable {
   public static QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
@@ -29,7 +28,7 @@ export class PolygonBatch implements Disposable {
   private srcAlphaBlend: number;
   private dstBlend: number;
   private projectionValues: Float32Array = new Float32Array(16);
-  public color: Color = WHITE;
+  public color: Color = new Color(1, 1, 1, 1);
   twoColorTint: boolean = true;
 
   constructor(context: WebGLRenderingContext, twoColorTint: boolean = true, maxVertices: number = 10920) {
@@ -47,8 +46,14 @@ export class PolygonBatch implements Disposable {
     this.twoColorTint = twoColorTint;
   }
 
-  setColor(color: Color) {
-    this.color = color;
+  setColor(r: number, g: number, b: number, a: number);
+  setColor(color: Color);
+  setColor(r: number | Color, g?: number, b?: number, a?: number) {
+    if (r instanceof Color) {
+      this.color.set(r.r, r.g, r.b, r.a);
+    } else {
+      this.color.set(r, g, b, a);
+    }
   }
 
   setShader(shader: Shader) {
@@ -465,3 +470,5 @@ export class PolygonBatch implements Disposable {
     this.drawVertices(texture, quad, PolygonBatch.QUAD_TRIANGLES);
   }
 }
+
+export const SpriteBatch = PolygonBatch;
