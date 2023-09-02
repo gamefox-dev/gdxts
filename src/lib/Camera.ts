@@ -114,3 +114,5 @@ export class OrthoCamera {
     this.viewportHeight = viewportHeight;
   }
 }
+
+export type OrthographicCamera = OrthoCamera;

@@ -69,3 +69,7 @@ export class Animation {
     return keyFrames[frameNumber];
   }
 }
+
+export const createAnimation = (frameDuration: number, keyFrames: TextureRegion[]): Animation => {
+  return new Animation(keyFrames, frameDuration);
+};
