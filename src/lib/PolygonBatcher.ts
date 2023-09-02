@@ -471,4 +471,4 @@ export class PolygonBatch implements Disposable {
   }
 }
 
-export const SpriteBatch = PolygonBatch;
+export type SpriteBatch = typeof PolygonBatch;
