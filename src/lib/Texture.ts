@@ -15,7 +15,7 @@ export enum TextureWrap {
 }
 
 export class Texture {
-  protected _image: HTMLImageElement | ImageBitmap | ImageData;
+  public _image: HTMLImageElement | ImageBitmap | ImageData;
 
   getImage(): HTMLImageElement | ImageBitmap | ImageData {
     return this._image;
