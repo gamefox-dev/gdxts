@@ -38,7 +38,11 @@ export class PolygonBatch implements Disposable {
       ? [new Position2Attribute(), new ColorAttribute(), new TexCoordAttribute(), new Color2Attribute()]
       : [new Position2Attribute(), new ColorAttribute(), new TexCoordAttribute()];
     this.mesh = new Mesh(context, attributes, maxVertices, maxVertices * 3);
-    this.shader = Shader.newTwoColoredTextured(context);
+    if (twoColorTint) {
+      this.shader = Shader.newTwoColoredTextured(context);
+    } else {
+      this.shader = Shader.newColoredTextured(context);
+    }
     let gl = this.context;
     this.srcColorBlend = gl.SRC_ALPHA;
     this.srcAlphaBlend = gl.ONE;
