@@ -189,6 +189,7 @@ export class Shader implements Disposable, Restorable {
  
          void main () {
            v_color = ${Shader.COLOR};
+           v_color.a = v_color.a * (256.0/255.0);
            v_texCoords = ${Shader.TEXCOORDS};
            gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
          }
@@ -226,7 +227,9 @@ export class Shader implements Disposable, Restorable {
  
          void main () {
            v_light = ${Shader.COLOR};
+           v_light.a = v_light.a * (256.0/255.0);
            v_dark = ${Shader.COLOR2};
+           v_dark.a = v_dark.a * (256.0/255.0);
            v_texCoords = ${Shader.TEXCOORDS};
            gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
          }
