@@ -41,7 +41,7 @@ export class Animation {
     return fN;
   }
 
-  getKeyFrame(stateTime: number, mode: PlayMode): TextureRegion {
+  getKeyFrame(stateTime: number, mode: PlayMode = PlayMode.NORMAL): TextureRegion {
     const { keyFrames, frameDurations, totalDuration } = this;
 
     const runIndex = Math.floor(stateTime / totalDuration);
