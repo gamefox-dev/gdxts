@@ -2,9 +2,29 @@ import { BitmapFont } from './BitmapFont';
 import { Texture } from './Texture';
 import { TextureAtlas } from './TextureAtlas';
 
+export enum AssetType {
+  Atlas = 'atlas',
+  Texture = 'tex',
+  Font = 'font',
+  Json = 'json',
+  Binary = 'bin'
+}
+
+export type AssetTypeClass<T extends AssetType> = T extends AssetType.Atlas
+  ? TextureAtlas
+  : T extends AssetType.Texture
+  ? Texture
+  : T extends AssetType.Font
+  ? BitmapFont
+  : T extends AssetType.Json
+  ? any
+  : T extends AssetType.Binary
+  ? ArrayBuffer
+  : never;
+
 export class AssetManager {
   gl: WebGLRenderingContext;
-  promises: Array<Promise<any>> = [];
+  promises: Map<string, Promise<any>> = new Map();
   atlases: Map<string, TextureAtlas> = new Map();
   textures: Map<string, Texture> = new Map();
   jsonData: Map<string, any> = new Map();
@@ -30,7 +50,7 @@ export class AssetManager {
       this.reportDone();
       return atlas;
     });
-    this.promises.push(promise);
+    this.promises.set(`atlas:${name}`, promise);
     return promise;
   }
   getAtlas(name: string): TextureAtlas | undefined {
@@ -44,7 +64,7 @@ export class AssetManager {
         this.reportDone();
         return json;
       });
-    this.promises.push(promise);
+    this.promises.set(`json:${name}`, promise);
     return promise;
   }
   getJsonData(name: string): any {
@@ -58,7 +78,7 @@ export class AssetManager {
         this.reportDone();
         return buffer;
       });
-    this.promises.push(promise);
+    this.promises.set(`bin:${name}`, promise);
     return promise;
   }
   getBinaryData(name: string): ArrayBuffer {
@@ -71,7 +91,7 @@ export class AssetManager {
       this.reportDone();
       return font;
     });
-    this.promises.push(promise);
+    this.promises.set(`font:${name}`, promise);
     return promise;
   }
   getFont(name: string): BitmapFont | undefined {
@@ -83,20 +103,37 @@ export class AssetManager {
       this.reportDone();
       return texture;
     });
-    this.promises.push(promise);
+    this.promises.set(`tex:${name}`, promise);
     return promise;
   }
   getTexture(name: string): Texture | undefined {
     return this.textures.get(name);
   }
   async finishLoading() {
-    await Promise.all(this.promises);
+    await Promise.all(this.promises.values());
   }
   getDone(): number {
     return this.done;
   }
   getTotal(): number {
-    return this.promises.length;
+    return this.promises.size;
+  }
+  getAsset<T extends AssetType>(name: string, type: T): AssetTypeClass<T> {
+    switch (type) {
+      case AssetType.Atlas:
+        return this.getAtlas(name) as AssetTypeClass<T>;
+      case AssetType.Texture:
+        return this.getTexture(name) as AssetTypeClass<T>;
+      case AssetType.Font:
+        return this.getFont(name) as AssetTypeClass<T>;
+      case AssetType.Json:
+        return this.getJsonData(name) as AssetTypeClass<T>;
+      case AssetType.Binary:
+        return this.getBinaryData(name) as AssetTypeClass<T>;
+    }
+  }
+  waitForAsset<T extends AssetType>(name: string, type: T): Promise<AssetTypeClass<T>> {
+    return this.promises.get(`${type}:${name}`) as Promise<AssetTypeClass<T>>;
   }
   disposeAll(): void {
     const atlasKeys = [...this.atlases.keys()];
