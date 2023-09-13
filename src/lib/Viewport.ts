@@ -80,7 +80,12 @@ export const createViewport = (canvas: HTMLCanvasElement, width: number, height:
     window.addEventListener('resize', resizeHandler);
   }
 
+  const listeners: (() => void)[] = [];
+
   const viewportObject = {
+    addUpdateListener(listener: () => void) {
+      listeners.push(listener);
+    },
     getViewportInfo() {
       return viewportInfo;
     },
@@ -150,6 +155,9 @@ export const createViewport = (canvas: HTMLCanvasElement, width: number, height:
           camera.setPosition(cameraX + cameraWidth / 2, cameraY + cameraHeight / 2);
           camera.resize(cameraWidth, cameraHeight, vWidth, vHeight);
         }
+      }
+      for (let listener of listeners) {
+        listener();
       }
     },
     cleanUp() {
