@@ -28,6 +28,7 @@ export interface Viewport {
   update(): void;
   cleanUp(): void;
   addCamera(camera: OrthoCamera): void;
+  addUpdateListener(listener: () => void): void;
 }
 
 export const createViewport = (canvas: HTMLCanvasElement, width: number, height: number, options?: ViewportOptions) => {
