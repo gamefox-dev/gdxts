@@ -108,14 +108,12 @@ export class TextureAtlas implements Disposable {
           repeatY = TextureWrap.Repeat;
         }
 
-        const mipMaps = min !== 'Nearest' && min !== 'Linear';
-
         pageImage = {
           file,
           width,
           height,
           format,
-          mipMaps,
+          mipMaps: useMipMaps,
           min,
           max,
           direction,
