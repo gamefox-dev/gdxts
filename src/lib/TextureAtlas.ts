@@ -35,7 +35,7 @@ export class TextureAtlas implements Disposable {
     return this.regions.filter(region => region.name === name).sort((a, b) => a.index - b.index);
   }
 
-  static async load(gl: WebGLRenderingContext, packFileUrl: string, textureOptions?: any): Promise<TextureAtlas> {
+  static async load(gl: WebGLRenderingContext, packFileUrl: string, useMipMaps = false): Promise<TextureAtlas> {
     const packFileContent = await fetch(packFileUrl).then(res => res.text());
 
     const pageData: any[] = [];
@@ -222,7 +222,7 @@ export class TextureAtlas implements Disposable {
     }
 
     for (let page of pageData) {
-      page.texture = await Texture.load(gl, page.file, textureOptions);
+      page.texture = await Texture.load(gl, page.file, useMipMaps);
       const minFilter = page.min === 'Nearest' ? TextureFilter.Nearest : TextureFilter.Linear;
       const maxFilter = page.max === 'Nearest' ? TextureFilter.Nearest : TextureFilter.Linear;
       page.texture.setFilters(minFilter, maxFilter);

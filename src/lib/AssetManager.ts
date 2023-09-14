@@ -44,8 +44,8 @@ export class AssetManager {
       handler((this.done / this.getTotal()) * 100, this.done >= this.getTotal());
     }
   }
-  loadAtlas(path: string, name: string): Promise<TextureAtlas> {
-    const promise = TextureAtlas.load(this.gl, path, {}).then(atlas => {
+  loadAtlas(path: string, name: string, useMipMaps = false): Promise<TextureAtlas> {
+    const promise = TextureAtlas.load(this.gl, path, useMipMaps).then(atlas => {
       this.atlases.set(name, atlas);
       this.reportDone();
       return atlas;
@@ -97,8 +97,8 @@ export class AssetManager {
   getFont(name: string): BitmapFont | undefined {
     return this.fonts.get(name);
   }
-  loadTexture(path: string, name: string): Promise<Texture> {
-    const promise = Texture.load(this.gl, path).then(texture => {
+  loadTexture(path: string, name: string, useMipMaps = false): Promise<Texture> {
+    const promise = Texture.load(this.gl, path, useMipMaps).then(texture => {
       this.textures.set(name, texture);
       this.reportDone();
       return texture;
