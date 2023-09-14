@@ -14,10 +14,14 @@ export enum TextureWrap {
   Repeat = 10497 // WebGLRenderingContext.REPEAT
 }
 
-export class Texture {
-  public _image: HTMLImageElement | ImageBitmap | ImageData;
+export class ImageSource {
+  constructor(public width: number, public height: number, public data: ArrayBufferLike) {}
+}
 
-  getImage(): HTMLImageElement | ImageBitmap | ImageData {
+export class Texture {
+  public _image: HTMLImageElement | ImageBitmap | ImageData | ImageSource;
+
+  getImage(): HTMLImageElement | ImageBitmap | ImageData | ImageSource {
     return this._image;
   }
 
@@ -49,7 +53,7 @@ export class Texture {
 
   constructor(
     context: WebGLRenderingContext,
-    image: HTMLImageElement | ImageBitmap | ImageData,
+    image: HTMLImageElement | ImageBitmap | ImageData | ImageSource,
     useMipMaps: boolean = false
   ) {
     this._image = image;
@@ -97,7 +101,22 @@ export class Texture {
     if (!this.texture) this.texture = this.context.createTexture();
     this.bind();
     if (Texture.DISABLE_UNPACK_PREMULTIPLIED_ALPHA_WEBGL) gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+    if (this._image instanceof ImageSource) {
+      const view = new DataView(this._image.data);
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        this._image.width,
+        this._image.height,
+        0,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        view
+      );
+    } else {
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
+    }
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, useMipMaps ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
