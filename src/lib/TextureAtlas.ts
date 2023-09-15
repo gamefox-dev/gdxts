@@ -226,6 +226,7 @@ export class TextureAtlas implements Disposable {
       page.texture.setFilters(minFilter, maxFilter);
       page.invTexWidth = 1 / page.texture.width;
       page.invTexHeight = 1 / page.texture.height;
+      page.texture.update(useMipMaps);
       pages.push(page);
     }
 
