@@ -17,6 +17,7 @@ export class BitmapFontData {
   padRight: number;
   padBottom: number;
   padLeft: number;
+  public size: number;
   /** The distance from one line of text to the next. To set this value, use {@link #setLineHeight(float)}. */
   public lineHeight: number;
   /** The distance from the top of most uppercase characters to the baseline. Since the drawing position is the cap height of
@@ -103,8 +104,11 @@ export class BitmapFontData {
       let line: string = lines[i];
       if (typeof line !== 'string') throw new Error('File is empty.');
 
-      line = line.substring(line.indexOf('padding=') + 8);
-      const padding: string[] = line.substring(0, line.indexOf(' ')).split(',', 4);
+      const infoFragments = line.split(' ');
+      const sizeInfo = infoFragments.find(s => s.startsWith('size='));
+      this.size = parseInt(sizeInfo.split('=')[1]);
+      const paddingInfo = infoFragments.find(s => s.startsWith('padding='));
+      const padding: string[] = paddingInfo.split('=')[1].split(',');
       if (padding.length !== 4) throw new Error('Invalid padding.');
       this.padTop = parseInt(padding[0]);
       this.padRight = parseInt(padding[1]);
