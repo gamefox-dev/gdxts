@@ -6,8 +6,7 @@ import { GlyphRun } from './GlyphRun';
 import { NumberUtil } from './NumberUtils';
 import { PolygonBatch } from './PolygonBatcher';
 import { TextureRegion } from './TextureRegion';
-import { Color, Pools, Utils, Align } from './Utils';
-import { Vector2 } from './Vector2';
+import { Align, Color, Pools, Utils } from './Utils';
 
 export class BitmapFontCache {
   private tempColor: Color = new Color(1, 1, 1, 1);
@@ -167,14 +166,24 @@ export class BitmapFontCache {
     this.color.set(r, g, b, a);
   };
 
-  public draw(batch: PolygonBatch) {
+  private findRegion(id: string): TextureRegion {
     const regions: TextureRegion[] = this.font.getRegions();
+    for (let i = 0; i < regions.length; i++) {
+      const region = regions[i];
+      if ((region as any).id === id) {
+        return region;
+      }
+    }
+    return null;
+  }
+
+  public draw(batch: PolygonBatch) {
     for (let i = 0; i < this.pageVertices.length; i++) {
       if (this.idx[i] > 0) {
         const vertices = this.pageVertices[i];
         for (let j = 0; j < this.idx[i] / 20; j++) {
           const offset = 20 * j;
-          const region = regions.find(item => (item as any).id === this.drawingTexts?.[j]);
+          const region = this.findRegion(this.drawingTexts?.[j]);
           if (region) {
             region.draw(
               batch,
@@ -189,28 +198,26 @@ export class BitmapFontCache {
     }
   }
 
-  temVec2 = new Vector2();
+  glyphTransform = new Affine2();
   public drawTransformed(batch: PolygonBatch, transform: Affine2) {
-    const regions: TextureRegion[] = this.font.getRegions();
     for (let i = 0; i < this.pageVertices.length; i++) {
       if (this.idx[i] > 0) {
         const vertices = this.pageVertices[i];
         for (let j = 0; j < this.idx[i] / 20; j++) {
           const offset = 20 * j;
-          const region = regions.find(item => (item as any).id === this.drawingTexts?.[j]);
+          const region = this.findRegion(this.drawingTexts?.[j]);
+          this.glyphTransform.idt();
           if (region) {
-            transform.getTranslation(this.temVec2);
-            const scale = Math.sqrt(transform.det());
+            const x = vertices[0 + offset];
+            const y = vertices[1 + offset];
+            this.glyphTransform.setToTrnRotRadScl(x, y, 0, 1, 1);
+            this.glyphTransform.preMul(transform);
 
-            const x = vertices[0 + offset] * scale;
-            const y = vertices[1 + offset] * scale;
-
-            region.draw(
+            region.drawTransformed(
               batch,
-              x + this.temVec2.x,
-              y + this.temVec2.y,
-              (vertices[10 + offset] - vertices[0 + offset]) * scale,
-              (vertices[11 + offset] - vertices[1 + offset]) * scale
+              vertices[10 + offset] - vertices[0 + offset],
+              vertices[11 + offset] - vertices[1 + offset],
+              this.glyphTransform
             );
           }
         }

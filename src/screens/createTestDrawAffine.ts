@@ -1,16 +1,16 @@
 import { YDOWN } from '..';
 import {
-  Viewport,
-  PolygonBatch,
-  Game,
+  Align,
+  Animation,
+  BitmapFont,
   Color,
+  Game,
+  PlayMode,
+  PolygonBatch,
   Screen,
   Texture,
   TextureAtlas,
-  Animation,
-  PlayMode,
-  BitmapFont,
-  Align
+  Viewport
 } from '../lib';
 import { Affine2 } from '../lib/Affine2';
 
@@ -45,6 +45,18 @@ export const createTestDrawAffine = async (viewport: Viewport): Promise<Screen> 
   let scale = 1;
   let stateTime = 0;
 
+  const TEXT_CONTAINER_WIDTH = 200;
+  const TEXT_CONTAINER_HEIGHT = 100;
+
+  const container = new Affine2();
+  container.setToTrnRotRadScl(150 + TEXT_CONTAINER_WIDTH / 2, 650 + TEXT_CONTAINER_HEIGHT, 0, 1, 1.5);
+  container.translate(-TEXT_CONTAINER_WIDTH / 2, -TEXT_CONTAINER_HEIGHT);
+
+  const textContainerAffine = new Affine2();
+  textContainerAffine.setToTrnRotRadScl(TEXT_CONTAINER_WIDTH / 2, TEXT_CONTAINER_HEIGHT, 0, 1.5, 1);
+  textContainerAffine.translate(-TEXT_CONTAINER_WIDTH / 2, -TEXT_CONTAINER_HEIGHT);
+  textContainerAffine.preMul(container);
+
   return {
     update(delta: number, game: Game) {
       parentRotation += Math.PI * delta;
@@ -77,6 +89,13 @@ export const createTestDrawAffine = async (viewport: Viewport): Promise<Screen> 
       batch.setColor(Color.WHITE);
 
       font.drawTransformed(batch, 'One Two Three Four Five Six Seven', childAffine, 400, Align.center);
+
+      batch.drawTransformed(whiteTexture, TEXT_CONTAINER_WIDTH, TEXT_CONTAINER_HEIGHT, textContainerAffine);
+      batch.setColor(Color.RED);
+      font.data.setXYScale(0.5);
+      font.drawTransformed(batch, 'Hello, world', textContainerAffine, TEXT_CONTAINER_WIDTH, Align.center);
+      font.data.setXYScale(1);
+      batch.setColor(Color.WHITE);
 
       batch.end();
     },
