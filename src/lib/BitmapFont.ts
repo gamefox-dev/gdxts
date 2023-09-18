@@ -41,12 +41,30 @@ export class BitmapFont {
     gl: WebGLRenderingContext,
     fontFile: string,
     flip: boolean = false,
-    interger: boolean = false
+    integer: boolean = false
   ) => {
     const fontData = new BitmapFontData(fontFile, flip);
     await fontData.loadFont(gl);
-    return new BitmapFont(fontData, fontData.regions, interger);
+    return new BitmapFont(fontData, fontData.regions, integer);
   };
+
+  public static async loadFromPacker(
+    gl: WebGLRenderingContext,
+    fileContent: string,
+    textureData: {
+      data: ImageData;
+      width: number;
+      height: number;
+    }[],
+    flip = false,
+    integer = false,
+    useMipMaps = false
+  ) {
+    const fontData = new BitmapFontData('', flip, textureData);
+    fontData.setFileContent(fileContent);
+    await fontData.loadFont(gl, useMipMaps);
+    return new BitmapFont(fontData, fontData.regions, integer);
+  }
 
   load = (data: BitmapFontData) => {
     const glyphValues = Object.values(data.glyphs);

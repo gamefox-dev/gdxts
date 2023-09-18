@@ -80,23 +80,46 @@ export class BitmapFontData {
     'Z'
   ];
 
+  private textureData?: {
+    data: ImageData;
+    width: number;
+    height: number;
+  }[];
+
   /** Creates an empty BitmapFontData for configuration before calling {@link #load(FileHandle, boolean)}, to subclass, or to
    * populate yourself, e.g. using stb-truetype or FreeType. */
-  constructor(fontFile: string, flip: boolean) {
+  constructor(
+    fontFile: string,
+    flip: boolean,
+    textureData?: {
+      data: ImageData;
+      width: number;
+      height: number;
+    }[]
+  ) {
     this.fontFile = fontFile;
     this.flipped = flip;
+    this.textureData = textureData;
   }
 
-  public loadFont = async (gl: WebGLRenderingContext) => {
+  fileContent: string = '';
+
+  setFileContent(fileContent: string) {
+    this.fileContent = fileContent;
+    this.fontFile = null;
+  }
+
+  public loadFont = async (gl: WebGLRenderingContext, useMipMaps = false) => {
     if (this.imagePaths != null) return;
 
     let i = 0;
 
-    let fileContent;
+    let fileContent = this.fileContent;
 
-    const res = await fetch(this.fontFile);
-
-    fileContent = await res.text();
+    if (this.fontFile) {
+      const res = await fetch(this.fontFile);
+      fileContent = await res.text();
+    }
 
     const lines = fileContent.split(/\r?\n/).map((s: string) => s.trim());
 
@@ -365,15 +388,28 @@ export class BitmapFontData {
         invTexHeight: number;
       }[] = [];
 
-      for (let i = 0; i < pageCount; i++) {
-        const texture = await Texture.load(gl, concatAndResolveUrl(this.fontFile, `../${imagePaths[i]}`));
-        const invTexWidth = 1 / texture.width;
-        const invTexHeight = 1 / texture.height;
-        pages.push({
-          texture,
-          invTexWidth,
-          invTexHeight
-        });
+      if (this.textureData) {
+        for (let i = 0; i < this.textureData.length; i++) {
+          const texture = new Texture(gl, this.textureData[i].data, useMipMaps);
+          const invTexWidth = 1 / texture.width;
+          const invTexHeight = 1 / texture.height;
+          pages.push({
+            texture,
+            invTexWidth,
+            invTexHeight
+          });
+        }
+      } else {
+        for (let i = 0; i < pageCount; i++) {
+          const texture = await Texture.load(gl, concatAndResolveUrl(this.fontFile, `../${imagePaths[i]}`), useMipMaps);
+          const invTexWidth = 1 / texture.width;
+          const invTexHeight = 1 / texture.height;
+          pages.push({
+            texture,
+            invTexWidth,
+            invTexHeight
+          });
+        }
       }
 
       this.regions = [];
