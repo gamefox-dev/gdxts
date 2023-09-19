@@ -132,11 +132,6 @@ export const createViewport = (canvas: HTMLCanvasElement, width: number, height:
           camera.resize(width, height, displayWidth, displayHeight);
         }
       } else {
-        viewportInfo.x = 0;
-        viewportInfo.y = 0;
-        viewportInfo.width = vWidth;
-        viewportInfo.height = vHeight;
-
         gl.viewport(0, 0, vWidth, vHeight);
         let cameraWidth, cameraHeight, cameraX, cameraY;
         if (ratio < vRatio) {
@@ -144,12 +139,21 @@ export const createViewport = (canvas: HTMLCanvasElement, width: number, height:
           cameraWidth = cameraHeight * vRatio;
           cameraX = -(cameraWidth - width) / 2;
           cameraY = 0;
+
+          viewportInfo.height = vHeight;
+          viewportInfo.width = vHeight * ratio;
         } else {
           cameraWidth = width;
           cameraHeight = cameraWidth / vRatio;
           cameraX = 0;
           cameraY = -(cameraHeight - height) / 2;
+
+          viewportInfo.width = vWidth;
+          viewportInfo.height = vWidth / ratio;
         }
+        viewportInfo.x = cameraX;
+        viewportInfo.y = cameraY;
+
         camera.setPosition(cameraX + cameraWidth / 2, cameraY + cameraHeight / 2);
         camera.resize(cameraWidth, cameraHeight, vWidth, vHeight);
         for (let camera of additionalCameras) {
