@@ -51,9 +51,6 @@ const init = async () => {
       antialias: false
     }
   });
-  viewport.addUpdateListener(() => {
-    console.log(viewport.getViewportInfo());
-  });
 
   const gl = viewport.getContext();
   const font = await BitmapFont.load(gl, './number.fnt', YDOWN);

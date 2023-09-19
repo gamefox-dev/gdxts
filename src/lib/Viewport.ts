@@ -9,6 +9,8 @@ export interface ViewportInfo {
   height: number;
   worldWidth: number;
   worldHeight: number;
+  offsetX: number;
+  offsetY: number;
 }
 
 export interface ViewportOptions {
@@ -59,10 +61,12 @@ export const createViewport = (canvas: HTMLCanvasElement, width: number, height:
   const additionalCameras = [];
   let { autoUpdate, pixelRatio, crop } = options;
   pixelRatio = pixelRatio || window.devicePixelRatio || 1;
-  const viewportInfo = {
+  const viewportInfo: ViewportInfo = {
     pixelRatio,
     x: 0,
     y: 0,
+    offsetX: 0,
+    offsetY: 0,
     width,
     height,
     worldWidth: width,
@@ -123,6 +127,8 @@ export const createViewport = (canvas: HTMLCanvasElement, width: number, height:
         viewportInfo.y = displayY;
         viewportInfo.width = displayWidth;
         viewportInfo.height = displayHeight;
+        viewportInfo.offsetX = displayX;
+        viewportInfo.offsetY = displayY;
 
         gl.viewport(displayX, displayY, displayWidth, displayHeight);
         camera.setPosition(width / 2, height / 2);
