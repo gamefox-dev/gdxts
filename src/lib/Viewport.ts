@@ -151,8 +151,8 @@ export const createViewport = (canvas: HTMLCanvasElement, width: number, height:
           viewportInfo.width = vWidth;
           viewportInfo.height = vWidth / ratio;
         }
-        viewportInfo.x = cameraX;
-        viewportInfo.y = cameraY;
+        viewportInfo.x = vWidth / 2 - viewportInfo.width / 2;
+        viewportInfo.y = vHeight / 2 - viewportInfo.height / 2;
 
         camera.setPosition(cameraX + cameraWidth / 2, cameraY + cameraHeight / 2);
         camera.resize(cameraWidth, cameraHeight, vWidth, vHeight);

@@ -24,7 +24,7 @@ import { createTestScreen } from './screens/createTestScreen';
 import { createTestSpriteScreen } from './screens/createTestSpriteScreen';
 
 export const YDOWN = true;
-const FIRST_TEST_INDEX = 7;
+const FIRST_TEST_INDEX = 0;
 
 const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Basic rendering 01': createMainScreen,
@@ -50,6 +50,9 @@ const init = async () => {
     contextOption: {
       antialias: false
     }
+  });
+  viewport.addUpdateListener(() => {
+    console.log(viewport.getViewportInfo());
   });
 
   const gl = viewport.getContext();
