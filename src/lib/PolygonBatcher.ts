@@ -45,7 +45,7 @@ export class PolygonBatch implements Disposable {
     }
     let gl = this.context;
     this.srcColorBlend = gl.SRC_ALPHA;
-    this.srcAlphaBlend = gl.SRC_ALPHA;
+    this.srcAlphaBlend = gl.ONE;
     this.dstBlend = gl.ONE_MINUS_SRC_ALPHA;
     this.twoColorTint = twoColorTint;
   }
