@@ -100,7 +100,11 @@ export class Texture {
     let gl = this.context;
     if (!this.texture) this.texture = this.context.createTexture();
     this.bind();
-    if (Texture.DISABLE_UNPACK_PREMULTIPLIED_ALPHA_WEBGL) gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    if (Texture.DISABLE_UNPACK_PREMULTIPLIED_ALPHA_WEBGL) {
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    } else {
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    }
     if (this._image instanceof ImageSource) {
       const view = new DataView(this._image.data);
       gl.texImage2D(
