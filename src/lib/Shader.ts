@@ -178,7 +178,7 @@ export class Shader implements Disposable, Restorable {
     }
   }
 
-  public static newColoredTextured(context: WebGLRenderingContext): Shader {
+  public static newColoredTextured(context: WebGLRenderingContext, pma = false): Shader {
     let vs = `
          attribute vec4 ${Shader.POSITION};
          attribute vec4 ${Shader.COLOR};
@@ -208,13 +208,14 @@ export class Shader implements Disposable, Restorable {
  
          void main () {
            gl_FragColor = v_color * texture2D(u_texture, v_texCoords);
+           ${pma ? 'gl_FragColor.rgb *= gl_FragColor.a;' : ''}
          }
        `;
 
     return new Shader(context, vs, fs);
   }
 
-  public static newTwoColoredTextured(context: WebGLRenderingContext): Shader {
+  public static newTwoColoredTextured(context: WebGLRenderingContext, pma = false): Shader {
     let vs = `
          attribute vec4 ${Shader.POSITION};
          attribute vec4 ${Shader.COLOR};
@@ -251,6 +252,7 @@ export class Shader implements Disposable, Restorable {
            vec4 texColor = texture2D(u_texture, v_texCoords);
            gl_FragColor.a = texColor.a * v_light.a;
            gl_FragColor.rgb = ((texColor.a - 1.0) * v_dark.a + 1.0 - texColor.rgb) * v_dark.rgb + texColor.rgb * v_light.rgb;
+           ${pma ? 'gl_FragColor.rgb *= gl_FragColor.a;' : ''}
          }
        `;
 

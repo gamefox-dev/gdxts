@@ -35,6 +35,7 @@ export const createTestParticleScreen = async (viewport: Viewport): Promise<Scre
         effect.setPosition(coord.x, coord.y);
         effects.push(effect);
         effect.setPosition(coord.x, coord.y);
+        effect.setDuration(2);
         effect.start();
       }
 

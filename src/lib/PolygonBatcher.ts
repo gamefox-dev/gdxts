@@ -13,6 +13,7 @@ const quad = [
 ];
 
 export class PolygonBatch implements Disposable {
+  public static PMA = true;
   public static QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
   public static totalDrawCalls = 0;
 
@@ -26,7 +27,8 @@ export class PolygonBatch implements Disposable {
   private indicesLength = 0;
   private srcColorBlend: number;
   private srcAlphaBlend: number;
-  private dstBlend: number;
+  private dstColorBlend: number;
+  private dstAlphaBlend: number;
   private projectionValues: Float32Array = new Float32Array(16);
   public color: Color = new Color(1, 1, 1, 1);
   twoColorTint: boolean = true;
@@ -39,14 +41,15 @@ export class PolygonBatch implements Disposable {
       : [new Position2Attribute(), new ColorAttribute(), new TexCoordAttribute()];
     this.mesh = new Mesh(context, attributes, maxVertices, maxVertices * 3);
     if (twoColorTint) {
-      this.shader = Shader.newTwoColoredTextured(context);
+      this.shader = Shader.newTwoColoredTextured(context, PolygonBatch.PMA);
     } else {
-      this.shader = Shader.newColoredTextured(context);
+      this.shader = Shader.newColoredTextured(context, PolygonBatch.PMA);
     }
     let gl = this.context;
-    this.srcColorBlend = gl.SRC_ALPHA;
-    this.srcAlphaBlend = gl.ONE;
-    this.dstBlend = gl.ONE_MINUS_SRC_ALPHA;
+    this.srcColorBlend = gl.ONE;
+    this.srcAlphaBlend = gl.SRC_ALPHA;
+    this.dstColorBlend = gl.ONE_MINUS_SRC_ALPHA;
+    this.dstAlphaBlend = gl.ONE_MINUS_SRC_ALPHA;
     this.twoColorTint = twoColorTint;
   }
 
@@ -83,15 +86,44 @@ export class PolygonBatch implements Disposable {
 
     let gl = this.context;
     gl.enable(gl.BLEND);
-    gl.blendFuncSeparate(this.srcColorBlend, this.dstBlend, this.srcAlphaBlend, this.dstBlend);
+    gl.blendFuncSeparate(this.srcColorBlend, this.dstColorBlend, this.srcAlphaBlend, this.dstAlphaBlend);
   }
 
-  setBlendMode(srcColorBlend: number, srcAlphaBlend: number, dstBlend: number) {
-    if (this.srcColorBlend === srcColorBlend && this.srcAlphaBlend === srcAlphaBlend && this.dstBlend === dstBlend)
+  setBlendFunc(srcBlend: number, dstBlend: number) {
+    this.setBlendMode(srcBlend, srcBlend, dstBlend);
+  }
+
+  setBlendFuncSeparate(srcColorBlend: number, srcAlphaBlend: number, dstBlend: number) {
+    if (
+      this.srcColorBlend === srcColorBlend &&
+      this.srcAlphaBlend === srcAlphaBlend &&
+      this.dstColorBlend === dstBlend &&
+      this.dstAlphaBlend === dstBlend
+    )
       return;
     this.srcColorBlend = srcColorBlend;
     this.srcAlphaBlend = srcAlphaBlend;
-    this.dstBlend = dstBlend;
+    this.dstColorBlend = dstBlend;
+    this.dstAlphaBlend = dstBlend;
+    if (this.isDrawing) {
+      this.flush();
+      let gl = this.context;
+      gl.blendFuncSeparate(srcColorBlend, dstBlend, srcAlphaBlend, dstBlend);
+    }
+  }
+
+  setBlendMode(srcColorBlend: number, srcAlphaBlend: number, dstBlend: number) {
+    if (
+      this.srcColorBlend === srcColorBlend &&
+      this.srcAlphaBlend === srcAlphaBlend &&
+      this.dstColorBlend === dstBlend &&
+      this.dstAlphaBlend === dstBlend
+    )
+      return;
+    this.srcColorBlend = srcColorBlend;
+    this.srcAlphaBlend = srcAlphaBlend;
+    this.dstColorBlend = dstBlend;
+    this.dstAlphaBlend = dstBlend;
     if (this.isDrawing) {
       this.flush();
       let gl = this.context;
