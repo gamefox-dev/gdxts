@@ -1,14 +1,11 @@
 import { YDOWN } from '..';
-import { Align, BitmapFont, Game, PolygonBatch, Screen, TextureAtlas, Viewport } from '../lib';
+import { Align, Animation, BitmapFont, Game, PlayMode, Screen, TextureAtlas, Viewport } from '../lib';
 import { MultiTextureBatch } from '../lib/MultiTextureBatch';
 
 export const createTestMTBScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
   const camera = viewport.getCamera();
   camera.setYDown(YDOWN);
-
-  const normalBatch = new PolygonBatch(gl);
-  normalBatch.setYDown(YDOWN);
 
   const batch = new MultiTextureBatch(gl);
   batch.setYDown(YDOWN);
@@ -18,20 +15,39 @@ export const createTestMTBScreen = async (viewport: Viewport): Promise<Screen> =
 
   const atlas = await TextureAtlas.load(gl, './test-mtb/effects.atlas', true);
 
-  let offset = 0;
   let accumulate = 0;
+
+  const names = new Set<string>();
+  for (let region of atlas.regions) {
+    names.add(region.name);
+  }
+
+  const anims: Animation[] = [];
+  names.forEach(name => anims.push(new Animation(atlas.findRegions(name), 1 / 16)));
+
+  let time = 0;
+  let offset = 0;
+
+  let drawCalls = 0;
 
   return {
     update(delta: number, game: Game) {
       accumulate += delta;
       if (accumulate > 0.1) {
-        offset++;
         accumulate = 0;
+        offset++;
       }
-      PolygonBatch.resetTotalDrawCalls();
+      time += delta;
       batch.setProjection(camera.combined);
       batch.begin();
       let i = 0;
+      for (let anim of anims) {
+        i++;
+        const pos = i % anims.length;
+        const x = pos % 10;
+        const y = Math.floor(pos / 10);
+        anim.getKeyFrame(time, PlayMode.LOOP).draw(batch, x * 50, 700 + y * 50, 50, 50);
+      }
       for (let region of atlas.regions) {
         i++;
         const pos = (i + offset) % atlas.regions.length;
@@ -39,19 +55,17 @@ export const createTestMTBScreen = async (viewport: Viewport): Promise<Screen> =
         const y = Math.floor(pos / 25);
         region.draw(batch, x * 20, 150 + y * 20, 20, 20);
       }
-      batch.end();
-
-      normalBatch.setProjection(camera.combined);
-      normalBatch.begin();
+      font.draw(batch, `why? Drawing`, 0, 200, 500, Align.center);
       font.draw(
-        normalBatch,
-        'Draw calls: ' + PolygonBatch.totalDrawCalls + `\n${i} sprites\n${atlas.pages.length} textures`,
+        batch,
+        'Draw calls: ' + drawCalls + `\n${i} sprites\n${atlas.pages.length} textures`,
         20,
         20,
         460,
         Align.left
       );
-      normalBatch.end();
+      batch.end();
+      drawCalls = batch.getDrawCalls();
     },
     dispose() {
       console.log('test screen disposed');

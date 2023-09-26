@@ -137,14 +137,18 @@ export class PolygonBatch implements Disposable {
       gl.blendFuncSeparate(srcColorBlend, dstBlend, srcAlphaBlend, dstBlend);
     }
   }
-  drawVerticesWithOffset(texture: Texture, vertices: ArrayLike<number>, offset: number, count: number) {
+  drawVerticesWithOffset(texture: Texture, vertices: Array<number> | Float32Array, offset: number, count: number) {
     const newVertices = [];
     for (let i = 0; i < count; i++) {
       newVertices[i] = vertices[i + offset];
     }
     this.drawVertices(texture, newVertices, PolygonBatch.QUAD_TRIANGLES);
   }
-  drawVertices(texture: Texture, vertices: ArrayLike<number>, indices: Array<number> = PolygonBatch.QUAD_TRIANGLES) {
+  drawVertices(
+    texture: Texture,
+    vertices: Array<number> | Float32Array,
+    indices: Array<number> = PolygonBatch.QUAD_TRIANGLES
+  ) {
     if (texture !== this.lastTexture) {
       this.flush();
       this.lastTexture = texture;

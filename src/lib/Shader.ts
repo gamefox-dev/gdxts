@@ -245,8 +245,6 @@ export class Shader implements Disposable, Restorable {
         }
         `;
 
-    console.log(fs);
-
     return new Shader(context, vs, fs);
   }
 

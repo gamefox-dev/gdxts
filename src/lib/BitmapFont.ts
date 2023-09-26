@@ -2,7 +2,6 @@ import { Affine2 } from './Affine2';
 import { BitmapFontCache } from './BitmapFontCache';
 import { BitmapFontData } from './BitmapFontData';
 import { Glyph } from './Glyph';
-import { MultiTextureBatch } from './MultiTextureBatch';
 import { PolygonBatch } from './PolygonBatcher';
 import { TextureRegion } from './TextureRegion';
 import { Align, Color } from './Utils';
@@ -97,11 +96,6 @@ export class BitmapFont {
     end: number = str.length,
     truncate?: string
   ) => {
-    // TODO: fix this, batch should expose a static function to generate vertices that can be used by that batch
-    // this affects the sprite implementation as well => particle doesn't work with the new batch too
-    if (batch instanceof MultiTextureBatch) {
-      throw new Error("Can't use a MultiTextureBatch with a BitmapFont yet!");
-    }
     this.cache.clear();
     this.cache.addText(str, x, y, start, end, targetWidth, halign, wrap, truncate);
     this.cache.draw(batch);

@@ -1,3 +1,4 @@
+import { MultiTextureBatch } from './MultiTextureBatch';
 import { PolygonBatch } from './PolygonBatcher';
 import { TextureRegion } from './TextureRegion';
 import { Color, Rectangle } from './Utils';
@@ -444,6 +445,10 @@ export class Sprite {
   }
 
   public draw(batch: PolygonBatch) {
+    // TODO: fix this, for the particle
+    if (batch instanceof MultiTextureBatch || !batch.twoColorTint) {
+      throw new Error('Sprite only works with normal PolygonBatch with twoColorTint enabled');
+    }
     batch.drawVertices(this.region.texture, this.getVertices(batch.yDown));
   }
 

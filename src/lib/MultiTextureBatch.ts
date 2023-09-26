@@ -28,7 +28,6 @@ export class TexIndexAttribute extends VertexAttribute {
 export class MultiTextureBatch extends PolygonBatch {
   private textureIndices: Array<number> = [];
   private lastTextures: Texture[] = [];
-  private currentTextureIndex = 0;
 
   constructor(gl: WebGLRenderingContext, private maxTextures = 16, maxVertices: number = 10920) {
     super(gl, false, maxVertices);
@@ -78,7 +77,11 @@ export class MultiTextureBatch extends PolygonBatch {
     gl.blendFuncSeparate(this.srcColorBlend, this.dstColorBlend, this.srcAlphaBlend, this.dstAlphaBlend);
   }
 
-  drawVertices(texture: Texture, vertices: ArrayLike<number>, indices: Array<number> = PolygonBatch.QUAD_TRIANGLES) {
+  drawVertices(
+    texture: Texture,
+    vertices: Array<number> | Float32Array,
+    indices: Array<number> = PolygonBatch.QUAD_TRIANGLES
+  ) {
     let textureIndex = this.lastTextures.indexOf(texture);
     if (textureIndex === -1) {
       if (this.lastTextures.length >= this.maxTextures) {
@@ -97,8 +100,7 @@ export class MultiTextureBatch extends PolygonBatch {
       textureIndex = this.lastTextures.length - 1;
     }
 
-    this.currentTextureIndex = textureIndex;
-
+    vertices[8] = vertices[17] = vertices[26] = vertices[35] = textureIndex;
     let indexStart = this.mesh.numVertices();
     this.mesh.getVertices().set(vertices, this.verticesLength);
     this.verticesLength += vertices.length;
@@ -168,7 +170,6 @@ export class MultiTextureBatch extends PolygonBatch {
     const y4 = transform.m10 * width + transform.m12;
 
     const color = this.color;
-    const currentTextureIndex = this.currentTextureIndex;
 
     let i = 0;
     quad[i++] = x1;
@@ -179,7 +180,7 @@ export class MultiTextureBatch extends PolygonBatch {
     quad[i++] = color.a;
     quad[i++] = u1;
     quad[i++] = v1;
-    quad[i++] = currentTextureIndex;
+    quad[i++] = 0;
 
     quad[i++] = x2;
     quad[i++] = y2;
@@ -189,7 +190,7 @@ export class MultiTextureBatch extends PolygonBatch {
     quad[i++] = color.a;
     quad[i++] = u4;
     quad[i++] = v4;
-    quad[i++] = currentTextureIndex;
+    quad[i++] = 0;
 
     quad[i++] = x3;
     quad[i++] = y3;
@@ -199,7 +200,7 @@ export class MultiTextureBatch extends PolygonBatch {
     quad[i++] = color.a;
     quad[i++] = u2;
     quad[i++] = v2;
-    quad[i++] = currentTextureIndex;
+    quad[i++] = 0;
 
     quad[i++] = x4;
     quad[i++] = y4;
@@ -209,7 +210,7 @@ export class MultiTextureBatch extends PolygonBatch {
     quad[i++] = color.a;
     quad[i++] = u3;
     quad[i++] = v3;
-    quad[i++] = currentTextureIndex;
+    quad[i++] = 0;
 
     this.drawVertices(texture, quad, PolygonBatch.QUAD_TRIANGLES);
   }
@@ -385,8 +386,6 @@ export class MultiTextureBatch extends PolygonBatch {
       }
     }
 
-    const currentTextureIndex = this.currentTextureIndex;
-
     let i = 0;
     quad[i++] = x1;
     quad[i++] = y1;
@@ -396,7 +395,7 @@ export class MultiTextureBatch extends PolygonBatch {
     quad[i++] = color.a;
     quad[i++] = u1;
     quad[i++] = v1;
-    quad[i++] = currentTextureIndex;
+    quad[i++] = 0;
 
     quad[i++] = x2;
     quad[i++] = y2;
@@ -406,7 +405,7 @@ export class MultiTextureBatch extends PolygonBatch {
     quad[i++] = color.a;
     quad[i++] = u3;
     quad[i++] = v3;
-    quad[i++] = currentTextureIndex;
+    quad[i++] = 0;
 
     quad[i++] = x3;
     quad[i++] = y3;
@@ -416,7 +415,7 @@ export class MultiTextureBatch extends PolygonBatch {
     quad[i++] = color.a;
     quad[i++] = u2;
     quad[i++] = v2;
-    quad[i++] = currentTextureIndex;
+    quad[i++] = 0;
 
     quad[i++] = x4;
     quad[i++] = y4;
@@ -426,7 +425,7 @@ export class MultiTextureBatch extends PolygonBatch {
     quad[i++] = color.a;
     quad[i++] = u4;
     quad[i++] = v4;
-    quad[i++] = currentTextureIndex;
+    quad[i++] = 0;
 
     this.drawVertices(texture, quad, PolygonBatch.QUAD_TRIANGLES);
   }
