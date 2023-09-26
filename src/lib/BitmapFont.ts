@@ -97,7 +97,8 @@ export class BitmapFont {
     end: number = str.length,
     truncate?: string
   ) => {
-    // TODO: fix this
+    // TODO: fix this, batch should expose a static function to generate vertices that can be used by that batch
+    // this affects the sprite implementation as well => particle doesn't work with the new batch too
     if (batch instanceof MultiTextureBatch) {
       throw new Error("Can't use a MultiTextureBatch with a BitmapFont yet!");
     }
