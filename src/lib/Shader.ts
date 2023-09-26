@@ -101,6 +101,10 @@ export class Shader implements Disposable, Restorable {
     this.context.uniform1i(this.getUniformLocation(uniform), value);
   }
 
+  public setUniform1iv(uniform: string, values: number[]) {
+    this.context.uniform1iv(this.getUniformLocation(uniform), values);
+  }
+
   public setUniformf(uniform: string, value: number) {
     this.context.uniform1f(this.getUniformLocation(uniform), value);
   }
@@ -178,113 +182,181 @@ export class Shader implements Disposable, Restorable {
     }
   }
 
-  public static newColoredTextured(context: WebGLRenderingContext, pma = false): Shader {
+  public static newMultiTextured(context: WebGLRenderingContext, maxTextures: number, pma = false): Shader {
     let vs = `
-         attribute vec4 ${Shader.POSITION};
-         attribute vec4 ${Shader.COLOR};
-         attribute vec2 ${Shader.TEXCOORDS};
-         uniform mat4 ${Shader.MVP_MATRIX};
-         varying vec4 v_color;
-         varying vec2 v_texCoords;
- 
-         void main () {
-           v_color = ${Shader.COLOR};
-           v_color.a = v_color.a * (256.0/255.0);
-           v_texCoords = ${Shader.TEXCOORDS};
-           gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
-         }
-       `;
+        attribute vec4 ${Shader.POSITION};
+        attribute vec4 ${Shader.COLOR};
+        attribute vec2 ${Shader.TEXCOORDS};
+        attribute float a_texIndex;
+
+        uniform mat4 ${Shader.MVP_MATRIX};
+        varying vec4 v_color;
+        varying vec2 v_texCoords;
+        varying float vTextureId;
+
+        void main () {
+          v_color = ${Shader.COLOR};
+          v_color.a = v_color.a * (256.0/255.0);
+          v_texCoords = ${Shader.TEXCOORDS};
+          gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
+          vTextureId = a_texIndex;
+        }
+      `;
+
+    let src = '';
+
+    src += '\n';
+    src += '\n';
+
+    for (let i = 0; i < maxTextures; i++) {
+      if (i > 0) {
+        src += '\nelse ';
+      }
+
+      if (i < maxTextures - 1) {
+        src += `if(vTextureId < ${i}.5)`;
+      }
+
+      src += '\n{';
+      src += `\n\tcolor = texture2D(u_textures[${i}], v_texCoords);`;
+      src += '\n}';
+    }
+
+    src += '\n';
+    src += '\n';
 
     let fs = `
-         #ifdef GL_ES
-           #define LOWP lowp
-           precision mediump float;
-         #else
-           #define LOWP
-         #endif
-         varying LOWP vec4 v_color;
-         varying vec2 v_texCoords;
-         uniform sampler2D u_texture;
- 
-         void main () {
-           gl_FragColor = v_color * texture2D(u_texture, v_texCoords);
-           ${pma ? 'gl_FragColor.rgb *= gl_FragColor.a;' : ''}
-         }
-       `;
+        #ifdef GL_ES
+          #define LOWP lowp
+          precision mediump float;
+        #else
+          #define LOWP
+        #endif
+        varying LOWP vec4 v_color;
+        varying vec2 v_texCoords;
+        varying float vTextureId;
+        uniform sampler2D u_textures[${maxTextures}];
+
+        void main () {
+          vec4 color;
+          ${src}
+          gl_FragColor = v_color * color;
+          ${pma ? 'gl_FragColor.rgb *= gl_FragColor.a;' : ''}
+        }
+        `;
+
+    console.log(fs);
+
+    return new Shader(context, vs, fs);
+  }
+
+  public static newColoredTextured(context: WebGLRenderingContext, pma = false): Shader {
+    let vs = `
+        attribute vec4 ${Shader.POSITION};
+        attribute vec4 ${Shader.COLOR};
+        attribute vec2 ${Shader.TEXCOORDS};
+        uniform mat4 ${Shader.MVP_MATRIX};
+        varying vec4 v_color;
+        varying vec2 v_texCoords;
+
+        void main () {
+          v_color = ${Shader.COLOR};
+          v_color.a = v_color.a * (256.0/255.0);
+          v_texCoords = ${Shader.TEXCOORDS};
+          gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
+        }
+      `;
+
+    let fs = `
+        #ifdef GL_ES
+          #define LOWP lowp
+          precision mediump float;
+        #else
+          #define LOWP
+        #endif
+        varying LOWP vec4 v_color;
+        varying vec2 v_texCoords;
+        uniform sampler2D u_texture;
+
+        void main () {
+          gl_FragColor = v_color * texture2D(u_texture, v_texCoords);
+          ${pma ? 'gl_FragColor.rgb *= gl_FragColor.a;' : ''}
+        }
+      `;
 
     return new Shader(context, vs, fs);
   }
 
   public static newTwoColoredTextured(context: WebGLRenderingContext, pma = false): Shader {
     let vs = `
-         attribute vec4 ${Shader.POSITION};
-         attribute vec4 ${Shader.COLOR};
-         attribute vec4 ${Shader.COLOR2};
-         attribute vec2 ${Shader.TEXCOORDS};
-         uniform mat4 ${Shader.MVP_MATRIX};
-         varying vec4 v_light;
-         varying vec4 v_dark;
-         varying vec2 v_texCoords;
- 
-         void main () {
-           v_light = ${Shader.COLOR};
-           v_light.a = v_light.a * (256.0/255.0);
-           v_dark = ${Shader.COLOR2};
-           v_dark.a = v_dark.a * (256.0/255.0);
-           v_texCoords = ${Shader.TEXCOORDS};
-           gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
-         }
-       `;
+        attribute vec4 ${Shader.POSITION};
+        attribute vec4 ${Shader.COLOR};
+        attribute vec4 ${Shader.COLOR2};
+        attribute vec2 ${Shader.TEXCOORDS};
+        uniform mat4 ${Shader.MVP_MATRIX};
+        varying vec4 v_light;
+        varying vec4 v_dark;
+        varying vec2 v_texCoords;
+
+        void main () {
+          v_light = ${Shader.COLOR};
+          v_light.a = v_light.a * (256.0/255.0);
+          v_dark = ${Shader.COLOR2};
+          v_dark.a = v_dark.a * (256.0/255.0);
+          v_texCoords = ${Shader.TEXCOORDS};
+          gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
+        }
+      `;
 
     let fs = `
-         #ifdef GL_ES
-           #define LOWP lowp
-           precision mediump float;
-         #else
-           #define LOWP
-         #endif
-         varying LOWP vec4 v_light;
-         varying LOWP vec4 v_dark;
-         varying vec2 v_texCoords;
-         uniform sampler2D u_texture;
- 
-         void main () {
-           vec4 texColor = texture2D(u_texture, v_texCoords);
-           gl_FragColor.a = texColor.a * v_light.a;
-           gl_FragColor.rgb = ((texColor.a - 1.0) * v_dark.a + 1.0 - texColor.rgb) * v_dark.rgb + texColor.rgb * v_light.rgb;
-           ${pma ? 'gl_FragColor.rgb *= gl_FragColor.a;' : ''}
-         }
-       `;
+        #ifdef GL_ES
+          #define LOWP lowp
+          precision mediump float;
+        #else
+          #define LOWP
+        #endif
+        varying LOWP vec4 v_light;
+        varying LOWP vec4 v_dark;
+        varying vec2 v_texCoords;
+        uniform sampler2D u_texture;
+
+        void main () {
+          vec4 texColor = texture2D(u_texture, v_texCoords);
+          gl_FragColor.a = texColor.a * v_light.a;
+          gl_FragColor.rgb = ((texColor.a - 1.0) * v_dark.a + 1.0 - texColor.rgb) * v_dark.rgb + texColor.rgb * v_light.rgb;
+          ${pma ? 'gl_FragColor.rgb *= gl_FragColor.a;' : ''}
+        }
+      `;
 
     return new Shader(context, vs, fs);
   }
 
   public static newColored(context: WebGLRenderingContext): Shader {
     let vs = `
-         attribute vec4 ${Shader.POSITION};
-         attribute vec4 ${Shader.COLOR};
-         uniform mat4 ${Shader.MVP_MATRIX};
-         varying vec4 v_color;
- 
-         void main () {
-           v_color = ${Shader.COLOR};
-           gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
-         }
-       `;
+        attribute vec4 ${Shader.POSITION};
+        attribute vec4 ${Shader.COLOR};
+        uniform mat4 ${Shader.MVP_MATRIX};
+        varying vec4 v_color;
+
+        void main () {
+          v_color = ${Shader.COLOR};
+          gl_Position = ${Shader.MVP_MATRIX} * ${Shader.POSITION};
+        }
+      `;
 
     let fs = `
-         #ifdef GL_ES
-           #define LOWP lowp
-           precision mediump float;
-         #else
-           #define LOWP
-         #endif
-         varying LOWP vec4 v_color;
- 
-         void main () {
-           gl_FragColor = v_color;
-         }
-       `;
+        #ifdef GL_ES
+          #define LOWP lowp
+          precision mediump float;
+        #else
+          #define LOWP
+        #endif
+        varying LOWP vec4 v_color;
+
+        void main () {
+          gl_FragColor = v_color;
+        }
+      `;
 
     return new Shader(context, vs, fs);
   }

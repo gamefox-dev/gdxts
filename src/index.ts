@@ -1,19 +1,20 @@
 import {
   Align,
   BitmapFont,
-  createGameLoop,
-  createStage,
-  createViewport,
   Game,
   InputEvent,
-  pointInRect,
   PolygonBatch,
   Screen,
   ShapeRenderer,
   Viewport,
-  ViewportInputHandler
+  ViewportInputHandler,
+  createGameLoop,
+  createStage,
+  createViewport,
+  pointInRect
 } from './lib';
 import { createBunnyScreen } from './screens/createBunnyScreen';
+import { createTestMTBScreen } from './screens/createMTBScreen';
 import { createMainScreen } from './screens/createMainScreen';
 import { create3DTestScreen } from './screens/createTest3DScreen';
 import { createTestBitmapFontScreen } from './screens/createTestBitmapFontScreen';
@@ -25,7 +26,7 @@ import { createTestScreen } from './screens/createTestScreen';
 import { createTestSpriteScreen } from './screens/createTestSpriteScreen';
 
 export const YDOWN = true;
-const FIRST_TEST_INDEX = 9;
+const FIRST_TEST_INDEX = 10;
 
 const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Basic rendering 01': createMainScreen,
@@ -37,7 +38,8 @@ const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Basic 3D': create3DTestScreen,
   'Draw Affine': createTestDrawAffine,
   'Test Particle': createTestParticleScreen,
-  'PMA Test': createTestPmaScreen
+  'PMA Test': createTestPmaScreen,
+  'Multi texture batch': createTestMTBScreen
 };
 
 const init = async () => {

@@ -1,8 +1,15 @@
 import { Affine2 } from './Affine2';
-import { Color2Attribute, ColorAttribute, Mesh, Position2Attribute, TexCoordAttribute } from './Mesh';
+import {
+  ColorAttribute,
+  Mesh,
+  Position2Attribute,
+  TexCoordAttribute,
+  VertexAttribute,
+  VertexAttributeType
+} from './Mesh';
+import { PolygonBatch } from './PolygonBatcher';
 import { Shader } from './Shader';
 import { Texture } from './Texture';
-import { Color, Disposable } from './Utils';
 
 // prettier-ignore
 const quad = [
@@ -12,39 +19,25 @@ const quad = [
   0, 0, 1, 1, 1, 1, 0, 0,
 ];
 
-export class PolygonBatch implements Disposable {
-  public static PMA = false;
-  public static QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
-  public static totalDrawCalls = 0;
+export class TexIndexAttribute extends VertexAttribute {
+  constructor() {
+    super('a_texIndex', VertexAttributeType.Float, 1);
+  }
+}
 
-  protected context: WebGLRenderingContext;
-  protected drawCalls: number;
-  protected isDrawing = false;
-  protected mesh: Mesh;
-  protected shader: Shader = null;
-  protected lastTexture: Texture = null;
-  protected verticesLength = 0;
-  protected indicesLength = 0;
-  protected srcColorBlend: number;
-  protected srcAlphaBlend: number;
-  protected dstColorBlend: number;
-  protected dstAlphaBlend: number;
-  protected projectionValues: Float32Array = new Float32Array(16);
-  public color: Color = new Color(1, 1, 1, 1);
-  twoColorTint: boolean = true;
+// TODO: how to share codes between batches
+export class MultiTextureBatch extends PolygonBatch {
+  private textureIndices: Array<number> = [];
+  private lastTextures: Texture[] = [];
+  private currentTextureIndex = 0;
 
-  constructor(context: WebGLRenderingContext, twoColorTint: boolean = true, maxVertices: number = 10920) {
+  constructor(context: WebGLRenderingContext, private maxTextures = 16, maxVertices: number = 10920) {
+    super(context, false, maxVertices);
     if (maxVertices > 10920) throw new Error("Can't have more than 10920 triangles per batch: " + maxVertices);
     this.context = context;
-    let attributes = twoColorTint
-      ? [new Position2Attribute(), new ColorAttribute(), new TexCoordAttribute(), new Color2Attribute()]
-      : [new Position2Attribute(), new ColorAttribute(), new TexCoordAttribute()];
+    let attributes = [new Position2Attribute(), new ColorAttribute(), new TexCoordAttribute(), new TexIndexAttribute()];
     this.mesh = new Mesh(context, attributes, maxVertices, maxVertices * 3);
-    if (twoColorTint) {
-      this.shader = Shader.newTwoColoredTextured(context, PolygonBatch.PMA);
-    } else {
-      this.shader = Shader.newColoredTextured(context, PolygonBatch.PMA);
-    }
+    this.shader = Shader.newMultiTextured(context, maxTextures, PolygonBatch.PMA);
     let gl = this.context;
 
     if (PolygonBatch.PMA) {
@@ -57,26 +50,9 @@ export class PolygonBatch implements Disposable {
     this.dstColorBlend = gl.ONE_MINUS_SRC_ALPHA;
     this.dstAlphaBlend = gl.ONE_MINUS_SRC_ALPHA;
 
-    this.twoColorTint = twoColorTint;
-  }
-
-  setColor(r: number, g: number, b: number, a: number);
-  setColor(color: Color);
-  setColor(r: number | Color, g?: number, b?: number, a?: number) {
-    if (r instanceof Color) {
-      this.color.unsafeSet(r.r, r.g, r.b, r.a);
-    } else {
-      this.color.unsafeSet(r, g, b, a);
+    for (let i = 0; i < maxTextures; i++) {
+      this.textureIndices[i] = i;
     }
-  }
-
-  setShader(shader: Shader) {
-    this.shader.dispose();
-    this.shader = shader;
-  }
-
-  setProjection(projectionValues: Float32Array) {
-    this.projectionValues = projectionValues;
   }
 
   begin() {
@@ -84,76 +60,38 @@ export class PolygonBatch implements Disposable {
       throw new Error('PolygonBatch is already drawing. Call PolygonBatch.end() before calling PolygonBatch.begin()');
     this.drawCalls = 0;
     const shader = this.shader;
-    this.lastTexture = null;
+    this.lastTextures.length = 0;
     this.isDrawing = true;
 
     shader.bind();
     shader.setUniform4x4f(Shader.MVP_MATRIX, this.projectionValues);
-    shader.setUniformi('u_texture', 0);
+    shader.setUniform1iv('u_textures', this.textureIndices);
 
     let gl = this.context;
     gl.enable(gl.BLEND);
     gl.blendFuncSeparate(this.srcColorBlend, this.dstColorBlend, this.srcAlphaBlend, this.dstAlphaBlend);
   }
 
-  setBlendFunc(srcBlend: number, dstBlend: number) {
-    this.setBlendMode(srcBlend, srcBlend, dstBlend);
-  }
-
-  setBlendFuncSeparate(srcColorBlend: number, srcAlphaBlend: number, dstBlend: number) {
-    if (
-      this.srcColorBlend === srcColorBlend &&
-      this.srcAlphaBlend === srcAlphaBlend &&
-      this.dstColorBlend === dstBlend &&
-      this.dstAlphaBlend === dstBlend
-    )
-      return;
-    this.srcColorBlend = srcColorBlend;
-    this.srcAlphaBlend = srcAlphaBlend;
-    this.dstColorBlend = dstBlend;
-    this.dstAlphaBlend = dstBlend;
-    if (this.isDrawing) {
-      this.flush();
-      let gl = this.context;
-      gl.blendFuncSeparate(srcColorBlend, dstBlend, srcAlphaBlend, dstBlend);
-    }
-  }
-
-  setBlendMode(srcColorBlend: number, srcAlphaBlend: number, dstBlend: number) {
-    if (
-      this.srcColorBlend === srcColorBlend &&
-      this.srcAlphaBlend === srcAlphaBlend &&
-      this.dstColorBlend === dstBlend &&
-      this.dstAlphaBlend === dstBlend
-    )
-      return;
-    this.srcColorBlend = srcColorBlend;
-    this.srcAlphaBlend = srcAlphaBlend;
-    this.dstColorBlend = dstBlend;
-    this.dstAlphaBlend = dstBlend;
-    if (this.isDrawing) {
-      this.flush();
-      let gl = this.context;
-      gl.blendFuncSeparate(srcColorBlend, dstBlend, srcAlphaBlend, dstBlend);
-    }
-  }
-  drawVerticesWithOffset(texture: Texture, vertices: ArrayLike<number>, offset: number, count: number) {
-    const newVertices = [];
-    for (let i = 0; i < count; i++) {
-      newVertices[i] = vertices[i + offset];
-    }
-    this.drawVertices(texture, newVertices, PolygonBatch.QUAD_TRIANGLES);
-  }
   drawVertices(texture: Texture, vertices: ArrayLike<number>, indices: Array<number> = PolygonBatch.QUAD_TRIANGLES) {
-    if (texture !== this.lastTexture) {
-      this.flush();
-      this.lastTexture = texture;
+    let textureIndex = this.lastTextures.indexOf(texture);
+    if (textureIndex === -1) {
+      if (this.lastTextures.length >= this.maxTextures) {
+        this.flush();
+      }
     } else if (
       this.verticesLength + vertices.length > this.mesh.getVertices().length ||
       this.indicesLength + indices.length > this.mesh.getIndices().length
     ) {
       this.flush();
+      textureIndex = -1;
     }
+
+    if (textureIndex === -1) {
+      this.lastTextures.push(texture);
+      textureIndex = this.lastTextures.length - 1;
+    }
+
+    this.currentTextureIndex = textureIndex;
 
     let indexStart = this.mesh.numVertices();
     this.mesh.getVertices().set(vertices, this.verticesLength);
@@ -224,6 +162,7 @@ export class PolygonBatch implements Disposable {
     const y4 = transform.m10 * width + transform.m12;
 
     const color = this.color;
+    const currentTextureIndex = this.currentTextureIndex;
 
     let i = 0;
     quad[i++] = x1;
@@ -234,12 +173,8 @@ export class PolygonBatch implements Disposable {
     quad[i++] = color.a;
     quad[i++] = u1;
     quad[i++] = v1;
-    if (this.twoColorTint) {
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-    }
+    quad[i++] = currentTextureIndex;
+
     quad[i++] = x2;
     quad[i++] = y2;
     quad[i++] = color.r;
@@ -248,12 +183,8 @@ export class PolygonBatch implements Disposable {
     quad[i++] = color.a;
     quad[i++] = u4;
     quad[i++] = v4;
-    if (this.twoColorTint) {
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-    }
+    quad[i++] = currentTextureIndex;
+
     quad[i++] = x3;
     quad[i++] = y3;
     quad[i++] = color.r;
@@ -262,12 +193,8 @@ export class PolygonBatch implements Disposable {
     quad[i++] = color.a;
     quad[i++] = u2;
     quad[i++] = v2;
-    if (this.twoColorTint) {
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-    }
+    quad[i++] = currentTextureIndex;
+
     quad[i++] = x4;
     quad[i++] = y4;
     quad[i++] = color.r;
@@ -276,19 +203,17 @@ export class PolygonBatch implements Disposable {
     quad[i++] = color.a;
     quad[i++] = u3;
     quad[i++] = v3;
-    if (this.twoColorTint) {
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i] = 0;
-    }
+    quad[i++] = currentTextureIndex;
+
     this.drawVertices(texture, quad, PolygonBatch.QUAD_TRIANGLES);
   }
 
   flush() {
     if (this.verticesLength === 0) return;
 
-    this.lastTexture.bind();
+    for (let i = 0; i < this.lastTextures.length; i++) {
+      this.lastTextures[i].bind(i);
+    }
     this.mesh.draw(this.shader, this.context.TRIANGLES);
 
     this.verticesLength = 0;
@@ -296,6 +221,7 @@ export class PolygonBatch implements Disposable {
     this.mesh.setVerticesLength(0);
     this.mesh.setIndicesLength(0);
     this.drawCalls++;
+    this.lastTextures.length = 0;
   }
 
   end() {
@@ -305,7 +231,7 @@ export class PolygonBatch implements Disposable {
 
     this.shader.unbind();
 
-    this.lastTexture = null;
+    this.lastTextures.length = 0;
     this.isDrawing = false;
 
     PolygonBatch.totalDrawCalls += this.drawCalls;
@@ -453,6 +379,8 @@ export class PolygonBatch implements Disposable {
       }
     }
 
+    const currentTextureIndex = this.currentTextureIndex;
+
     let i = 0;
     quad[i++] = x1;
     quad[i++] = y1;
@@ -462,12 +390,8 @@ export class PolygonBatch implements Disposable {
     quad[i++] = color.a;
     quad[i++] = u1;
     quad[i++] = v1;
-    if (this.twoColorTint) {
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-    }
+    quad[i++] = currentTextureIndex;
+
     quad[i++] = x2;
     quad[i++] = y2;
     quad[i++] = color.r;
@@ -476,12 +400,8 @@ export class PolygonBatch implements Disposable {
     quad[i++] = color.a;
     quad[i++] = u3;
     quad[i++] = v3;
-    if (this.twoColorTint) {
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-    }
+    quad[i++] = currentTextureIndex;
+
     quad[i++] = x3;
     quad[i++] = y3;
     quad[i++] = color.r;
@@ -490,12 +410,8 @@ export class PolygonBatch implements Disposable {
     quad[i++] = color.a;
     quad[i++] = u2;
     quad[i++] = v2;
-    if (this.twoColorTint) {
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-    }
+    quad[i++] = currentTextureIndex;
+
     quad[i++] = x4;
     quad[i++] = y4;
     quad[i++] = color.r;
@@ -504,14 +420,8 @@ export class PolygonBatch implements Disposable {
     quad[i++] = color.a;
     quad[i++] = u4;
     quad[i++] = v4;
-    if (this.twoColorTint) {
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i++] = 0;
-      quad[i] = 0;
-    }
+    quad[i++] = currentTextureIndex;
+
     this.drawVertices(texture, quad, PolygonBatch.QUAD_TRIANGLES);
   }
 }
-
-export type SpriteBatch = PolygonBatch;
