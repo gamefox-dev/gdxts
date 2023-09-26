@@ -25,20 +25,26 @@ export class TexIndexAttribute extends VertexAttribute {
   }
 }
 
-// TODO: how to share codes between batches
 export class MultiTextureBatch extends PolygonBatch {
   private textureIndices: Array<number> = [];
   private lastTextures: Texture[] = [];
   private currentTextureIndex = 0;
 
-  constructor(context: WebGLRenderingContext, private maxTextures = 16, maxVertices: number = 10920) {
-    super(context, false, maxVertices);
+  constructor(gl: WebGLRenderingContext, private maxTextures = 16, maxVertices: number = 10920) {
+    super(gl, false, maxVertices);
     if (maxVertices > 10920) throw new Error("Can't have more than 10920 triangles per batch: " + maxVertices);
-    this.context = context;
+    this.context = gl;
     let attributes = [new Position2Attribute(), new ColorAttribute(), new TexCoordAttribute(), new TexIndexAttribute()];
-    this.mesh = new Mesh(context, attributes, maxVertices, maxVertices * 3);
-    this.shader = Shader.newMultiTextured(context, maxTextures, PolygonBatch.PMA);
-    let gl = this.context;
+
+    if (this.mesh) {
+      this.mesh.dispose();
+    }
+    this.mesh = new Mesh(gl, attributes, maxVertices, maxVertices * 3);
+
+    if (this.shader) {
+      this.shader.dispose();
+    }
+    this.shader = Shader.newMultiTextured(gl, maxTextures, PolygonBatch.PMA);
 
     if (PolygonBatch.PMA) {
       this.srcColorBlend = gl.ONE;
