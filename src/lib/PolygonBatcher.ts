@@ -13,7 +13,7 @@ const quad = [
 ];
 
 export class PolygonBatch implements Disposable {
-  public static PMA = true;
+  public static PMA = false;
   public static QUAD_TRIANGLES = [0, 1, 2, 2, 3, 0];
   public static totalDrawCalls = 0;
 
@@ -46,10 +46,17 @@ export class PolygonBatch implements Disposable {
       this.shader = Shader.newColoredTextured(context, PolygonBatch.PMA);
     }
     let gl = this.context;
-    this.srcColorBlend = gl.ONE;
-    this.srcAlphaBlend = gl.SRC_ALPHA;
+
+    if (PolygonBatch.PMA) {
+      this.srcColorBlend = gl.ONE;
+      this.srcAlphaBlend = gl.SRC_ALPHA;
+    } else {
+      this.srcColorBlend = gl.ONE;
+      this.srcAlphaBlend = gl.ONE;
+    }
     this.dstColorBlend = gl.ONE_MINUS_SRC_ALPHA;
     this.dstAlphaBlend = gl.ONE_MINUS_SRC_ALPHA;
+
     this.twoColorTint = twoColorTint;
   }
 
