@@ -1,5 +1,5 @@
 import { YDOWN } from '..';
-import { Align, Animation, BitmapFont, Game, PlayMode, Screen, TextureAtlas, Viewport } from '../lib';
+import { Align, Animation, BitmapFont, Color, Game, PlayMode, Screen, Texture, TextureAtlas, Viewport } from '../lib';
 import { MultiTextureBatch } from '../lib/MultiTextureBatch';
 
 export const createTestMTBScreen = async (viewport: Viewport): Promise<Screen> => {
@@ -14,6 +14,7 @@ export const createTestMTBScreen = async (viewport: Viewport): Promise<Screen> =
   font.data.setXYScale(0.7);
 
   const atlas = await TextureAtlas.load(gl, './test-mtb/effects.atlas', true);
+  const white = Texture.createWhiteTexture(gl);
 
   let accumulate = 0;
 
@@ -30,6 +31,7 @@ export const createTestMTBScreen = async (viewport: Viewport): Promise<Screen> =
 
   let drawCalls = 0;
 
+  const bgColor = Color.fromString('#333333');
   return {
     update(delta: number, game: Game) {
       accumulate += delta;
@@ -40,6 +42,9 @@ export const createTestMTBScreen = async (viewport: Viewport): Promise<Screen> =
       time += delta;
       batch.setProjection(camera.combined);
       batch.begin();
+      batch.setColor(bgColor);
+      batch.draw(white, 0, 0, 500, 1000);
+      batch.setColor(Color.WHITE);
       let i = 0;
       for (let anim of anims) {
         i++;
@@ -71,6 +76,8 @@ export const createTestMTBScreen = async (viewport: Viewport): Promise<Screen> =
       console.log('test screen disposed');
       batch.dispose();
       atlas.dispose();
+      font.dispose();
+      white.dispose();
     }
   };
 };
