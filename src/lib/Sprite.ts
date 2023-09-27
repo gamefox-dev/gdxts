@@ -425,10 +425,10 @@ export class Sprite {
     } else if (this.twoColorTint) {
       X2 = 12;
       Y2 = 13;
-      X3 = 20;
-      Y3 = 21;
-      X4 = 28;
-      Y4 = 29;
+      X3 = 24;
+      Y3 = 25;
+      X4 = 36;
+      Y4 = 37;
     }
 
     let minx = vertices[X1];

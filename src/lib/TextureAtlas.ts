@@ -1,4 +1,4 @@
-import { Texture, TextureFilter, TextureWrap } from './Texture';
+import { DEFAULT_TEXTURE_OPTIONS, Texture, TextureFilter, TextureOptions, TextureWrap } from './Texture';
 import { TextureRegion } from './TextureRegion';
 import { Disposable, concatAndResolveUrl } from './Utils';
 
@@ -35,7 +35,24 @@ export class TextureAtlas implements Disposable {
     return this.regions.filter(region => region.name === name).sort((a, b) => a.index - b.index);
   }
 
-  static async load(gl: WebGLRenderingContext, packFileUrl: string, useMipMaps = false): Promise<TextureAtlas> {
+  static async load(gl: WebGLRenderingContext, packFileUrl: string, useMipMaps?: boolean): Promise<TextureAtlas>;
+  static async load(
+    gl: WebGLRenderingContext,
+    packFileUrl: string,
+    options?: Partial<TextureOptions>
+  ): Promise<TextureAtlas>;
+  static async load(
+    gl: WebGLRenderingContext,
+    packFileUrl: string,
+    options?: boolean | Partial<TextureOptions>
+  ): Promise<TextureAtlas> {
+    if (typeof options === 'boolean') {
+      options = {
+        ...DEFAULT_TEXTURE_OPTIONS,
+        generateMipmaps: options
+      };
+    }
+
     const packFileContent = await fetch(packFileUrl).then(res => res.text());
 
     const pageData: any[] = [];
@@ -113,7 +130,7 @@ export class TextureAtlas implements Disposable {
           width,
           height,
           format,
-          mipMaps: useMipMaps,
+          options,
           min,
           max,
           direction,
@@ -220,13 +237,14 @@ export class TextureAtlas implements Disposable {
     }
 
     for (let page of pageData) {
-      page.texture = await Texture.load(gl, page.file, useMipMaps);
-      const minFilter = page.min === 'Nearest' ? TextureFilter.Nearest : TextureFilter.Linear;
-      const maxFilter = page.max === 'Nearest' ? TextureFilter.Nearest : TextureFilter.Linear;
-      page.texture.setFilters(minFilter, maxFilter);
+      const pageOptions = {
+        ...options,
+        minFilter: page.min === 'Nearest' ? TextureFilter.Nearest : TextureFilter.Linear,
+        magFilter: page.max === 'Nearest' ? TextureFilter.Nearest : TextureFilter.Linear
+      };
+      page.texture = await Texture.load(gl, page.file, pageOptions);
       page.invTexWidth = 1 / page.texture.width;
       page.invTexHeight = 1 / page.texture.height;
-      page.texture.update(useMipMaps);
       pages.push(page);
     }
 

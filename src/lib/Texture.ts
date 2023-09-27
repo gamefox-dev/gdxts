@@ -14,6 +14,22 @@ export enum TextureWrap {
   Repeat = 10497 // WebGLRenderingContext.REPEAT
 }
 
+export interface TextureOptions {
+  minFilter: TextureFilter;
+  magFilter: TextureFilter;
+  wrapS: TextureWrap;
+  wrapT: TextureWrap;
+  generateMipmaps: boolean;
+}
+
+export const DEFAULT_TEXTURE_OPTIONS: TextureOptions = {
+  minFilter: TextureFilter.Linear,
+  magFilter: TextureFilter.Linear,
+  wrapS: TextureWrap.ClampToEdge,
+  wrapT: TextureWrap.ClampToEdge,
+  generateMipmaps: false
+};
+
 export class ImageSource {
   constructor(public width: number, public height: number, public data: ArrayBufferLike) {}
 }
@@ -31,11 +47,23 @@ export class Texture {
     return texture;
   }
 
-  static load(gl: WebGLRenderingContext, url: string, useMipmaps = false): Promise<Texture> {
+  static load(gl: WebGLRenderingContext, url: string, useMipmaps?: boolean): Promise<Texture>;
+  static load(gl: WebGLRenderingContext, url: string, options?: Partial<TextureOptions>): Promise<Texture>;
+  static load(gl: WebGLRenderingContext, url: string, options?: boolean | Partial<TextureOptions>): Promise<Texture> {
+    if (typeof options === 'boolean') {
+      options = {
+        ...DEFAULT_TEXTURE_OPTIONS,
+        generateMipmaps: options
+      };
+    }
+    options = {
+      ...DEFAULT_TEXTURE_OPTIONS,
+      ...options
+    };
     return new Promise(resolve => {
       const image = new Image();
       image.onload = () => {
-        resolve(new Texture(gl, image, useMipmaps));
+        resolve(new Texture(gl, image, options as TextureOptions));
       };
       image.src = url;
     });
@@ -54,11 +82,34 @@ export class Texture {
   constructor(
     context: WebGLRenderingContext,
     image: HTMLImageElement | ImageBitmap | ImageData | ImageSource,
-    useMipMaps: boolean = false
+    useMipMaps?: boolean
+  );
+  constructor(
+    context: WebGLRenderingContext,
+    image: HTMLImageElement | ImageBitmap | ImageData | ImageSource,
+    options?: Partial<TextureOptions>
+  );
+  constructor(
+    context: WebGLRenderingContext,
+    image: HTMLImageElement | ImageBitmap | ImageData | ImageSource,
+    options?: boolean | Partial<TextureOptions>
   ) {
+    if (typeof options === 'boolean') {
+      options = {
+        ...DEFAULT_TEXTURE_OPTIONS,
+        generateMipmaps: options
+      };
+    }
+    options = {
+      ...DEFAULT_TEXTURE_OPTIONS,
+      ...options
+    };
+
     this._image = image;
     this.context = context;
-    this.useMipMaps = useMipMaps;
+    this.useMipMaps = options.generateMipmaps;
+    this.minFilter = options.minFilter;
+    this.magFilter = Texture.validateMagFilter(options.magFilter);
     this.restore();
 
     this.width = image.width;
@@ -69,9 +120,15 @@ export class Texture {
     return this.texture;
   }
 
+  minFilter: TextureFilter = TextureFilter.Linear;
+  magFilter: TextureFilter = TextureFilter.Linear;
   setFilters(minFilter: TextureFilter, magFilter: TextureFilter) {
     let gl = this.context;
     this.bind();
+
+    this.minFilter = minFilter;
+    this.magFilter = Texture.validateMagFilter(magFilter);
+
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, minFilter);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, Texture.validateMagFilter(magFilter));
   }
@@ -121,8 +178,8 @@ export class Texture {
     } else {
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this._image);
     }
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, useMipMaps ? gl.LINEAR_MIPMAP_LINEAR : gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, this.magFilter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, useMipMaps ? gl.LINEAR_MIPMAP_LINEAR : this.minFilter);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     if (useMipMaps) gl.generateMipmap(gl.TEXTURE_2D);

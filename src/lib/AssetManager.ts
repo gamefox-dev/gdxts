@@ -1,5 +1,5 @@
 import { BitmapFont } from './BitmapFont';
-import { Texture } from './Texture';
+import { DEFAULT_TEXTURE_OPTIONS, Texture, TextureOptions } from './Texture';
 import { TextureAtlas } from './TextureAtlas';
 
 export enum AssetType {
@@ -44,8 +44,16 @@ export class AssetManager {
       handler((this.done / this.getTotal()) * 100, this.done >= this.getTotal());
     }
   }
-  loadAtlas(path: string, name: string, useMipMaps = false): Promise<TextureAtlas> {
-    const promise = TextureAtlas.load(this.gl, path, useMipMaps).then(atlas => {
+  loadAtlas(path: string, name: string, useMipMaps?: boolean): Promise<TextureAtlas>;
+  loadAtlas(path: string, name: string, options?: Partial<TextureOptions>): Promise<TextureAtlas>;
+  loadAtlas(path: string, name: string, options?: boolean | Partial<TextureOptions>): Promise<TextureAtlas> {
+    if (typeof options === 'boolean') {
+      options = {
+        ...DEFAULT_TEXTURE_OPTIONS,
+        generateMipmaps: options
+      };
+    }
+    const promise = TextureAtlas.load(this.gl, path, options).then(atlas => {
       this.atlases.set(name, atlas);
       this.reportDone();
       return atlas;
@@ -97,8 +105,16 @@ export class AssetManager {
   getFont(name: string): BitmapFont | undefined {
     return this.fonts.get(name);
   }
-  loadTexture(path: string, name: string, useMipMaps = false): Promise<Texture> {
-    const promise = Texture.load(this.gl, path, useMipMaps).then(texture => {
+  loadTexture(path: string, name: string, useMipMaps?: boolean): Promise<Texture>;
+  loadTexture(path: string, name: string, options?: Partial<TextureOptions>): Promise<Texture>;
+  loadTexture(path: string, name: string, options?: boolean | Partial<TextureOptions>): Promise<Texture> {
+    if (typeof options === 'boolean') {
+      options = {
+        ...DEFAULT_TEXTURE_OPTIONS,
+        generateMipmaps: options
+      };
+    }
+    const promise = Texture.load(this.gl, path, options).then(texture => {
       this.textures.set(name, texture);
       this.reportDone();
       return texture;

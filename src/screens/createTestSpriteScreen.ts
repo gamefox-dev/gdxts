@@ -1,15 +1,15 @@
 import { YDOWN } from '..';
 import {
-  Viewport,
-  PolygonBatch,
-  ShapeRenderer,
-  TextureAtlas,
-  Sprite,
-  Vector2,
-  Game,
   Color,
+  Game,
   MathUtils,
-  Screen
+  PolygonBatch,
+  Screen,
+  ShapeRenderer,
+  Sprite,
+  TextureAtlas,
+  Vector2,
+  Viewport
 } from '../lib';
 
 export const createTestSpriteScreen = async (viewport: Viewport): Promise<Screen> => {
@@ -17,14 +17,14 @@ export const createTestSpriteScreen = async (viewport: Viewport): Promise<Screen
   const camera = viewport.getCamera();
   camera.setYDown(YDOWN);
 
-  const batch = new PolygonBatch(gl);
+  const batch = new PolygonBatch(gl, true);
   batch.setYDown(YDOWN);
 
   const shapeRenderer = new ShapeRenderer(gl);
 
   const atlas = await TextureAtlas.load(gl, './gem.atlas');
   const region = atlas.findRegion('gem_01');
-  const sprite = new Sprite(region);
+  const sprite = new Sprite(region, false, true);
   sprite.setOriginCenter();
 
   const position = new Vector2(0, 500);
