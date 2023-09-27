@@ -14,6 +14,7 @@ export * from './GlyphRun';
 export * from './InputHandler';
 export * from './Matrix4';
 export * from './Mesh';
+export * from './MultiTextureBatch';
 export * from './NumberUtils';
 export * from './PolygonBatcher';
 export * from './Quaternion';

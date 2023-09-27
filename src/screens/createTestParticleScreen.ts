@@ -1,5 +1,6 @@
 import { YDOWN } from '..';
-import { Color, PolygonBatch, Screen, ShapeRenderer, TextureAtlas, Viewport, ViewportInputHandler } from '../lib';
+import { Color, Screen, ShapeRenderer, TextureAtlas, Viewport, ViewportInputHandler } from '../lib';
+import { MultiTextureBatch } from '../lib/MultiTextureBatch';
 import { ParticleEffect } from '../lib/ParticleEffect';
 import { ParticleEffectPool, PooledEffect } from '../lib/ParticleEffectPool';
 
@@ -13,7 +14,7 @@ export const createTestParticleScreen = async (viewport: Viewport): Promise<Scre
 
   const inputHandler = new ViewportInputHandler(viewport);
 
-  const batch = new PolygonBatch(gl);
+  const batch = new MultiTextureBatch(gl);
 
   batch.setYDown(YDOWN);
 
@@ -25,7 +26,6 @@ export const createTestParticleScreen = async (viewport: Viewport): Promise<Scre
   const pool = new ParticleEffectPool(particleEffect, 10, 100);
 
   const effects: ParticleEffect[] = [];
-  const effectToBeDeleted: ParticleEffect[] = [];
 
   return {
     update(delta, game) {
@@ -49,13 +49,13 @@ export const createTestParticleScreen = async (viewport: Viewport): Promise<Scre
       for (let effect of effects) {
         effect.update(delta);
         effect.draw(batch, gl);
-        if (effect.isComplete()) {
-          effectToBeDeleted.push(effect);
-        }
       }
-      for (let effect of effectToBeDeleted) {
-        effects.splice(effects.indexOf(effect), 1);
-        pool.free(effect as PooledEffect);
+      for (let i = effects.length - 1; i >= 0; i--) {
+        const effect = effects[i];
+        if (effect.isComplete()) {
+          effects.splice(i, 1);
+          pool.free(effect as PooledEffect);
+        }
       }
       batch.end();
     },

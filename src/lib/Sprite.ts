@@ -4,61 +4,12 @@ import { TextureRegion } from './TextureRegion';
 import { Color, Rectangle } from './Utils';
 import { Vector2 } from './Vector2';
 
-/* eslint-disable */
-const X1 = 0;
-const Y1 = 1;
-const C1R = 2;
-const C1G = 3;
-const C1B = 4;
-const C1A = 5;
-const U1 = 6;
-const V1 = 7;
-const C1R2 = 8;
-const C1G2 = 9;
-const C1B2 = 10;
-const C1A2 = 11;
-const X2 = 12;
-const Y2 = 13;
-const C2R = 14;
-const C2G = 15;
-const C2B = 16;
-const C2A = 17;
-const U2 = 18;
-const V2 = 19;
-const C2R2 = 20;
-const C2G2 = 21;
-const C2B2 = 22;
-const C2A2 = 23;
-const X3 = 24;
-const Y3 = 25;
-const C3R = 26;
-const C3G = 27;
-const C3B = 28;
-const C3A = 29;
-const U3 = 30;
-const V3 = 31;
-const C3R2 = 32;
-const C3G2 = 33;
-const C3B2 = 34;
-const C3A2 = 35;
-const X4 = 36;
-const Y4 = 37;
-const C4R = 38;
-const C4G = 39;
-const C4B = 40;
-const C4A = 41;
-const U4 = 42;
-const V4 = 43;
-const C4R2 = 44;
-const C4G2 = 45;
-const C4B2 = 46;
-const C4A2 = 47;
-/* eslint-enable */
-
 /**
  * An unoptimized version of Sprite. Always calculate all vertices, never update partially. Will improve later after refactoring the SpriteBatch.
  */
 export class Sprite {
+  static USE_MULTI_BATCH = true;
+
   dirty = false;
   position = new Vector2(0, 0);
   size = new Vector2(0, 0);
@@ -67,9 +18,25 @@ export class Sprite {
   color = new Color(1, 1, 1, 1);
   rotation = 0;
 
-  vertices = new Float32Array(48);
+  vertices: Float32Array;
 
-  public constructor(public region: TextureRegion) {
+  public constructor(
+    public region: TextureRegion,
+    private useMultiBatch = Sprite.USE_MULTI_BATCH,
+    private twoColorTint = false
+  ) {
+    if (useMultiBatch && twoColorTint) {
+      throw new Error("MultiBatch doesn't support twoColorTint yet");
+    }
+    let verticesLength = 0;
+    if (useMultiBatch) {
+      // since multibatch doesn't support two color tint yet
+      // TODO: here maybe
+      verticesLength = 36;
+    } else {
+      verticesLength = twoColorTint ? 48 : 32;
+    }
+    this.vertices = new Float32Array(verticesLength);
     this.setSize(region.width, region.height);
     this.setOrigin(region.width / 2, region.height / 2);
   }
@@ -358,10 +325,16 @@ export class Sprite {
     vertices[i++] = color.a;
     vertices[i++] = u1;
     vertices[i++] = v1;
-    vertices[i++] = 0;
-    vertices[i++] = 0;
-    vertices[i++] = 0;
-    vertices[i++] = 0;
+    if (this.useMultiBatch) {
+      // should be 0, the batch will set this
+      vertices[i++] = 0;
+    }
+    if (this.twoColorTint) {
+      vertices[i++] = 0;
+      vertices[i++] = 0;
+      vertices[i++] = 0;
+      vertices[i++] = 0;
+    }
     vertices[i++] = x2;
     vertices[i++] = y2;
     vertices[i++] = color.r;
@@ -370,10 +343,16 @@ export class Sprite {
     vertices[i++] = color.a;
     vertices[i++] = u3;
     vertices[i++] = v3;
-    vertices[i++] = 0;
-    vertices[i++] = 0;
-    vertices[i++] = 0;
-    vertices[i++] = 0;
+    if (this.useMultiBatch) {
+      // should be 0, the batch will set this
+      vertices[i++] = 0;
+    }
+    if (this.twoColorTint) {
+      vertices[i++] = 0;
+      vertices[i++] = 0;
+      vertices[i++] = 0;
+      vertices[i++] = 0;
+    }
     vertices[i++] = x3;
     vertices[i++] = y3;
     vertices[i++] = color.r;
@@ -382,10 +361,16 @@ export class Sprite {
     vertices[i++] = color.a;
     vertices[i++] = u2;
     vertices[i++] = v2;
-    vertices[i++] = 0;
-    vertices[i++] = 0;
-    vertices[i++] = 0;
-    vertices[i++] = 0;
+    if (this.useMultiBatch) {
+      // should be 0, the batch will set this
+      vertices[i++] = 0;
+    }
+    if (this.twoColorTint) {
+      vertices[i++] = 0;
+      vertices[i++] = 0;
+      vertices[i++] = 0;
+      vertices[i++] = 0;
+    }
     vertices[i++] = x4;
     vertices[i++] = y4;
     vertices[i++] = color.r;
@@ -394,10 +379,16 @@ export class Sprite {
     vertices[i++] = color.a;
     vertices[i++] = u4;
     vertices[i++] = v4;
-    vertices[i++] = 0;
-    vertices[i++] = 0;
-    vertices[i++] = 0;
-    vertices[i] = 0;
+    if (this.useMultiBatch) {
+      // should be 0, the batch will set this
+      vertices[i++] = 0;
+    }
+    if (this.twoColorTint) {
+      vertices[i++] = 0;
+      vertices[i++] = 0;
+      vertices[i++] = 0;
+      vertices[i++] = 0;
+    }
 
     return vertices;
   }
@@ -415,6 +406,31 @@ export class Sprite {
    * @return the bounding Rectangle */
   public getBoundingRectangle(): Rectangle {
     const vertices = this.vertices;
+
+    let X1 = 0;
+    let Y1 = 1;
+    let X2 = 8;
+    let Y2 = 9;
+    let X3 = 16;
+    let Y3 = 17;
+    let X4 = 24;
+    let Y4 = 25;
+    if (this.useMultiBatch) {
+      X2 = 9;
+      Y2 = 10;
+      X3 = 18;
+      Y3 = 19;
+      X4 = 27;
+      Y4 = 28;
+    } else if (this.twoColorTint) {
+      X2 = 12;
+      Y2 = 13;
+      X3 = 20;
+      Y3 = 21;
+      X4 = 28;
+      Y4 = 29;
+    }
+
     let minx = vertices[X1];
     let miny = vertices[Y1];
     let maxx = vertices[X1];
@@ -445,11 +461,19 @@ export class Sprite {
   }
 
   public draw(batch: PolygonBatch) {
-    // TODO: fix this, for the particle
-    if (batch instanceof MultiTextureBatch || !batch.twoColorTint) {
-      throw new Error('Sprite only works with normal PolygonBatch with twoColorTint enabled');
+    try {
+      batch.drawVertices(this.region.texture, this.getVertices(batch.yDown));
+    } catch (_e) {
+      if (!this.useMultiBatch && batch instanceof MultiTextureBatch) {
+        console.log('Sprite is not using MultiTextureBatch, but batch is');
+      } else if (this.useMultiBatch && !(batch instanceof MultiTextureBatch)) {
+        console.log('Sprite is using MultiTextureBatch, but batch is not');
+      } else if (this.twoColorTint && !batch.twoColorTint) {
+        console.log('Sprite is using twoColorTint, but batch is not');
+      } else if (!this.twoColorTint && batch.twoColorTint) {
+        console.log('Sprite is not using twoColorTint, but batch is');
+      }
     }
-    batch.drawVertices(this.region.texture, this.getVertices(batch.yDown));
   }
 
   public drawWithAlpha(batch: PolygonBatch, alphaModulation: number) {

@@ -1,3 +1,4 @@
+import { ParticleEffect } from './ParticleEffect';
 import { PolygonBatch } from './PolygonBatcher';
 import { Sprite } from './Sprite';
 import { StringBufferedReader } from './StringBufferedReader';
@@ -1216,7 +1217,7 @@ export class Particle extends Sprite {
   frame: number;
 
   static fromSprite(sprite: Sprite) {
-    const particle = new Particle(sprite.region);
+    const particle = new Particle(sprite.region, ParticleEffect.USE_MULTI_BATCH, ParticleEffect.USE_TWO_COLOR);
     particle.set(sprite);
     return particle;
   }

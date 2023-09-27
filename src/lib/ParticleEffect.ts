@@ -6,6 +6,9 @@ import { TextureAtlas } from './TextureAtlas';
 import { Disposable, getFilenameAndExtension } from './Utils';
 
 export class ParticleEffect implements Disposable {
+  static USE_MULTI_BATCH = true;
+  static USE_TWO_COLOR = false;
+
   emitters: ParticleEmitter[] = [];
   ownsTexture: boolean;
   xSizeScale = 1;
@@ -120,7 +123,11 @@ export class ParticleEffect implements Disposable {
       const sprites: Sprite[] = [];
       for (let imagePath of emitter.getImagePaths()) {
         const imageName = getFilenameAndExtension(imagePath)[0];
-        const sprite = new Sprite(atlas.findRegion(imageName));
+        const sprite = new Sprite(
+          atlas.findRegion(imageName),
+          ParticleEffect.USE_MULTI_BATCH,
+          ParticleEffect.USE_TWO_COLOR
+        );
         sprites.push(sprite);
       }
       emitter.setSprites(sprites);
