@@ -29,7 +29,7 @@ export class MultiTextureBatch extends PolygonBatch {
   private textureIndices: Array<number> = [];
   private lastTextures: Texture[] = [];
 
-  constructor(gl: WebGLRenderingContext, private maxTextures = 16, maxVertices: number = 10920) {
+  constructor(gl: WebGLRenderingContext, private maxTextures = 4, maxVertices: number = 10920) {
     super(gl, false, maxVertices);
     if (maxVertices > 10920) throw new Error("Can't have more than 10920 triangles per batch: " + maxVertices);
     this.context = gl;
