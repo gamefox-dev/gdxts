@@ -247,23 +247,6 @@ export class MultiTextureBatch extends PolygonBatch {
     gl.disable(gl.BLEND);
   }
 
-  public static resetTotalDrawCalls() {
-    PolygonBatch.totalDrawCalls = 0;
-  }
-
-  getDrawCalls() {
-    return this.drawCalls;
-  }
-
-  dispose() {
-    this.mesh.dispose();
-  }
-
-  yDown = false;
-  setYDown(yDown: boolean) {
-    this.yDown = yDown;
-  }
-
   draw(
     texture: Texture,
     x: number,

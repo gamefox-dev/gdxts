@@ -328,6 +328,7 @@ export class PolygonBatch implements Disposable {
 
   dispose() {
     this.mesh.dispose();
+    this.shader.dispose();
   }
 
   yDown = false;
