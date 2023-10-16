@@ -33,7 +33,7 @@ export class PolygonBatch implements Disposable {
   public color: Color = new Color(1, 1, 1, 1);
   twoColorTint: boolean = true;
 
-  constructor(context: WebGLRenderingContext, twoColorTint: boolean = true, maxVertices: number = 10920) {
+  constructor(context: WebGLRenderingContext, twoColorTint: boolean = true, maxVertices: number = 10920, pma = true) {
     if (maxVertices > 10920) throw new Error("Can't have more than 10920 triangles per batch: " + maxVertices);
     this.context = context;
     let attributes = twoColorTint
@@ -41,19 +41,20 @@ export class PolygonBatch implements Disposable {
       : [new Position2Attribute(), new ColorAttribute(), new TexCoordAttribute()];
     this.mesh = new Mesh(context, attributes, maxVertices, maxVertices * 3);
     if (twoColorTint) {
-      this.shader = Shader.newTwoColoredTextured(context, PolygonBatch.PMA);
+      this.shader = Shader.newTwoColoredTextured(context);
     } else {
-      this.shader = Shader.newColoredTextured(context, PolygonBatch.PMA);
+      this.shader = Shader.newColoredTextured(context);
     }
     let gl = this.context;
 
-    if (PolygonBatch.PMA) {
-      this.srcColorBlend = gl.ONE;
-      this.srcAlphaBlend = gl.SRC_ALPHA;
-    } else {
+    if (pma) {
       this.srcColorBlend = gl.ONE;
       this.srcAlphaBlend = gl.ONE;
+    } else {
+      this.srcColorBlend = gl.ONE;
+      this.srcAlphaBlend = gl.SRC_ALPHA;
     }
+
     this.dstColorBlend = gl.ONE_MINUS_SRC_ALPHA;
     this.dstAlphaBlend = gl.ONE_MINUS_SRC_ALPHA;
 
@@ -96,45 +97,38 @@ export class PolygonBatch implements Disposable {
     gl.blendFuncSeparate(this.srcColorBlend, this.dstColorBlend, this.srcAlphaBlend, this.dstAlphaBlend);
   }
 
-  setBlendFunc(srcBlend: number, dstBlend: number) {
-    this.setBlendMode(srcBlend, srcBlend, dstBlend);
-  }
+  setBlendMode(src: number, dst: number): void;
+  setBlendMode(srcColorBlend: number, srcAlphaBlend: number, dstBlend: number): void;
+  setBlendMode(srcColorBlend: number, dstColorBlend: number, srcAlphaBlend: number, dstAlphaBlend: number): void;
+  setBlendMode(...args: number[]) {
+    let srcColorBlend: number = args[0];
+    let srcAlphaBlend: number = args[0];
+    let dstColorBlend: number = args[1];
+    let dstAlphaBlend: number = args[1];
 
-  setBlendFuncSeparate(srcColorBlend: number, srcAlphaBlend: number, dstBlend: number) {
-    if (
-      this.srcColorBlend === srcColorBlend &&
-      this.srcAlphaBlend === srcAlphaBlend &&
-      this.dstColorBlend === dstBlend &&
-      this.dstAlphaBlend === dstBlend
-    )
-      return;
-    this.srcColorBlend = srcColorBlend;
-    this.srcAlphaBlend = srcAlphaBlend;
-    this.dstColorBlend = dstBlend;
-    this.dstAlphaBlend = dstBlend;
-    if (this.isDrawing) {
-      this.flush();
-      let gl = this.context;
-      gl.blendFuncSeparate(srcColorBlend, dstBlend, srcAlphaBlend, dstBlend);
+    if (args.length === 3) {
+      srcAlphaBlend = args[1];
+      dstColorBlend = args[2];
+      dstAlphaBlend = args[2];
+    } else if (args.length === 4) {
+      srcAlphaBlend = args[2];
+      dstAlphaBlend = args[3];
     }
-  }
-
-  setBlendMode(srcColorBlend: number, srcAlphaBlend: number, dstBlend: number) {
     if (
       this.srcColorBlend === srcColorBlend &&
       this.srcAlphaBlend === srcAlphaBlend &&
-      this.dstColorBlend === dstBlend &&
-      this.dstAlphaBlend === dstBlend
+      this.dstColorBlend === dstColorBlend &&
+      this.dstAlphaBlend === dstAlphaBlend
     )
       return;
     this.srcColorBlend = srcColorBlend;
     this.srcAlphaBlend = srcAlphaBlend;
-    this.dstColorBlend = dstBlend;
-    this.dstAlphaBlend = dstBlend;
+    this.dstColorBlend = dstColorBlend;
+    this.dstAlphaBlend = dstAlphaBlend;
     if (this.isDrawing) {
       this.flush();
       let gl = this.context;
-      gl.blendFuncSeparate(srcColorBlend, dstBlend, srcAlphaBlend, dstBlend);
+      gl.blendFuncSeparate(srcColorBlend, dstColorBlend, srcAlphaBlend, dstAlphaBlend);
     }
   }
   drawVerticesWithOffset(texture: Texture, vertices: Array<number> | Float32Array, offset: number, count: number) {

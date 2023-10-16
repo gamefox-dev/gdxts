@@ -1,19 +1,16 @@
 import { YDOWN } from '..';
-import { Color, Game, PolygonBatch, Screen, Texture, TextureFilter, Viewport } from '../lib';
+import { Color, Game, MultiTextureBatch, Screen, Texture, TextureFilter, Viewport } from '../lib';
 
 export const createTestPmaScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
   const camera = viewport.getCamera();
   camera.setYDown(YDOWN);
 
-  const batch = new PolygonBatch(gl);
+  const batch = new MultiTextureBatch(gl, 4, 10920, true);
   batch.setYDown(YDOWN);
 
-  PolygonBatch.PMA = true;
-  const batch2 = new PolygonBatch(gl);
+  const batch2 = new MultiTextureBatch(gl, 4, 10920, false);
   batch2.setYDown(YDOWN);
-
-  PolygonBatch.PMA = false;
 
   const white = Texture.createWhiteTexture(gl);
   const texture = await Texture.load(gl, 'cloud.png', true);

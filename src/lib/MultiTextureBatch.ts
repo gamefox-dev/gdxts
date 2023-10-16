@@ -29,7 +29,7 @@ export class MultiTextureBatch extends PolygonBatch {
   private textureIndices: Array<number> = [];
   private lastTextures: Texture[] = [];
 
-  constructor(gl: WebGLRenderingContext, private maxTextures = 4, maxVertices: number = 10920) {
+  constructor(gl: WebGLRenderingContext, private maxTextures = 4, maxVertices: number = 10920, pma = true) {
     super(gl, false, maxVertices);
     if (maxVertices > 10920) throw new Error("Can't have more than 10920 triangles per batch: " + maxVertices);
     this.context = gl;
@@ -43,14 +43,14 @@ export class MultiTextureBatch extends PolygonBatch {
     if (this.shader) {
       this.shader.dispose();
     }
-    this.shader = Shader.newMultiTextured(gl, maxTextures, PolygonBatch.PMA);
+    this.shader = Shader.newMultiTextured(gl, maxTextures, pma);
 
-    if (PolygonBatch.PMA) {
-      this.srcColorBlend = gl.ONE;
-      this.srcAlphaBlend = gl.SRC_ALPHA;
-    } else {
+    if (pma) {
       this.srcColorBlend = gl.ONE;
       this.srcAlphaBlend = gl.ONE;
+    } else {
+      this.srcColorBlend = gl.ONE;
+      this.srcAlphaBlend = gl.SRC_ALPHA;
     }
     this.dstColorBlend = gl.ONE_MINUS_SRC_ALPHA;
     this.dstAlphaBlend = gl.ONE_MINUS_SRC_ALPHA;

@@ -26,7 +26,7 @@ import { createTestScreen } from './screens/createTestScreen';
 import { createTestSpriteScreen } from './screens/createTestSpriteScreen';
 
 export const YDOWN = true;
-const FIRST_TEST_INDEX = 2;
+const FIRST_TEST_INDEX = 0;
 
 const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Basic rendering 01': createMainScreen,
@@ -52,7 +52,9 @@ const init = async () => {
   const viewport = createViewport(canvas, 500, 1000, {
     crop: false,
     contextOption: {
-      antialias: false
+      antialias: false,
+      alpha: false,
+      premultipliedAlpha: false
     }
   });
 

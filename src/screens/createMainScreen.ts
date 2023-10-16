@@ -2,8 +2,8 @@ import { YDOWN } from '..';
 import {
   Animation,
   Color,
+  MultiTextureBatch,
   PlayMode,
-  PolygonBatch,
   Screen,
   ShapeRenderer,
   TextureAtlas,
@@ -26,7 +26,7 @@ export const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
 
   const inputHandler = new ViewportInputHandler(viewport);
 
-  const batch = new PolygonBatch(gl);
+  const batch = new MultiTextureBatch(gl, 4, 10920);
 
   batch.setYDown(YDOWN);
 
@@ -70,7 +70,9 @@ export const createMainScreen = async (viewport: Viewport): Promise<Screen> => {
       for (let gem of gems) {
         atlas.findRegion(`gem_0${gem.type + 1}`, 1).draw(batch, gem.x, gem.y, 50, 50);
       }
-      kitFullRun.getKeyFrame(stateTime, PlayMode.LOOP).draw(batch, 300, 100, 75, 100);
+      batch.setColor(1, 1, 1, Math.sin(stateTime * 2));
+      kitFullRun.getKeyFrame(stateTime, PlayMode.LOOP).draw(batch, 300, 130, 75, 100);
+      batch.setColor(1, 1, 1, 1);
 
       kitFullHalf.getKeyFrame(stateTime, PlayMode.LOOP).draw(batch, 400, 100, 75, 100);
       batch.end();
