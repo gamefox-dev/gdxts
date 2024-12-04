@@ -21,6 +21,7 @@ export interface TextureOptions {
   wrapT: TextureWrap;
   generateMipmaps: boolean;
   crossOrigin?: boolean;
+  customLoader?: (url: string) => Promise<HTMLImageElement | ImageBitmap | ImageData | ImageSource>;
 }
 
 export const DEFAULT_TEXTURE_OPTIONS: TextureOptions = {
@@ -63,6 +64,9 @@ export class Texture {
       ...options
     };
     return new Promise(resolve => {
+      if (options.customLoader) {
+        return options.customLoader(url).then(image => resolve(new Texture(gl, image, options as TextureOptions)));
+      }
       const image = new Image();
       image.crossOrigin = options.crossOrigin ? 'anonymous' : null;
       image.onload = () => {
