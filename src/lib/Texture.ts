@@ -20,6 +20,7 @@ export interface TextureOptions {
   wrapS: TextureWrap;
   wrapT: TextureWrap;
   generateMipmaps: boolean;
+  crossOrigin?: boolean;
 }
 
 export const DEFAULT_TEXTURE_OPTIONS: TextureOptions = {
@@ -27,7 +28,8 @@ export const DEFAULT_TEXTURE_OPTIONS: TextureOptions = {
   magFilter: TextureFilter.Linear,
   wrapS: TextureWrap.ClampToEdge,
   wrapT: TextureWrap.ClampToEdge,
-  generateMipmaps: false
+  generateMipmaps: false,
+  crossOrigin: false
 };
 
 export class ImageSource {
@@ -62,6 +64,7 @@ export class Texture {
     };
     return new Promise(resolve => {
       const image = new Image();
+      image.crossOrigin = options.crossOrigin ? 'anonymous' : null;
       image.onload = () => {
         resolve(new Texture(gl, image, options as TextureOptions));
       };
