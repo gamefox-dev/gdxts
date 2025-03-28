@@ -24,19 +24,8 @@ Lightweight 2D game development framework, target WebGL, inspired by libgdx.
 - [x] Animation
 - [x] ShapeRenderer
 - [x] ScreenManager
-- [ ] BitmapFont
-
-The features listed below will go to different packages:
-
-- [x] ECS (https://www.npmjs.com/package/flat-ecs)
-- [ ] UI
-- [ ] UI React
-- [ ] 2D Light
-- [ ] TiledMapRenderer
-- [ ] Spine Runtime
-- [ ] Audio Manager
-- [ ] 3D Model Batch
-- [ ] Gltf Loader
+- [x] BitmapFont
+- [x] Particle
 
 ## Usage
 
