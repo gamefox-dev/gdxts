@@ -65,7 +65,7 @@ const inputHandler = new ViewportInputHandler(viewport);
 
 ### InputHandler
 
-You can use `InputHandler` for handling touch events.
+You can use `ViewportInputHandler` for handling touch events.
 
 For the event-based approach:
 
@@ -233,3 +233,159 @@ font.draw(batch, string, x, y, targetWidth, Align.left);
 ```
 
 TODO: More documentation on advanced usage of bitmapfont and glyph.
+
+## 3D Rendering
+
+gdxts supports 3D rendering with models, materials, and lighting. Here's a basic setup:
+
+```Javascript
+// Create perspective camera
+const cam = new PerspectiveCamera(67, canvas.width, canvas.height);
+cam.position.set(0, 15, 10);
+cam.lookAt(0, 0, 0);
+cam.update();
+
+// Setup environment with lighting
+const environment = new Environment();
+environment.set(new ColorAttribute3D(ColorAttribute3D.AmbientLight, new Color(0.8, 0.8, 0.8, 1)));
+const directionalLight = new DirectionalLight().set(1, 1, 1, -0.3, 0.3, -0.7);
+environment.addLight(directionalLight);
+
+// Load 3D models
+const objLoader = new ObjLoader();
+const model = await objLoader.load(gl, 'model.obj');
+const instance = new ModelInstance(model);
+instance.transform.setTranslation(0, 0, 0);
+
+// Create model batch and render
+const modelBatch = new ModelBatch(gl);
+modelBatch.begin(cam);
+modelBatch.render(instance, environment);
+modelBatch.end();
+```
+
+## Advanced Rendering
+
+### Custom Shaders
+
+Create custom shaders for special effects:
+
+```Javascript
+class OutlineBatch extends PolygonBatch {
+  private static VS = `...vertex shader code...`;
+  private static FS = `...fragment shader code...`;
+
+  constructor(context: WebGLRenderingContext) {
+    super(context);
+    this.setShader(new Shader(context, OutlineBatch.VS, OutlineBatch.FS));
+  }
+
+  setOutlineInfo(enabled: boolean, color?: Color, blurSize?: number) {
+    // Configure outline parameters
+  }
+}
+
+// Usage:
+const batch = new OutlineBatch(gl);
+batch.setOutlineInfo(true, Color.RED, 3);
+// Draw with outline effect
+batch.setOutlineInfo(false);
+```
+
+### Multi-Texture Batching
+
+For better performance with multiple textures:
+
+```Javascript
+const batch = new MultiTextureBatch(gl, 4, 10920);
+batch.begin();
+// Draw from multiple texture atlases
+batch.end();
+```
+
+### Affine Transforms
+
+Advanced 2D transformations:
+
+```Javascript
+const affine = new Affine2();
+affine.setToTrnRotScl(x, y, rotation, scaleX, scaleY);
+```
+
+## Particle Systems
+
+Create and manage particle effects:
+
+```Javascript
+// Load particle effect
+const particleEffect = new ParticleEffect();
+await particleEffect.load('./effect.p', particleAtlas);
+
+// Use pooling for better performance
+const pool = new ParticleEffectPool(particleEffect, 10, 100);
+
+// Get and use effect
+const effect = pool.obtain();
+effect.setPosition(x, y);
+effect.start();
+
+// Update and draw
+effect.update(delta);
+effect.draw(batch, gl);
+
+// Return to pool when done
+if (effect.isComplete()) {
+  pool.free(effect);
+}
+```
+
+## Additional Features
+
+### Bitmap Fonts
+
+Advanced font handling:
+
+```Javascript
+const font = await BitmapFont.load(gl, './font.fnt', YDOWN);
+font.data.setXYScale(0.7); // Scale font
+
+// Draw with alignment options
+font.draw(batch, text, x, y, width, Align.center);
+
+// Transformed drawing
+font.drawTransformed(batch, text, transform, width, Align.center);
+```
+
+### Premultiplied Alpha
+
+For correct blending:
+
+```Javascript
+// Load texture with PMA
+const texture = await Texture.load(gl, 'image.png', true);
+
+// Create PMA batch
+const batch = new MultiTextureBatch(gl, 4, 10920, true);
+```
+
+### Performance Testing
+
+The framework includes utilities for performance testing:
+
+```Javascript
+const loop = createGameLoop((delta) => {
+  // Game logic
+});
+const fps = loop.getFps(); // Get current FPS
+```
+
+Key features:
+
+- FPS monitoring
+- Memory management
+- Draw call optimization
+- Batch flushing control
+
+```
+
+```
