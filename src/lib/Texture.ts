@@ -59,18 +59,20 @@ export class Texture {
         generateMipmaps: options
       };
     }
-    options = {
+    const checkedOptions: Partial<TextureOptions> = {
       ...DEFAULT_TEXTURE_OPTIONS,
       ...options
     };
     return new Promise(resolve => {
-      if (options.customLoader) {
-        return options.customLoader(url).then(image => resolve(new Texture(gl, image, options as TextureOptions)));
+      if (checkedOptions.customLoader) {
+        return checkedOptions
+          .customLoader(url)
+          .then(image => resolve(new Texture(gl, image, checkedOptions as TextureOptions)));
       }
       const image = new Image();
-      image.crossOrigin = options.crossOrigin ? 'anonymous' : null;
+      image.crossOrigin = checkedOptions.crossOrigin ? 'anonymous' : null;
       image.onload = () => {
-        resolve(new Texture(gl, image, options as TextureOptions));
+        resolve(new Texture(gl, image, checkedOptions as TextureOptions));
       };
       image.src = url;
     });
