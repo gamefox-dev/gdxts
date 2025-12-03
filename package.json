@@ -1,42 +1,33 @@
 {
   "name": "gdxts",
   "version": "0.2.29",
+  "type": "module",
   "dependencies": {
     "events": "^3.3.0"
   },
   "main": "./dist/lib/index.js",
-  "typings": "./dist/lib/index.d.ts",
+  "module": "./dist/lib/index.js",
+  "types": "./dist/lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib/index.d.ts",
+      "import": "./dist/lib/index.js"
+    }
+  },
   "files": [
     "dist/lib/**/*"
   ],
   "scripts": {
-    "start": "react-scripts start",
-    "prepare": "npm run build",
-    "build": "tsc",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "dev": "vite",
+    "start": "vite",
+    "prepare": "bun run build:lib",
+    "build": "vite build",
+    "build:lib": "tsc",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "@types/offscreencanvas": "^2019.7.0",
-    "react-scripts": "5.0.1",
-    "typescript": "^4.7.4"
+    "typescript": "^5.3.0",
+    "vite": "^5.0.0"
   }
 }

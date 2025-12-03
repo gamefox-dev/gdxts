@@ -144,8 +144,7 @@ export class Texture {
 
   static validateMagFilter(magFilter: TextureFilter) {
     switch (magFilter) {
-      case TextureFilter.MipMap:
-      case TextureFilter.MipMapLinearLinear:
+      case TextureFilter.MipMap: // same as MipMapLinearLinear (9987)
       case TextureFilter.MipMapLinearNearest:
       case TextureFilter.MipMapNearestLinear:
       case TextureFilter.MipMapNearestNearest:
