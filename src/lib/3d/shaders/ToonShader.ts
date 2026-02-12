@@ -390,6 +390,9 @@ export class ToonShader extends DefaultShader {
   uniform vec3 u_specularTint;
   uniform float u_specularSize;
   uniform float u_specularSoftness;
+  uniform float u_rimStart;
+  uniform float u_rimEnd;
+  uniform float u_rimStrength;
 
   vec3 srgbToLinear(vec3 color) {
     return pow(max(color, vec3(0.0)), vec3(2.2));
@@ -484,9 +487,12 @@ export class ToonShader extends DefaultShader {
       #if defined(normalFlag)
       {
         vec3 viewDir = normalize(u_cameraPosition.xyz - v_worldPos);
-        float rim = 1.0 - max(dot(normal, viewDir), 0.0);
-        rim = smoothstep(0.6, 1.0, rim);
-        totalLight += vec3(0.3) * rim;
+        float ndotv = max(dot(normal, viewDir), 0.0);
+        float rim = 1.0 - ndotv;
+        rim = smoothstep(u_rimStart, u_rimEnd, rim);
+        float ndotl = max(dot(normal, normalize(-u_dirLights[0].direction)), 0.0);
+        rim *= (1.0 - ndotl);
+        totalLight += vec3(u_rimStrength) * rim;
       }
       #endif
 
@@ -565,6 +571,9 @@ export class ToonShader extends DefaultShader {
     this.program.setUniform3f('u_specularTint', 1.0, 0.93, 0.82);
     this.program.setUniformf('u_specularSize', 0.84);
     this.program.setUniformf('u_specularSoftness', 0.05);
+    this.program.setUniformf('u_rimStart', 0.66);
+    this.program.setUniformf('u_rimEnd', 0.98);
+    this.program.setUniformf('u_rimStrength', 0.22);
     if (!!this.toonRampTexture) {
       const unit = this.context.textureBinder.bindTexture(this.toonRampTexture);
       this.program.setUniformi('u_toonRampTexture', unit);
