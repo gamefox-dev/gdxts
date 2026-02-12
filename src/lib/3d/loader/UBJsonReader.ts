@@ -20,10 +20,10 @@ export class UBJsonReader {
     else if (type === 'l'.charCodeAt(0)) return input.readInt(true);
     else if (type === 'L'.charCodeAt(0)) return input.readLong();
     else if (type === 'd'.charCodeAt(0)) return input.readFloat();
-    else if (type === 'D'.charCodeAt(0)) return input.readFloat();
+    else if (type === 'D'.charCodeAt(0)) return input.readDouble();
     else if (type === 's'.charCodeAt(0) || type === 'S'.charCodeAt(0)) return this.parseString(input, type);
     else if (type === 'a'.charCodeAt(0) || type === 'A'.charCodeAt(0)) return this.parseData(input, type);
-    else if (type === 'C'.charCodeAt(0)) return input.readString();
+    else if (type === 'C'.charCodeAt(0)) return input.readChar();
     else throw new Error('Unrecognized data type: ' + type);
   }
 
@@ -124,7 +124,7 @@ export class UBJsonReader {
   }
 
   protected readUInt(input: BinaryInput): number {
-    return input.readInt(true) & 0xffffffff;
+    return input.readInt(true) >>> 0;
   }
 
   protected readString(input: BinaryInput, size: number): string {
@@ -161,7 +161,9 @@ export class BinaryInput {
   }
 
   readLong(): number {
-    let value = this.buffer.getInt32(this.index);
+    const high = this.buffer.getInt32(this.index);
+    const low = this.buffer.getUint32(this.index + 4);
+    const value = high * 4294967296 + low;
     this.index += 8;
     return value;
   }
@@ -246,6 +248,18 @@ export class BinaryInput {
     let value = this.buffer.getFloat32(this.index);
     this.index += 4;
     return value;
+  }
+
+  readDouble(): number {
+    const value = this.buffer.getFloat64(this.index);
+    this.index += 8;
+    return value;
+  }
+
+  readChar(): string {
+    const code = this.buffer.getUint16(this.index);
+    this.index += 2;
+    return String.fromCharCode(code);
   }
 
   readBoolean(): boolean {
