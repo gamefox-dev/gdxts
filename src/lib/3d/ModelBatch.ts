@@ -36,11 +36,16 @@ export class ModelBatch implements Disposable {
   protected shaderProvider: DefaultShaderProvider = null;
   protected sorter: DefaultRenderableSorter = null;
 
-  public constructor(gl: WebGLRenderingContext, context: RenderContext = null, sorter: DefaultRenderableSorter = null) {
+  public constructor(
+    gl: WebGLRenderingContext,
+    context: RenderContext = null,
+    sorter: DefaultRenderableSorter = null,
+    shaderProvider: DefaultShaderProvider = null
+  ) {
     this.sorter = !sorter ? new DefaultRenderableSorter() : sorter;
     this.ownContext = !context;
     this.context = !context ? new RenderContext(new DefaultTextureBinder(gl, DefaultTextureBinder.LRU, 1)) : context;
-    this.shaderProvider = !this.shaderProvider ? new DefaultShaderProvider(gl) : this.shaderProvider;
+    this.shaderProvider = shaderProvider ? shaderProvider : new DefaultShaderProvider(gl);
   }
 
   public begin(cam: PerspectiveCamera) {
@@ -84,6 +89,9 @@ export class ModelBatch implements Disposable {
         currentShader.begin(this.camera, this.context);
       }
       currentShader.render(renderable);
+      if (!!currentShader.renderOutline) {
+        currentShader.renderOutline(renderable);
+      }
     }
     if (!!currentShader) currentShader.end();
     this.renderablesPool.flush();

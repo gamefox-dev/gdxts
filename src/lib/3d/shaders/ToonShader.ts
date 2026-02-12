@@ -1,9 +1,12 @@
+import { GL20 } from '../GL20';
 import { Renderable } from '../Renderable';
 import { Config, DefaultShader } from './DefaultShader';
 import { Shader } from '../../Shader';
 import { Texture, TextureFilter, TextureWrap } from '../../Texture';
 import { RenderContext } from '../RenderContext';
 import { PerspectiveCamera } from '../PerspectiveCamera';
+import { Attributes } from '../attributes/Attributes';
+import { IntAttribute } from '../attributes/IntAttribute';
 
 /**
  * Toon/Cel shader with gradient ramping for stylized cartoon rendering.
@@ -16,6 +19,9 @@ import { PerspectiveCamera } from '../PerspectiveCamera';
  */
 export class ToonShader extends DefaultShader {
   private toonRampTexture: Texture = null;
+  private outlineThickness = 0.018;
+  private outlineColor = [0.1, 0.08, 0.06];
+  private outlineAttributes = new Attributes();
 
   public static toonVertexShader = `
   #if defined(diffuseTextureFlag) || defined(specularTextureFlag) || defined(emissiveTextureFlag)
@@ -28,6 +34,8 @@ export class ToonShader extends DefaultShader {
 
   attribute vec3 a_position;
   uniform mat4 u_projViewTrans;
+  uniform mediump float u_outlinePass;
+  uniform float u_outlineThickness;
 
   #if defined(colorFlag)
   varying vec4 v_color;
@@ -242,9 +250,6 @@ export class ToonShader extends DefaultShader {
       vec4 pos = u_worldTrans * vec4(a_position, 1.0);
     #endif
       
-    gl_Position = u_projViewTrans * pos;
-    v_worldPos = pos.xyz;
-    
     #if defined(normalFlag)
       #if defined(skinningFlag)
         vec3 normal = normalize((u_worldTrans * skinning * vec4(a_normal, 0.0)).xyz);
@@ -252,7 +257,13 @@ export class ToonShader extends DefaultShader {
         vec3 normal = normalize(u_normalMatrix * a_normal);
       #endif
       v_normal = normal;
+      if (u_outlinePass > 0.5) {
+        pos.xyz += normal * u_outlineThickness;
+      }
     #endif
+    
+    gl_Position = u_projViewTrans * pos;
+    v_worldPos = pos.xyz;
 
     // Compute ambient light contribution in vertex shader
     // NOTE: We intentionally skip the ambientCubemap here.
@@ -393,6 +404,12 @@ export class ToonShader extends DefaultShader {
   uniform float u_rimStart;
   uniform float u_rimEnd;
   uniform float u_rimStrength;
+  uniform float u_wrap;
+  uniform float u_shadowFloor;
+  uniform float u_saturation;
+  uniform float u_valueBoost;
+  uniform mediump float u_outlinePass;
+  uniform vec3 u_outlineColor;
 
   vec3 srgbToLinear(vec3 color) {
     return pow(max(color, vec3(0.0)), vec3(2.2));
@@ -402,7 +419,17 @@ export class ToonShader extends DefaultShader {
     return pow(max(color, vec3(0.0)), vec3(1.0 / 2.2));
   }
 
+  vec3 adjustSaturation(vec3 color, float saturation) {
+    float luma = dot(color, vec3(0.2126, 0.7152, 0.0722));
+    return mix(vec3(luma), color, saturation);
+  }
+
   void main() {
+    if (u_outlinePass > 0.5) {
+      gl_FragColor = vec4(u_outlineColor, 1.0);
+      return;
+    }
+
     #if defined(normalFlag)
       vec3 normal = normalize(v_normal);
     #endif
@@ -452,7 +479,8 @@ export class ToonShader extends DefaultShader {
         for (int i = 0; i < numDirectionalLights; i++) {
           vec3 lightDir = -u_dirLights[i].direction;
           float NdotL = dot(normal, normalize(lightDir));
-          float ramp = texture2D(u_toonRampTexture, vec2(clamp(NdotL, 0.0, 1.0), 0.5)).r;
+          float wrapped = clamp((NdotL + u_wrap) / (1.0 + u_wrap), 0.0, 1.0);
+          float ramp = texture2D(u_toonRampTexture, vec2(wrapped, 0.5)).r;
           totalLight += u_dirLights[i].color * ramp;
           totalTint += mix(u_shadowTint, u_lightTint, clamp(ramp, 0.0, 1.0));
         }
@@ -465,7 +493,8 @@ export class ToonShader extends DefaultShader {
           float dist2 = dot(lightDir, lightDir);
           lightDir = normalize(lightDir);
           float NdotL = dot(normal, lightDir);
-          float ramp = texture2D(u_toonRampTexture, vec2(clamp(NdotL, 0.0, 1.0), 0.5)).r;
+          float wrapped = clamp((NdotL + u_wrap) / (1.0 + u_wrap), 0.0, 1.0);
+          float ramp = texture2D(u_toonRampTexture, vec2(wrapped, 0.5)).r;
           float attenuation = 1.0 / (1.0 + dist2);
           totalLight += u_pointLights[i].color * ramp * attenuation;
           totalTint += mix(u_shadowTint, u_lightTint, clamp(ramp, 0.0, 1.0)) * attenuation;
@@ -473,7 +502,7 @@ export class ToonShader extends DefaultShader {
       #endif
 
       // Stylized thresholded specular blob
-      #if defined(normalFlag)
+      #if defined(normalFlag) && (numDirectionalLights > 0)
       {
         vec3 viewDir = normalize(u_cameraPosition.xyz - v_worldPos);
         vec3 halfVec = normalize(normalize(-u_dirLights[0].direction) + viewDir);
@@ -490,7 +519,10 @@ export class ToonShader extends DefaultShader {
         float ndotv = max(dot(normal, viewDir), 0.0);
         float rim = 1.0 - ndotv;
         rim = smoothstep(u_rimStart, u_rimEnd, rim);
-        float ndotl = max(dot(normal, normalize(-u_dirLights[0].direction)), 0.0);
+        float ndotl = 0.0;
+        #if numDirectionalLights > 0
+          ndotl = max(dot(normal, normalize(-u_dirLights[0].direction)), 0.0);
+        #endif
         rim *= (1.0 - ndotl);
         totalLight += vec3(u_rimStrength) * rim;
       }
@@ -501,7 +533,9 @@ export class ToonShader extends DefaultShader {
       if (lightCount > 0.0) {
         avgTint = totalTint / lightCount;
       }
-      vec3 litLinear = (diffuseLinear * avgTint * (v_ambientLight + totalLight)) + emissiveLinear;
+      vec3 lightEnergy = max(v_ambientLight + totalLight, vec3(u_shadowFloor));
+      vec3 litLinear = (diffuseLinear * avgTint * lightEnergy) + emissiveLinear;
+      litLinear = adjustSaturation(litLinear, u_saturation) * u_valueBoost;
       gl_FragColor.rgb = linearToSrgb(litLinear);
     #endif
 
@@ -574,6 +608,10 @@ export class ToonShader extends DefaultShader {
     this.program.setUniformf('u_rimStart', 0.66);
     this.program.setUniformf('u_rimEnd', 0.98);
     this.program.setUniformf('u_rimStrength', 0.22);
+    this.program.setUniformf('u_wrap', 0.24);
+    this.program.setUniformf('u_shadowFloor', 0.22);
+    this.program.setUniformf('u_saturation', 1.14);
+    this.program.setUniformf('u_valueBoost', 1.08);
     if (!!this.toonRampTexture) {
       const unit = this.context.textureBinder.bindTexture(this.toonRampTexture);
       this.program.setUniformi('u_toonRampTexture', unit);
@@ -586,6 +624,21 @@ export class ToonShader extends DefaultShader {
       this.toonRampTexture = null;
     }
     super.dispose();
+  }
+
+  public renderOutline(renderable: Renderable) {
+    if (renderable.worldTransform.det3x3() === 0) return;
+    this.outlineAttributes.clear();
+    if (!!renderable.environment) this.outlineAttributes.setAttributes(renderable.environment.getAttributes());
+    if (!!renderable.material) this.outlineAttributes.setAttributes(renderable.material.getAttributes());
+    this.outlineAttributes.set(IntAttribute.createCullFace(GL20.GL_FRONT));
+
+    // Inverted-hull outline pass.
+    this.program.setUniformf('u_outlineThickness', this.outlineThickness);
+    this.program.setUniform3f('u_outlineColor', this.outlineColor[0], this.outlineColor[1], this.outlineColor[2]);
+    this.program.setUniformf('u_outlinePass', 1.0);
+    super.renderWithCombinedAttributes(renderable, this.outlineAttributes);
+    this.program.setUniformf('u_outlinePass', 0.0);
   }
 
   constructor(gl: WebGLRenderingContext, renderable: Renderable, config: Config = null) {

@@ -12,4 +12,5 @@ export interface Shader3D extends Disposable {
 
   render(renderable: Renderable): void;
   end(): void;
+  renderOutline?(renderable: Renderable): void;
 }
