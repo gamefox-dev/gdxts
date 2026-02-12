@@ -23,15 +23,23 @@ import {
   ViewportInputHandler
 } from '../lib';
 
-const MODEL_SCALE = 3;
+const MODEL_SCALE = 2.6;
+const MODEL_SPACING_X = 5.4;
 const MODEL_Y_OFFSET = 0;
+const CHARACTER_MODEL_FILES = [
+  'Barbarian-flipv.g3dj',
+  'Knight-flipv.g3dj',
+  'Mage-flipv.g3dj',
+  'Rogue-flipv.g3dj',
+  'RogueHooded-flipv.g3dj'
+];
 export const createTest3DAnimScreen = async (viewport: Viewport): Promise<Screen> => {
   const gl = viewport.getContext();
   const canvas = viewport.getCanvas();
 
   // --- 3D setup ---
   const cam = new PerspectiveCamera(67, canvas.width, canvas.height);
-  cam.position.set(0, 7, 15);
+  cam.position.set(0, 7, 24);
   cam.lookAt(0, 2, 0);
   cam.near = 0.1;
   cam.far = 300;
@@ -44,17 +52,37 @@ export const createTest3DAnimScreen = async (viewport: Viewport): Promise<Screen
   const directionalLight = new DirectionalLight().set(0.8, 0.8, 0.8, -0.3, 0.3, -0.7);
   environment.addLight(directionalLight);
 
-  // Load barbarian model
+  // Load all character models
   const g3dLoader = new G3dModelLoader();
-  const model = await g3dLoader.load(gl, '3d-assets/Barbarian-flipv.g3dj');
-  const instance = new ModelInstance(model);
-  instance.transform.setTranslation(0, MODEL_Y_OFFSET, 0).scale(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
+  const models = await Promise.all(CHARACTER_MODEL_FILES.map(file => g3dLoader.load(gl, `3d-assets/${file}`)));
+  const instances: ModelInstance[] = [];
+  const animControllers: AnimationController[] = [];
+  const animationSets = new Array<Set<string>>();
+  for (let i = 0; i < models.length; i++) {
+    const instance = new ModelInstance(models[i]);
+    const centerOffset = (i - (models.length - 1) / 2) * MODEL_SPACING_X;
+    instance.transform
+      .setTranslation(centerOffset, MODEL_Y_OFFSET, 0)
+      .scale(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
+    instances.push(instance);
+    animControllers.push(new AnimationController(instance));
+    animationSets.push(new Set(instance.animations.map(a => a.id)));
+  }
 
-  // Animation setup
-  const animController = new AnimationController(instance);
-  const animationNames = instance.animations.map(a => a.id);
+  // Shared animation setup
+  const primaryAnimationNames = instances[0].animations.map(a => a.id);
+  const animationNames = primaryAnimationNames.filter(id => animationSets.every(set => set.has(id)));
   let currentAnimIndex = 0;
-  animController.setAnimation(animationNames[currentAnimIndex], -1);
+  if (animationNames.length === 0) {
+    throw new Error('No shared animations across loaded character models.');
+  }
+  const applyCurrentAnimation = () => {
+    const animationId = animationNames[currentAnimIndex];
+    for (const controller of animControllers) {
+      controller.setAnimation(animationId, -1);
+    }
+  };
+  applyCurrentAnimation();
 
   // --- 2D overlay setup ---
   const camera2d = viewport.getCamera();
@@ -70,7 +98,7 @@ export const createTest3DAnimScreen = async (viewport: Viewport): Promise<Screen
     currentAnimIndex = index;
     if (currentAnimIndex < 0) currentAnimIndex = animationNames.length - 1;
     if (currentAnimIndex >= animationNames.length) currentAnimIndex = 0;
-    animController.setAnimation(animationNames[currentAnimIndex], -1);
+    applyCurrentAnimation();
   };
 
   // --- Camera orbit input ---
@@ -119,9 +147,9 @@ export const createTest3DAnimScreen = async (viewport: Viewport): Promise<Screen
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
       // Update & render 3D
-      animController.update(delta);
+      for (const controller of animControllers) controller.update(delta);
       modelBatch.begin(cam);
-      modelBatch.render(instance, environment);
+      for (const instance of instances) modelBatch.render(instance, environment);
       modelBatch.end();
 
       // Render 2D overlay
