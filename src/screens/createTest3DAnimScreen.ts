@@ -27,7 +27,7 @@ const MODEL_SCALE = 2.6;
 const MODEL_SPACING_X = 5.4;
 const MODEL_Y_OFFSET = 0;
 const CHARACTER_MODEL_FILES = [
-  'Barbarian-flipv.g3dj',
+  'Barbarian-flipv.g3db',
   'Knight-flipv.g3dj',
   'Mage-flipv.g3dj',
   'Rogue-flipv.g3dj',
