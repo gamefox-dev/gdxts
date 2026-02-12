@@ -387,6 +387,9 @@ export class ToonShader extends DefaultShader {
   uniform sampler2D u_toonRampTexture;
   uniform vec3 u_shadowTint;
   uniform vec3 u_lightTint;
+  uniform vec3 u_specularTint;
+  uniform float u_specularSize;
+  uniform float u_specularSoftness;
 
   vec3 srgbToLinear(vec3 color) {
     return pow(max(color, vec3(0.0)), vec3(2.2));
@@ -464,6 +467,17 @@ export class ToonShader extends DefaultShader {
           totalLight += u_pointLights[i].color * ramp * attenuation;
           totalTint += mix(u_shadowTint, u_lightTint, clamp(ramp, 0.0, 1.0)) * attenuation;
         }
+      #endif
+
+      // Stylized thresholded specular blob
+      #if defined(normalFlag)
+      {
+        vec3 viewDir = normalize(u_cameraPosition.xyz - v_worldPos);
+        vec3 halfVec = normalize(normalize(-u_dirLights[0].direction) + viewDir);
+        float specNdotH = max(dot(normal, halfVec), 0.0);
+        float spec = smoothstep(u_specularSize - u_specularSoftness, u_specularSize + u_specularSoftness, specNdotH);
+        totalLight += u_specularTint * spec;
+      }
       #endif
 
       // Rim lighting for edge pop
@@ -548,6 +562,9 @@ export class ToonShader extends DefaultShader {
     super.begin(camera, context);
     this.program.setUniform3f('u_shadowTint', 0.72, 0.8, 1.0);
     this.program.setUniform3f('u_lightTint', 1.0, 0.95, 0.88);
+    this.program.setUniform3f('u_specularTint', 1.0, 0.93, 0.82);
+    this.program.setUniformf('u_specularSize', 0.84);
+    this.program.setUniformf('u_specularSoftness', 0.05);
     if (!!this.toonRampTexture) {
       const unit = this.context.textureBinder.bindTexture(this.toonRampTexture);
       this.program.setUniformi('u_toonRampTexture', unit);
