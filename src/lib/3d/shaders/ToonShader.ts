@@ -408,6 +408,9 @@ export class ToonShader extends DefaultShader {
   uniform float u_shadowFloor;
   uniform float u_saturation;
   uniform float u_valueBoost;
+  uniform vec3 u_skyTint;
+  uniform vec3 u_groundTint;
+  uniform float u_hemiStrength;
   uniform mediump float u_outlinePass;
   uniform vec3 u_outlineColor;
 
@@ -533,7 +536,8 @@ export class ToonShader extends DefaultShader {
       if (lightCount > 0.0) {
         avgTint = totalTint / lightCount;
       }
-      vec3 lightEnergy = max(v_ambientLight + totalLight, vec3(u_shadowFloor));
+      vec3 hemiLight = mix(u_groundTint, u_skyTint, normal.y * 0.5 + 0.5) * u_hemiStrength;
+      vec3 lightEnergy = max(v_ambientLight + totalLight + hemiLight, vec3(u_shadowFloor));
       vec3 litLinear = (diffuseLinear * avgTint * lightEnergy) + emissiveLinear;
       litLinear = adjustSaturation(litLinear, u_saturation) * u_valueBoost;
       gl_FragColor.rgb = linearToSrgb(litLinear);
@@ -612,6 +616,9 @@ export class ToonShader extends DefaultShader {
     this.program.setUniformf('u_shadowFloor', 0.22);
     this.program.setUniformf('u_saturation', 1.14);
     this.program.setUniformf('u_valueBoost', 1.08);
+    this.program.setUniform3f('u_skyTint', 0.72, 0.82, 1.0);
+    this.program.setUniform3f('u_groundTint', 0.56, 0.47, 0.42);
+    this.program.setUniformf('u_hemiStrength', 0.26);
     if (!!this.toonRampTexture) {
       const unit = this.context.textureBinder.bindTexture(this.toonRampTexture);
       this.program.setUniformi('u_toonRampTexture', unit);
