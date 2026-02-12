@@ -1,6 +1,9 @@
 import { Renderable } from '../Renderable';
 import { Config, DefaultShader } from './DefaultShader';
 import { Shader } from '../../Shader';
+import { Texture, TextureFilter, TextureWrap } from '../../Texture';
+import { RenderContext } from '../RenderContext';
+import { PerspectiveCamera } from '../PerspectiveCamera';
 
 /**
  * Toon/Cel shader with gradient ramping for stylized cartoon rendering.
@@ -12,6 +15,8 @@ import { Shader } from '../../Shader';
  * - No specular highlights (flat toon aesthetic)
  */
 export class ToonShader extends DefaultShader {
+  private toonRampTexture: Texture = null;
+
   public static toonVertexShader = `
   #if defined(diffuseTextureFlag) || defined(specularTextureFlag) || defined(emissiveTextureFlag)
   #define textureFlag
@@ -378,14 +383,8 @@ export class ToonShader extends DefaultShader {
 
   #endif // lightingFlag
 
-  // ---- Toon ramp function ----
-  // Quantizes NdotL into discrete bands for cel-shading
-  float toonRamp(float NdotL) {
-    // 3 bands: shadow, mid, lit
-    if (NdotL < 0.15) return 0.25;       // deep shadow
-    else if (NdotL < 0.5) return 0.55;   // mid-tone
-    else return 1.0;                       // fully lit
-  }
+  // Artist ramp texture for toon shading.
+  uniform sampler2D u_toonRampTexture;
 
   vec3 srgbToLinear(vec3 color) {
     return pow(max(color, vec3(0.0)), vec3(2.2));
@@ -444,7 +443,7 @@ export class ToonShader extends DefaultShader {
         for (int i = 0; i < numDirectionalLights; i++) {
           vec3 lightDir = -u_dirLights[i].direction;
           float NdotL = dot(normal, normalize(lightDir));
-          float ramp = toonRamp(NdotL);
+          float ramp = texture2D(u_toonRampTexture, vec2(clamp(NdotL, 0.0, 1.0), 0.5)).r;
           totalLight += u_dirLights[i].color * ramp;
         }
       #endif
@@ -456,7 +455,7 @@ export class ToonShader extends DefaultShader {
           float dist2 = dot(lightDir, lightDir);
           lightDir = normalize(lightDir);
           float NdotL = dot(normal, lightDir);
-          float ramp = toonRamp(NdotL);
+          float ramp = texture2D(u_toonRampTexture, vec2(clamp(NdotL, 0.0, 1.0), 0.5)).r;
           float attenuation = 1.0 / (1.0 + dist2);
           totalLight += u_pointLights[i].color * ramp * attenuation;
         }
@@ -488,6 +487,68 @@ export class ToonShader extends DefaultShader {
     #endif
   }
   `;
+
+  private createToonRampTexture(gl: WebGLRenderingContext): Texture {
+    const width = 256;
+    const pixels = new Uint8ClampedArray(width * 4);
+
+    // Slightly soft Clash-like ramp: deep shadow -> mid -> light.
+    const stops = [
+      { x: 0.0, v: 0.18 },
+      { x: 0.32, v: 0.28 },
+      { x: 0.58, v: 0.66 },
+      { x: 1.0, v: 1.0 }
+    ];
+
+    for (let x = 0; x < width; x++) {
+      const t = x / (width - 1);
+      let s0 = stops[0];
+      let s1 = stops[stops.length - 1];
+      for (let i = 0; i < stops.length - 1; i++) {
+        if (t >= stops[i].x && t <= stops[i + 1].x) {
+          s0 = stops[i];
+          s1 = stops[i + 1];
+          break;
+        }
+      }
+      const localT = (t - s0.x) / Math.max(1e-5, s1.x - s0.x);
+      const v = s0.v + (s1.v - s0.v) * localT;
+      const c = Math.max(0, Math.min(255, Math.round(v * 255)));
+      const idx = x * 4;
+      pixels[idx] = c;
+      pixels[idx + 1] = c;
+      pixels[idx + 2] = c;
+      pixels[idx + 3] = 255;
+    }
+
+    const texture = new Texture(gl, new ImageData(pixels, width, 1));
+    texture.setFilters(TextureFilter.Linear, TextureFilter.Linear);
+    texture.setWraps(TextureWrap.ClampToEdge, TextureWrap.ClampToEdge);
+    return texture;
+  }
+
+  public init() {
+    super.init();
+    if (!this.toonRampTexture) {
+      this.toonRampTexture = this.createToonRampTexture(this.gl);
+    }
+  }
+
+  public begin(camera: PerspectiveCamera, context: RenderContext) {
+    super.begin(camera, context);
+    if (!!this.toonRampTexture) {
+      const unit = this.context.textureBinder.bindTexture(this.toonRampTexture);
+      this.program.setUniformi('u_toonRampTexture', unit);
+    }
+  }
+
+  public dispose() {
+    if (!!this.toonRampTexture) {
+      this.toonRampTexture.dispose();
+      this.toonRampTexture = null;
+    }
+    super.dispose();
+  }
 
   constructor(gl: WebGLRenderingContext, renderable: Renderable, config: Config = null) {
     super(gl, renderable, config, '', ToonShader.toonVertexShader, ToonShader.toonFragmentShader);
