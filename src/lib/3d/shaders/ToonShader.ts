@@ -385,6 +385,8 @@ export class ToonShader extends DefaultShader {
 
   // Artist ramp texture for toon shading.
   uniform sampler2D u_toonRampTexture;
+  uniform vec3 u_shadowTint;
+  uniform vec3 u_lightTint;
 
   vec3 srgbToLinear(vec3 color) {
     return pow(max(color, vec3(0.0)), vec3(2.2));
@@ -437,6 +439,7 @@ export class ToonShader extends DefaultShader {
       gl_FragColor.rgb = linearToSrgb(diffuseLinear + emissiveLinear);
     #else
       vec3 totalLight = vec3(0.0);
+      vec3 totalTint = vec3(0.0);
 
       // Directional lights with toon ramp
       #if (numDirectionalLights > 0) && defined(normalFlag)
@@ -445,6 +448,7 @@ export class ToonShader extends DefaultShader {
           float NdotL = dot(normal, normalize(lightDir));
           float ramp = texture2D(u_toonRampTexture, vec2(clamp(NdotL, 0.0, 1.0), 0.5)).r;
           totalLight += u_dirLights[i].color * ramp;
+          totalTint += mix(u_shadowTint, u_lightTint, clamp(ramp, 0.0, 1.0));
         }
       #endif
 
@@ -458,6 +462,7 @@ export class ToonShader extends DefaultShader {
           float ramp = texture2D(u_toonRampTexture, vec2(clamp(NdotL, 0.0, 1.0), 0.5)).r;
           float attenuation = 1.0 / (1.0 + dist2);
           totalLight += u_pointLights[i].color * ramp * attenuation;
+          totalTint += mix(u_shadowTint, u_lightTint, clamp(ramp, 0.0, 1.0)) * attenuation;
         }
       #endif
 
@@ -471,7 +476,12 @@ export class ToonShader extends DefaultShader {
       }
       #endif
 
-      vec3 litLinear = (diffuseLinear * (v_ambientLight + totalLight)) + emissiveLinear;
+      float lightCount = float(numDirectionalLights + numPointLights);
+      vec3 avgTint = mix(u_shadowTint, u_lightTint, 0.5);
+      if (lightCount > 0.0) {
+        avgTint = totalTint / lightCount;
+      }
+      vec3 litLinear = (diffuseLinear * avgTint * (v_ambientLight + totalLight)) + emissiveLinear;
       gl_FragColor.rgb = linearToSrgb(litLinear);
     #endif
 
@@ -536,6 +546,8 @@ export class ToonShader extends DefaultShader {
 
   public begin(camera: PerspectiveCamera, context: RenderContext) {
     super.begin(camera, context);
+    this.program.setUniform3f('u_shadowTint', 0.72, 0.8, 1.0);
+    this.program.setUniform3f('u_lightTint', 1.0, 0.95, 0.88);
     if (!!this.toonRampTexture) {
       const unit = this.context.textureBinder.bindTexture(this.toonRampTexture);
       this.program.setUniformi('u_toonRampTexture', unit);
