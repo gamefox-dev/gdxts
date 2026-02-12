@@ -15,4 +15,5 @@ export * from './PerspectiveCamera';
 export * from './Renderable';
 export * from './RenderContext';
 export * from './shaders';
+export * from './ToonShaderProvider';
 export * from './utils';

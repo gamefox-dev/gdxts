@@ -1,0 +1,33 @@
+// Toon/Cel Shading Material for Filament
+// Creates a stylized look with stepped lighting bands
+
+material {
+    name : toon,
+    shadingModel : lit,
+    parameters : [
+        { type : sampler2d, name : baseColorMap },
+        { type : float4,    name : baseColorFactor, default : [1.0, 1.0, 1.0, 1.0] },
+        { type : float,     name : toonBands, default : 4.0 },
+        { type : float,     name : ambientStrength, default : 0.4 }
+    ],
+    requires : [ uv0 ],
+    blending : opaque,
+    doubleSided : false
+}
+
+fragment {
+    void material(inout MaterialInputs material) {
+        prepareMaterial(material);
+        
+        // Sample the base color texture
+        vec4 texColor = texture(materialParams_baseColorMap, getUV0());
+        vec4 baseColor = texColor * materialParams.baseColorFactor;
+        
+        material.baseColor = baseColor;
+        
+        // We use standard lit shading but will apply toon effect in post
+        // For now, increase roughness to reduce specular highlights
+        material.roughness = 0.9;
+        material.metallic = 0.0;
+    }
+}

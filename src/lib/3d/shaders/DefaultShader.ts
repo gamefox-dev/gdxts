@@ -167,7 +167,7 @@ export class Setters {
         inputID,
         shader.camera.position.x,
         shader.camera.position.y,
-        shader.camera.position.y,
+        shader.camera.position.z,
         1.1881 / (shader.camera.far * shader.camera.far)
       );
     }

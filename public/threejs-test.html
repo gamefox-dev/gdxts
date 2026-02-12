@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Three.js FBX Viewer - Barbarian</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: #1a1a2e;
+        overflow: hidden;
+        font-family: sans-serif;
+      }
+      canvas {
+        display: block;
+      }
+      #info {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        color: #fff;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-align: center;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      #info button {
+        background: #444;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      #info button:hover {
+        background: #666;
+      }
+      #anim-name {
+        min-width: 200px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="info">
+      <button id="prev-btn">◀ Prev</button>
+      <span id="anim-name">Loading...</span>
+      <button id="next-btn">Next ▶</button>
+    </div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+        }
+      }
+    </script>
+
+    <script type="module">
+      import * as THREE from 'three';
+      import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+      import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+      // Scene
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x1a1a2e);
+
+      // Camera
+      const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 7, 15);
+      camera.lookAt(0, 2, 0);
+
+      // Renderer
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      renderer.shadowMap.enabled = true;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.0;
+      document.body.appendChild(renderer.domElement);
+
+      // Controls
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.update();
+
+      // Lighting
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+      dirLight.position.set(3, 5, 3);
+      dirLight.castShadow = true;
+      scene.add(dirLight);
+
+      const fillLight = new THREE.DirectionalLight(0xffffff, 0.3);
+      fillLight.position.set(-3, 2, -3);
+      scene.add(fillLight);
+
+      // Ground plane
+      const groundGeo = new THREE.PlaneGeometry(10, 10);
+      const groundMat = new THREE.MeshStandardMaterial({ color: 0x333344 });
+      const ground = new THREE.Mesh(groundGeo, groundMat);
+      ground.rotation.x = -Math.PI / 2;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      // Animation state
+      let mixer = null;
+      let actions = [];
+      let currentIndex = 0;
+      const clock = new THREE.Clock();
+
+      // Load FBX
+      const loader = new FBXLoader();
+      loader.load(
+        '3d-assets/assets/models/kaykit_adventurers/KayKit_Adventurers_1.0_FREE/Characters/fbx/Barbarian.fbx',
+        fbx => {
+          fbx.scale.setScalar(1);
+          fbx.traverse(child => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+          scene.add(fbx);
+
+          // Setup animations
+          mixer = new THREE.AnimationMixer(fbx);
+          actions = fbx.animations.map(clip => {
+            const action = mixer.clipAction(clip);
+            return { name: clip.name, action };
+          });
+
+          if (actions.length > 0) {
+            actions[0].action.play();
+            updateLabel();
+          }
+
+          console.log(
+            `Loaded ${actions.length} animations:`,
+            actions.map(a => a.name)
+          );
+        },
+        progress => {
+          const pct = ((progress.loaded / progress.total) * 100).toFixed(0);
+          document.getElementById('anim-name').textContent = `Loading... ${pct}%`;
+        },
+        error => {
+          console.error('Error loading FBX:', error);
+          document.getElementById('anim-name').textContent = 'Error loading model';
+        }
+      );
+
+      function updateLabel() {
+        document.getElementById('anim-name').textContent =
+          `${currentIndex + 1}/${actions.length}  ${actions[currentIndex].name}`;
+      }
+
+      function setAnimation(index) {
+        if (!actions.length) return;
+        actions[currentIndex].action.stop();
+        currentIndex = ((index % actions.length) + actions.length) % actions.length;
+        actions[currentIndex].action.reset().play();
+        updateLabel();
+      }
+
+      document.getElementById('prev-btn').onclick = () => setAnimation(currentIndex - 1);
+      document.getElementById('next-btn').onclick = () => setAnimation(currentIndex + 1);
+
+      // Resize
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+
+      // Render loop
+      function animate() {
+        requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+        if (mixer) mixer.update(delta);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      animate();
+    </script>
+  </body>
+</html>
