@@ -8,6 +8,52 @@ import { PerspectiveCamera } from '../PerspectiveCamera';
 import { Attributes } from '../attributes/Attributes';
 import { IntAttribute } from '../attributes/IntAttribute';
 
+export interface ToonStyleOptions {
+  shadowTint: [number, number, number];
+  lightTint: [number, number, number];
+  specularTint: [number, number, number];
+  specularSize: number;
+  specularSoftness: number;
+  rimStart: number;
+  rimEnd: number;
+  rimStrength: number;
+  wrap: number;
+  shadowFloor: number;
+  baseLight: number;
+  saturation: number;
+  valueBoost: number;
+  skyTint: [number, number, number];
+  groundTint: [number, number, number];
+  hemiStrength: number;
+  outlineEnabled: boolean;
+  outlineThickness: number;
+  outlineColor: [number, number, number];
+}
+
+const DEFAULT_TOON_STYLE: ToonStyleOptions = {
+  shadowTint: [0.75, 0.82, 1.0],
+  lightTint: [1.0, 0.96, 0.9],
+  specularTint: [1.0, 0.92, 0.82],
+  specularSize: 0.9,
+  specularSoftness: 0.045,
+  rimStart: 0.84,
+  rimEnd: 0.97,
+  rimStrength: 0.08,
+  wrap: 0.3,
+  shadowFloor: 0.3,
+  // Baseline lift so models stay readable even when environment lighting is sparse.
+  baseLight: 0.14,
+  saturation: 1.08,
+  valueBoost: 1.1,
+  skyTint: [0.72, 0.82, 1.0],
+  groundTint: [0.58, 0.5, 0.45],
+  hemiStrength: 0.18,
+  // Clash-style default: disable heavy outline; can be enabled via config.
+  outlineEnabled: false,
+  outlineThickness: 0.007,
+  outlineColor: [0.24, 0.2, 0.18]
+};
+
 /**
  * Toon/Cel shader with gradient ramping for stylized cartoon rendering.
  *
@@ -18,9 +64,8 @@ import { IntAttribute } from '../attributes/IntAttribute';
  * - No specular highlights (flat toon aesthetic)
  */
 export class ToonShader extends DefaultShader {
+  private style: ToonStyleOptions = { ...DEFAULT_TOON_STYLE };
   private toonRampTexture: Texture = null;
-  private outlineThickness = 0.018;
-  private outlineColor = [0.1, 0.08, 0.06];
   private outlineAttributes = new Attributes();
 
   public static toonVertexShader = `
@@ -406,6 +451,7 @@ export class ToonShader extends DefaultShader {
   uniform float u_rimStrength;
   uniform float u_wrap;
   uniform float u_shadowFloor;
+  uniform float u_baseLight;
   uniform float u_saturation;
   uniform float u_valueBoost;
   uniform vec3 u_skyTint;
@@ -472,7 +518,9 @@ export class ToonShader extends DefaultShader {
 
     // ---- Per-pixel toon lighting ----
     #if (!defined(lightingFlag))
-      gl_FragColor.rgb = linearToSrgb(diffuseLinear + emissiveLinear);
+      vec3 unlitLinear = (diffuseLinear * (1.0 + u_baseLight)) + emissiveLinear;
+      unlitLinear = adjustSaturation(unlitLinear, u_saturation) * u_valueBoost;
+      gl_FragColor.rgb = linearToSrgb(unlitLinear);
     #else
       vec3 totalLight = vec3(0.0);
       vec3 totalTint = vec3(0.0);
@@ -537,7 +585,7 @@ export class ToonShader extends DefaultShader {
         avgTint = totalTint / lightCount;
       }
       vec3 hemiLight = mix(u_groundTint, u_skyTint, normal.y * 0.5 + 0.5) * u_hemiStrength;
-      vec3 lightEnergy = max(v_ambientLight + totalLight + hemiLight, vec3(u_shadowFloor));
+      vec3 lightEnergy = max(v_ambientLight + totalLight + hemiLight + vec3(u_baseLight), vec3(u_shadowFloor));
       vec3 litLinear = (diffuseLinear * avgTint * lightEnergy) + emissiveLinear;
       litLinear = adjustSaturation(litLinear, u_saturation) * u_valueBoost;
       gl_FragColor.rgb = linearToSrgb(litLinear);
@@ -604,21 +652,32 @@ export class ToonShader extends DefaultShader {
 
   public begin(camera: PerspectiveCamera, context: RenderContext) {
     super.begin(camera, context);
-    this.program.setUniform3f('u_shadowTint', 0.72, 0.8, 1.0);
-    this.program.setUniform3f('u_lightTint', 1.0, 0.95, 0.88);
-    this.program.setUniform3f('u_specularTint', 1.0, 0.93, 0.82);
-    this.program.setUniformf('u_specularSize', 0.84);
-    this.program.setUniformf('u_specularSoftness', 0.05);
-    this.program.setUniformf('u_rimStart', 0.66);
-    this.program.setUniformf('u_rimEnd', 0.98);
-    this.program.setUniformf('u_rimStrength', 0.22);
-    this.program.setUniformf('u_wrap', 0.24);
-    this.program.setUniformf('u_shadowFloor', 0.22);
-    this.program.setUniformf('u_saturation', 1.14);
-    this.program.setUniformf('u_valueBoost', 1.08);
-    this.program.setUniform3f('u_skyTint', 0.72, 0.82, 1.0);
-    this.program.setUniform3f('u_groundTint', 0.56, 0.47, 0.42);
-    this.program.setUniformf('u_hemiStrength', 0.26);
+    this.program.setUniform3f('u_shadowTint', this.style.shadowTint[0], this.style.shadowTint[1], this.style.shadowTint[2]);
+    this.program.setUniform3f('u_lightTint', this.style.lightTint[0], this.style.lightTint[1], this.style.lightTint[2]);
+    this.program.setUniform3f(
+      'u_specularTint',
+      this.style.specularTint[0],
+      this.style.specularTint[1],
+      this.style.specularTint[2]
+    );
+    this.program.setUniformf('u_specularSize', this.style.specularSize);
+    this.program.setUniformf('u_specularSoftness', this.style.specularSoftness);
+    this.program.setUniformf('u_rimStart', this.style.rimStart);
+    this.program.setUniformf('u_rimEnd', this.style.rimEnd);
+    this.program.setUniformf('u_rimStrength', this.style.rimStrength);
+    this.program.setUniformf('u_wrap', this.style.wrap);
+    this.program.setUniformf('u_shadowFloor', this.style.shadowFloor);
+    this.program.setUniformf('u_baseLight', this.style.baseLight);
+    this.program.setUniformf('u_saturation', this.style.saturation);
+    this.program.setUniformf('u_valueBoost', this.style.valueBoost);
+    this.program.setUniform3f('u_skyTint', this.style.skyTint[0], this.style.skyTint[1], this.style.skyTint[2]);
+    this.program.setUniform3f(
+      'u_groundTint',
+      this.style.groundTint[0],
+      this.style.groundTint[1],
+      this.style.groundTint[2]
+    );
+    this.program.setUniformf('u_hemiStrength', this.style.hemiStrength);
     if (!!this.toonRampTexture) {
       const unit = this.context.textureBinder.bindTexture(this.toonRampTexture);
       this.program.setUniformi('u_toonRampTexture', unit);
@@ -634,6 +693,7 @@ export class ToonShader extends DefaultShader {
   }
 
   public renderOutline(renderable: Renderable) {
+    if (!this.style.outlineEnabled) return;
     if (renderable.worldTransform.det3x3() === 0) return;
     this.outlineAttributes.clear();
     if (!!renderable.environment) this.outlineAttributes.setAttributes(renderable.environment.getAttributes());
@@ -641,14 +701,17 @@ export class ToonShader extends DefaultShader {
     this.outlineAttributes.set(IntAttribute.createCullFace(GL20.GL_FRONT));
 
     // Inverted-hull outline pass.
-    this.program.setUniformf('u_outlineThickness', this.outlineThickness);
-    this.program.setUniform3f('u_outlineColor', this.outlineColor[0], this.outlineColor[1], this.outlineColor[2]);
+    this.program.setUniformf('u_outlineThickness', this.style.outlineThickness);
+    this.program.setUniform3f('u_outlineColor', this.style.outlineColor[0], this.style.outlineColor[1], this.style.outlineColor[2]);
     this.program.setUniformf('u_outlinePass', 1.0);
     super.renderWithCombinedAttributes(renderable, this.outlineAttributes);
     this.program.setUniformf('u_outlinePass', 0.0);
   }
 
-  constructor(gl: WebGLRenderingContext, renderable: Renderable, config: Config = null) {
+  constructor(gl: WebGLRenderingContext, renderable: Renderable, config: Config = null, style?: Partial<ToonStyleOptions>) {
     super(gl, renderable, config, '', ToonShader.toonVertexShader, ToonShader.toonFragmentShader);
+    if (!!style) {
+      this.style = { ...DEFAULT_TOON_STYLE, ...style };
+    }
   }
 }
