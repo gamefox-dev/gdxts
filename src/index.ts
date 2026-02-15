@@ -28,7 +28,7 @@ import { createTest3DAnimScreen } from './screens/createTest3DAnimScreen';
 import { createTest3DPBRScreen } from './screens/createTest3DPBRScreen';
 
 export const YDOWN = true;
-const FIRST_TEST_INDEX = 11;
+const FIRST_TEST_INDEX = 12;
 
 const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Basic rendering 01': createMainScreen,
