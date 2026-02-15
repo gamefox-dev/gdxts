@@ -7,9 +7,12 @@ import {
   ColorAttribute3D,
   DirectionalLight,
   Environment,
+  GL20,
   G3dModelLoader,
   Game,
   InputEvent,
+  Mesh3D,
+  Model,
   ModelBatch,
   ModelInstance,
   PerspectiveCamera,
@@ -18,6 +21,7 @@ import {
   ShapeRenderer,
   ToonStyleOptions,
   ToonShaderProvider,
+  Usage,
   Vector2,
   Vector3,
   Viewport,
@@ -28,6 +32,9 @@ const MODEL_SCALE = 2.6;
 const MODEL_SPACING_X = 5.4;
 const MODEL_Y_OFFSET = 0;
 const GROUND_Y = -0.2;
+const NORMAL_SMOOTH_BLEND = 0.6;
+const NORMAL_WELD_EPSILON = 0.0006;
+const NORMAL_WELD_MAX_ANGLE_DEG = 82;
 const CHARACTER_MODEL_FILES = [
   'Barbarian-flipv.g3db',
   'Knight-flipv.g3dj',
@@ -39,6 +46,176 @@ const CHARACTER_MODEL_FILES = [
 type ToonPreset = {
   name: string;
   style: Partial<ToonStyleOptions>;
+};
+
+type TriangleRange = {
+  offset: number;
+  size: number;
+};
+
+const smoothMeshNormals = (mesh: Mesh3D, triangleRanges: TriangleRange[], blend: number) => {
+  const posAttr = mesh.getVertexAttribute(Usage.Position);
+  const norAttr = mesh.getVertexAttribute(Usage.Normal);
+  if (!posAttr || !norAttr || posAttr.numComponents < 3 || norAttr.numComponents < 3) return;
+
+  const stride = mesh.getVertexSize() / 4;
+  const numVertices = mesh.getNumVertices();
+  if (numVertices <= 0) return;
+
+  const posOffset = posAttr.offset / 4;
+  const norOffset = norAttr.offset / 4;
+  const vertices = new Array<number>(numVertices * stride);
+  mesh.getVertices(vertices, 0, vertices.length);
+
+  const smoothX = new Float32Array(numVertices);
+  const smoothY = new Float32Array(numVertices);
+  const smoothZ = new Float32Array(numVertices);
+
+  const accumulate = (i0: number, i1: number, i2: number) => {
+    if (i0 < 0 || i1 < 0 || i2 < 0 || i0 >= numVertices || i1 >= numVertices || i2 >= numVertices) return;
+    const b0 = i0 * stride + posOffset;
+    const b1 = i1 * stride + posOffset;
+    const b2 = i2 * stride + posOffset;
+
+    const p0x = vertices[b0];
+    const p0y = vertices[b0 + 1];
+    const p0z = vertices[b0 + 2];
+    const ux = vertices[b1] - p0x;
+    const uy = vertices[b1 + 1] - p0y;
+    const uz = vertices[b1 + 2] - p0z;
+    const vx = vertices[b2] - p0x;
+    const vy = vertices[b2 + 1] - p0y;
+    const vz = vertices[b2 + 2] - p0z;
+
+    const nx = uy * vz - uz * vy;
+    const ny = uz * vx - ux * vz;
+    const nz = ux * vy - uy * vx;
+    const nLen2 = nx * nx + ny * ny + nz * nz;
+    if (nLen2 < 1e-12) return;
+
+    smoothX[i0] += nx;
+    smoothY[i0] += ny;
+    smoothZ[i0] += nz;
+    smoothX[i1] += nx;
+    smoothY[i1] += ny;
+    smoothZ[i1] += nz;
+    smoothX[i2] += nx;
+    smoothY[i2] += ny;
+    smoothZ[i2] += nz;
+  };
+
+  const numIndices = mesh.getNumIndices();
+  if (numIndices > 0) {
+    const indices = mesh.getIndicesBuffer();
+    for (const range of triangleRanges) {
+      const start = Math.max(0, range.offset);
+      const end = Math.min(numIndices, range.offset + range.size);
+      for (let i = start; i + 2 < end; i += 3) {
+        accumulate(indices[i] & 0xffff, indices[i + 1] & 0xffff, indices[i + 2] & 0xffff);
+      }
+    }
+  } else {
+    // Non-indexed fallback: assume triangle-list layout.
+    for (let i = 0; i + 2 < numVertices; i += 3) {
+      accumulate(i, i + 1, i + 2);
+    }
+  }
+
+  for (let i = 0; i < numVertices; i++) {
+    const nx = smoothX[i];
+    const ny = smoothY[i];
+    const nz = smoothZ[i];
+    const len = Math.sqrt(nx * nx + ny * ny + nz * nz);
+    if (len > 1e-6) {
+      smoothX[i] = nx / len;
+      smoothY[i] = ny / len;
+      smoothZ[i] = nz / len;
+    }
+  }
+
+  // Average duplicated vertices by position key to smooth across UV/material seams.
+  const groupedIndices = new Map<string, number[]>();
+  for (let i = 0; i < numVertices; i++) {
+    const base = i * stride + posOffset;
+    const key =
+      Math.round(vertices[base] / NORMAL_WELD_EPSILON) +
+      '|' +
+      Math.round(vertices[base + 1] / NORMAL_WELD_EPSILON) +
+      '|' +
+      Math.round(vertices[base + 2] / NORMAL_WELD_EPSILON);
+    const group = groupedIndices.get(key);
+    if (!!group) group.push(i);
+    else groupedIndices.set(key, [i]);
+  }
+
+  const cosThreshold = Math.cos((NORMAL_WELD_MAX_ANGLE_DEG * Math.PI) / 180);
+  for (const group of groupedIndices.values()) {
+    if (group.length < 2) continue;
+    let ax = 0;
+    let ay = 0;
+    let az = 0;
+    for (const idx of group) {
+      ax += smoothX[idx];
+      ay += smoothY[idx];
+      az += smoothZ[idx];
+    }
+    const alen = Math.sqrt(ax * ax + ay * ay + az * az);
+    if (alen < 1e-6) continue;
+    ax /= alen;
+    ay /= alen;
+    az /= alen;
+
+    for (const idx of group) {
+      const dot = smoothX[idx] * ax + smoothY[idx] * ay + smoothZ[idx] * az;
+      if (dot < cosThreshold) continue;
+      let mx = smoothX[idx] * 0.25 + ax * 0.75;
+      let my = smoothY[idx] * 0.25 + ay * 0.75;
+      let mz = smoothZ[idx] * 0.25 + az * 0.75;
+      const mlen = Math.sqrt(mx * mx + my * my + mz * mz);
+      if (mlen > 1e-6) {
+        mx /= mlen;
+        my /= mlen;
+        mz /= mlen;
+        smoothX[idx] = mx;
+        smoothY[idx] = my;
+        smoothZ[idx] = mz;
+      }
+    }
+  }
+
+  for (let i = 0; i < numVertices; i++) {
+    const base = i * stride + norOffset;
+    const ox = vertices[base];
+    const oy = vertices[base + 1];
+    const oz = vertices[base + 2];
+    let nx = ox * (1 - blend) + smoothX[i] * blend;
+    let ny = oy * (1 - blend) + smoothY[i] * blend;
+    let nz = oz * (1 - blend) + smoothZ[i] * blend;
+    const nlen = Math.sqrt(nx * nx + ny * ny + nz * nz);
+    if (nlen > 1e-6) {
+      nx /= nlen;
+      ny /= nlen;
+      nz /= nlen;
+      vertices[base] = nx;
+      vertices[base + 1] = ny;
+      vertices[base + 2] = nz;
+    }
+  }
+
+  mesh.updateVertices(0, vertices, 0, vertices.length);
+};
+
+const smoothModelNormals = (model: Model, blend: number) => {
+  const rangesByMesh = new Map<Mesh3D, TriangleRange[]>();
+  for (const part of model.meshParts) {
+    if (part.primitiveType !== GL20.GL_TRIANGLES) continue;
+    const ranges = rangesByMesh.get(part.mesh);
+    if (!!ranges) ranges.push({ offset: part.offset, size: part.size });
+    else rangesByMesh.set(part.mesh, [{ offset: part.offset, size: part.size }]);
+  }
+  for (const [mesh, ranges] of rangesByMesh.entries()) {
+    smoothMeshNormals(mesh, ranges, blend);
+  }
 };
 
 const TOON_PRESETS: ToonPreset[] = [
@@ -121,6 +298,9 @@ export const createTest3DAnimScreen = async (viewport: Viewport): Promise<Screen
   // Load all character models
   const g3dLoader = new G3dModelLoader();
   const models = await Promise.all(CHARACTER_MODEL_FILES.map(file => g3dLoader.load(gl, `3d-assets/${file}`)));
+  for (const model of models) {
+    smoothModelNormals(model, NORMAL_SMOOTH_BLEND);
+  }
   const instances: ModelInstance[] = [];
   const groundAnchors: Vector3[] = [];
   const animControllers: AnimationController[] = [];

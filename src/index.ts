@@ -54,7 +54,7 @@ const init = async () => {
   const viewport = createViewport(canvas, 500, 1000, {
     crop: false,
     contextOption: {
-      antialias: false,
+      antialias: true,
       alpha: false,
       premultipliedAlpha: false
     }
