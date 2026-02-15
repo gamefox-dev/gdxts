@@ -14,6 +14,7 @@ import {
   pointInRect
 } from './lib';
 import { createBunnyScreen } from './screens/createBunnyScreen';
+import { createTestBeamScreen } from './screens/createTestBeamScreen';
 import { createTestMTBScreen } from './screens/createMTBScreen';
 import { createMainScreen } from './screens/createMainScreen';
 import { create3DTestScreen } from './screens/createTest3DScreen';
@@ -26,9 +27,10 @@ import { createTestScreen } from './screens/createTestScreen';
 import { createTestSpriteScreen } from './screens/createTestSpriteScreen';
 import { createTest3DAnimScreen } from './screens/createTest3DAnimScreen';
 import { createTest3DPBRScreen } from './screens/createTest3DPBRScreen';
+import { createTestVfxManagerScreen } from './screens/createTestVfxManagerScreen';
 
 export const YDOWN = true;
-const FIRST_TEST_INDEX = 12;
+const FIRST_TEST_INDEX = 14;
 
 const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Basic rendering 01': createMainScreen,
@@ -42,8 +44,10 @@ const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Test Particle': createTestParticleScreen,
   'PMA Test': createTestPmaScreen,
   'Multi texture batch': createTestMTBScreen,
+  'Beam Renderer': createTestBeamScreen,
   '3D Anim Viewer': createTest3DAnimScreen,
-  '3D PBR Viewer': createTest3DPBRScreen
+  '3D PBR Viewer': createTest3DPBRScreen,
+  'VFX Manager Showcase': createTestVfxManagerScreen
 };
 
 const init = async () => {

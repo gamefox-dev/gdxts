@@ -27,5 +27,6 @@ export * from './TextureRegion';
 export * from './Utils';
 export * from './Vector2';
 export * from './Vector3';
+export * from './vfx';
 export * from './Viewport';
 export * from './ViewportInputHandler';

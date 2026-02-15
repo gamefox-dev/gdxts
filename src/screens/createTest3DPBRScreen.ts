@@ -345,9 +345,7 @@ export const createTest3DPBRScreen = async (viewport: Viewport): Promise<Screen>
   for (let i = 0; i < models.length; i++) {
     const instance = new ModelInstance(models[i]);
     const centerOffset = (i - (models.length - 1) / 2) * MODEL_SPACING_X;
-    instance.transform
-      .setTranslation(centerOffset, MODEL_Y_OFFSET, 0)
-      .scale(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
+    instance.transform.setTranslation(centerOffset, MODEL_Y_OFFSET, 0).scale(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
     instances.push(instance);
     groundAnchors.push(new Vector3(centerOffset, GROUND_Y, 0));
     animControllers.push(new AnimationController(instance));
@@ -443,7 +441,7 @@ export const createTest3DPBRScreen = async (viewport: Viewport): Promise<Screen>
 
   const projectToOverlay = (worldX: number, worldY: number, worldZ: number, out: Vector3): number => {
     shadowClip.set(worldX, worldY, worldZ).project(cam.combined);
-    const screenX = ((shadowClip.x + 1) * 0.5) * camera2d.screenWidth;
+    const screenX = (shadowClip.x + 1) * 0.5 * camera2d.screenWidth;
     const screenY = (1 - (shadowClip.y + 1) * 0.5) * camera2d.screenHeight;
     out.set(screenX, screenY, 0);
     camera2d.screenToWorld(out, camera2d.screenWidth, camera2d.screenHeight);
@@ -489,9 +487,23 @@ export const createTest3DPBRScreen = async (viewport: Viewport): Promise<Screen>
         const depthScale = Math.max(0.84, Math.min(1.28, 1.28 - clipZ * 0.33));
         const coreRadius = 14.5 * depthScale;
         const featherRadius = 25.5 * depthScale;
-        shapeRenderer.circle(true, shadowProjected.x - coreRadius * 0.86, shadowProjected.y, coreRadius, shadowCore, 16);
+        shapeRenderer.circle(
+          true,
+          shadowProjected.x - coreRadius * 0.86,
+          shadowProjected.y,
+          coreRadius,
+          shadowCore,
+          16
+        );
         shapeRenderer.circle(true, shadowProjected.x, shadowProjected.y, coreRadius * 1.04, shadowCore, 16);
-        shapeRenderer.circle(true, shadowProjected.x + coreRadius * 0.86, shadowProjected.y, coreRadius, shadowCore, 16);
+        shapeRenderer.circle(
+          true,
+          shadowProjected.x + coreRadius * 0.86,
+          shadowProjected.y,
+          coreRadius,
+          shadowCore,
+          16
+        );
         shapeRenderer.circle(true, shadowProjected.x, shadowProjected.y, featherRadius, shadowFeather, 22);
       }
       shapeRenderer.end();
