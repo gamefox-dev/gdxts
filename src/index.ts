@@ -25,6 +25,7 @@ import { createTestPmaScreen } from './screens/createTestPmaScreen';
 import { createTestScreen } from './screens/createTestScreen';
 import { createTestSpriteScreen } from './screens/createTestSpriteScreen';
 import { createTest3DAnimScreen } from './screens/createTest3DAnimScreen';
+import { createTest3DPBRScreen } from './screens/createTest3DPBRScreen';
 
 export const YDOWN = true;
 const FIRST_TEST_INDEX = 11;
@@ -41,7 +42,8 @@ const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Test Particle': createTestParticleScreen,
   'PMA Test': createTestPmaScreen,
   'Multi texture batch': createTestMTBScreen,
-  '3D Anim Viewer': createTest3DAnimScreen
+  '3D Anim Viewer': createTest3DAnimScreen,
+  '3D PBR Viewer': createTest3DPBRScreen
 };
 
 const init = async () => {

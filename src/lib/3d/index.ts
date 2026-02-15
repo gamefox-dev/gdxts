@@ -11,6 +11,7 @@ export * from './Mesh';
 export * from './model';
 export * from './ModelBatch';
 export * from './ModelInstance';
+export * from './PBRShaderProvider';
 export * from './PerspectiveCamera';
 export * from './Renderable';
 export * from './RenderContext';
