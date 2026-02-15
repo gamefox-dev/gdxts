@@ -35,6 +35,9 @@ uniform float u_oneShot;
 uniform float u_explosiveness;
 uniform float u_preprocess;
 uniform float u_randomness;
+uniform float u_motionTrail;
+uniform float u_motionPathLen;
+uniform float u_motionDuration;
 
 uniform float u_emissionShape;
 uniform float u_emissionRadius;
@@ -167,6 +170,7 @@ void main() {
   float dirLen = length(dir);
   float spread = max(0.0, u_spreadRad);
   float tGlobal = max(0.0, u_time + u_preprocess);
+  float motionTrail = step(0.5, u_motionTrail);
 
   for (int i = 0; i < MAX_PARTICLES; i++) {
     float fi = float(i);
@@ -226,7 +230,14 @@ void main() {
     vec2 tangentDir = vec2(-radialDir.y, radialDir.x);
     vec2 accel = 0.5 * (radialDir * radialAccel + tangentDir * tangentAccel) * age * age;
 
-    vec2 pos = emit + vel * age + 0.5 * u_gravity * age * age + accel;
+    vec2 emitBase = vec2(0.0);
+    if (motionTrail > 0.5) {
+      float hist = clamp(age / max(0.001, u_motionDuration), 0.0, 1.0);
+      // Place older particles progressively farther from the moving head.
+      emitBase.x += (u_motionPathLen * 0.5) - hist * u_motionPathLen;
+    }
+
+    vec2 pos = emitBase + emit + vel * age + 0.5 * u_gravity * age * age + accel;
 
     float sc = mix(u_scaleRange.x, u_scaleRange.y, hash1(seed + 12.0));
     float curve = max(0.0, curveSample(lt));
@@ -2067,9 +2078,15 @@ const EFFECT_DEFINITIONS = (): VfxDefinition[] => [
   {
     id: HAOWG_EFFECT_IDS.dash_trail,
     duration: 0.36,
-    loop: true,
     motion: { from: 'source', to: 'target', duration: 0.28, easing: 'easeOutCubic' },
-    layers: [particleLayer('dash_trail', { point: 'motion', duration: 0.28, alpha: 0.92 })]
+    layers: [
+      particleLayer('dash_trail', {
+        point: 'motion',
+        duration: 0.28,
+        alpha: 0.92,
+        extraData: { motionTrail: true, motionDuration: 0.28 }
+      })
+    ]
   },
   {
     id: HAOWG_EFFECT_IDS.dust_cloud,
@@ -2090,9 +2107,15 @@ const EFFECT_DEFINITIONS = (): VfxDefinition[] => [
   {
     id: HAOWG_EFFECT_IDS.fireball_trail,
     duration: 0.58,
-    loop: true,
     motion: { from: 'source', to: 'target', duration: 0.45, easing: 'easeOutCubic' },
-    layers: [particleLayer('fireball_trail', { point: 'motion', duration: 0.45, alpha: 0.96 })]
+    layers: [
+      particleLayer('fireball_trail', {
+        point: 'motion',
+        duration: 0.45,
+        alpha: 0.96,
+        extraData: { motionTrail: true, motionDuration: 0.45 }
+      })
+    ]
   },
   {
     id: HAOWG_EFFECT_IDS.fireflies,
@@ -2310,10 +2333,14 @@ export const installHaowgVfxLibrary = async (
       let width = ctx.width * ctx.scaleX;
       let height = ctx.height * ctx.scaleY;
       let rotationDeg = ctx.rotation;
+      let motionPathLen = 0;
+      const motionTrail = data.motionTrail === true;
+      const motionDuration = parseNumber(data.motionDuration, spec.lifetime);
 
       if (ctx.layer.point === 'motion') {
         const len = distance(ctx.source, ctx.motion);
         if (len > 1) {
+          motionPathLen = len;
           centerX = ctx.source.x + (ctx.motion.x - ctx.source.x) * 0.5;
           centerY = ctx.source.y + (ctx.motion.y - ctx.source.y) * 0.5;
           width = Math.max(width, len + width * 0.35);
@@ -2341,7 +2368,9 @@ export const installHaowgVfxLibrary = async (
       }
 
       const simCount = clamp(Math.round(amount), 1, 72);
-      const densityScale = amount > 72 ? amount / 72 : 1;
+      const baseDensityScale = amount > 72 ? amount / 72 : 1;
+      const motionDensityBoost = motionTrail ? clamp(1 + motionPathLen / 180, 1, 2.4) : 1;
+      const densityScale = baseDensityScale * motionDensityBoost;
 
       const spriteKind = spriteKindToFloat(spec.spriteKind);
       const region = spec.spriteRegion ? spriteRegions.get(spec.spriteRegion) : undefined;
@@ -2367,6 +2396,9 @@ export const installHaowgVfxLibrary = async (
           safeUniform1f(gl, shader, 'u_explosiveness', spec.explosiveness);
           safeUniform1f(gl, shader, 'u_preprocess', spec.preprocess);
           safeUniform1f(gl, shader, 'u_randomness', randomness);
+          safeUniform1f(gl, shader, 'u_motionTrail', motionTrail ? 1 : 0);
+          safeUniform1f(gl, shader, 'u_motionPathLen', motionPathLen);
+          safeUniform1f(gl, shader, 'u_motionDuration', motionDuration);
 
           safeUniform1f(gl, shader, 'u_emissionShape', spec.emissionShape);
           safeUniform1f(gl, shader, 'u_emissionRadius', spec.emissionRadius);
