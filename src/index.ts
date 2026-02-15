@@ -28,9 +28,10 @@ import { createTestSpriteScreen } from './screens/createTestSpriteScreen';
 import { createTest3DAnimScreen } from './screens/createTest3DAnimScreen';
 import { createTest3DPBRScreen } from './screens/createTest3DPBRScreen';
 import { createTestVfxManagerScreen } from './screens/createTestVfxManagerScreen';
+import { createTestHaowgVfxScreen } from './screens/createTestHaowgVfxScreen';
 
 export const YDOWN = true;
-const FIRST_TEST_INDEX = 14;
+const FIRST_TEST_INDEX = 15;
 
 const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Basic rendering 01': createMainScreen,
@@ -47,7 +48,8 @@ const SCREENS: { [key: string]: (v: Viewport) => Promise<Screen> } = {
   'Beam Renderer': createTestBeamScreen,
   '3D Anim Viewer': createTest3DAnimScreen,
   '3D PBR Viewer': createTest3DPBRScreen,
-  'VFX Manager Showcase': createTestVfxManagerScreen
+  'VFX Manager Showcase': createTestVfxManagerScreen,
+  'HAOWG VFX Showcase': createTestHaowgVfxScreen
 };
 
 const init = async () => {

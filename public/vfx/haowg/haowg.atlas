@@ -1,0 +1,51 @@
+sprites/fire_particle.png
+size: 32,32
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+fire_particle
+  rotate: false
+  xy: 0, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+
+sprites/firefly.png
+size: 32,32
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+firefly
+  rotate: false
+  xy: 0, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+
+sprites/leaf.png
+size: 32,32
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+leaf
+  rotate: false
+  xy: 0, 0
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+
+sprites/spark_particle2.png
+size: 16,16
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+spark_particle2
+  rotate: false
+  xy: 0, 0
+  size: 16, 16
+  orig: 16, 16
+  offset: 0, 0
+  index: -1
