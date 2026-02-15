@@ -64,6 +64,7 @@ const DEFAULT_TOON_STYLE: ToonStyleOptions = {
  * - No specular highlights (flat toon aesthetic)
  */
 export class ToonShader extends DefaultShader {
+  private readonly glContext: WebGLRenderingContext;
   private style: ToonStyleOptions = { ...DEFAULT_TOON_STYLE };
   private toonRampTexture: Texture = null;
   private outlineAttributes = new Attributes();
@@ -608,11 +609,11 @@ export class ToonShader extends DefaultShader {
     const width = 256;
     const pixels = new Uint8ClampedArray(width * 4);
 
-    // Slightly soft Clash-like ramp: deep shadow -> mid -> light.
+    // Brighter mid ramp for readability: shadow -> lifted mid -> highlight.
     const stops = [
-      { x: 0.0, v: 0.18 },
-      { x: 0.32, v: 0.28 },
-      { x: 0.58, v: 0.66 },
+      { x: 0.0, v: 0.24 },
+      { x: 0.28, v: 0.42 },
+      { x: 0.58, v: 0.76 },
       { x: 1.0, v: 1.0 }
     ];
 
@@ -646,7 +647,7 @@ export class ToonShader extends DefaultShader {
   public init() {
     super.init();
     if (!this.toonRampTexture) {
-      this.toonRampTexture = this.createToonRampTexture(this.gl);
+      this.toonRampTexture = this.createToonRampTexture(this.glContext);
     }
   }
 
@@ -708,8 +709,13 @@ export class ToonShader extends DefaultShader {
     this.program.setUniformf('u_outlinePass', 0.0);
   }
 
+  public setStyle(style: Partial<ToonStyleOptions>) {
+    this.style = { ...DEFAULT_TOON_STYLE, ...style };
+  }
+
   constructor(gl: WebGLRenderingContext, renderable: Renderable, config: Config = null, style?: Partial<ToonStyleOptions>) {
     super(gl, renderable, config, '', ToonShader.toonVertexShader, ToonShader.toonFragmentShader);
+    this.glContext = gl;
     if (!!style) {
       this.style = { ...DEFAULT_TOON_STYLE, ...style };
     }
