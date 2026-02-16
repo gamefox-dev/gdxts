@@ -250,6 +250,7 @@ export class VfxManager implements Disposable {
         const alpha = this.resolveAlpha(layer, normalizedTime);
 
         const context: VfxShaderDrawContext = {
+          instanceHandle: instance.handle,
           layer,
           localTime,
           normalizedTime,

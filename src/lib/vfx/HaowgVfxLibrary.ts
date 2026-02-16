@@ -35,6 +35,7 @@ uniform float u_oneShot;
 uniform float u_explosiveness;
 uniform float u_preprocess;
 uniform float u_randomness;
+uniform float u_instanceSeed;
 uniform float u_motionTrail;
 uniform float u_motionPathLen;
 uniform float u_motionDuration;
@@ -178,7 +179,7 @@ void main() {
       continue;
     }
 
-    float seed = fi * 17.371 + 4.19;
+    float seed = fi * 17.371 + 4.19 + u_instanceSeed * 11.137;
     vec2 hr = hash2(seed);
 
     float age = 0.0;
@@ -1102,14 +1103,14 @@ const EFFECT_SPECS: Record<HaowgEffectSourceName, HaowgParticleSpec> = {
     lifetime: 0.4,
     oneShot: true,
     explosiveness: 1,
-    randomness: 0.3,
+    randomness: 0.85,
     emissionShape: 1,
     emissionRadius: 5,
     direction: [0, 0],
     spreadDeg: 180,
     gravity: [0, 600],
     velocityMin: 80,
-    velocityMax: 150,
+    velocityMax: 185,
     dampingMin: 30,
     dampingMax: 60,
     scaleMin: 2,
@@ -2396,6 +2397,7 @@ export const installHaowgVfxLibrary = async (
           safeUniform1f(gl, shader, 'u_explosiveness', spec.explosiveness);
           safeUniform1f(gl, shader, 'u_preprocess', spec.preprocess);
           safeUniform1f(gl, shader, 'u_randomness', randomness);
+          safeUniform1f(gl, shader, 'u_instanceSeed', ctx.instanceHandle);
           safeUniform1f(gl, shader, 'u_motionTrail', motionTrail ? 1 : 0);
           safeUniform1f(gl, shader, 'u_motionPathLen', motionPathLen);
           safeUniform1f(gl, shader, 'u_motionDuration', motionDuration);

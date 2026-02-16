@@ -87,6 +87,7 @@ export interface VfxParticleTemplateConfig {
 }
 
 export interface VfxShaderDrawContext {
+  instanceHandle: number;
   layer: VfxShaderLayer;
   localTime: number;
   normalizedTime: number;
@@ -106,4 +107,3 @@ export interface VfxShaderRenderer {
   draw(ctx: VfxShaderDrawContext): void;
   dispose?(): void;
 }
-
