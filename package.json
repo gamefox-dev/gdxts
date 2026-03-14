@@ -1,29 +1,31 @@
 {
   "name": "gdxts",
-  "version": "0.2.29",
+  "version": "0.2.30",
   "type": "module",
   "dependencies": {
     "events": "^3.3.0"
   },
-  "main": "./dist/lib/index.js",
-  "module": "./dist/lib/index.js",
+  "main": "./dist/gdxts.cjs",
+  "module": "./dist/gdxts.js",
   "types": "./dist/lib/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/lib/index.d.ts",
-      "import": "./dist/lib/index.js"
+      "import": "./dist/gdxts.js",
+      "require": "./dist/gdxts.cjs"
     }
   },
   "files": [
-    "dist/lib/**/*"
+    "dist/**/*"
   ],
   "scripts": {
     "dev": "vite",
     "start": "vite",
-    "prepare": "bun run build:lib",
-    "build": "vite build",
-    "build:lib": "tsc",
-    "preview": "vite preview"
+    "prepare": "bun run build",
+    "build": "vite build && bun run build:types",
+    "build:demo": "vite build --mode demo",
+    "build:types": "tsc -p tsconfig.build.json",
+    "preview": "vite preview --mode demo"
   },
   "devDependencies": {
     "@types/offscreencanvas": "^2019.7.0",

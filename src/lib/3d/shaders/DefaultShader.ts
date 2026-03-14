@@ -145,6 +145,30 @@ export class Inputs {
   public static environmentCubemap: Uniform = new Uniform('u_environmentCubemap');
 }
 
+class ViewWorldTransSetter extends LocalSetter {
+  private temp = new Matrix4();
+
+  set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+    shader.setMatrix4(inputID, this.temp.set(shader.camera.view.values).multiply(renderable.worldTransform));
+  }
+}
+
+class ProjViewWorldTransSetter extends LocalSetter {
+  private temp = new Matrix4();
+
+  set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+    shader.setMatrix4(inputID, this.temp.set(shader.camera.combined.values).multiply(renderable.worldTransform));
+  }
+}
+
+class NormalMatrixSetter extends LocalSetter {
+  private tmpM = new Matrix3();
+
+  set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
+    shader.setMatrix3(inputID, this.tmpM.setByMatrix4(renderable.worldTransform).inv().transpose());
+  }
+}
+
 export class Setters {
   public static projTrans = new (class extends GlobalSetter {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
@@ -192,24 +216,9 @@ export class Setters {
       shader.setMatrix4(inputID, renderable.worldTransform);
     }
   })();
-  public static viewWorldTrans = new (class extends LocalSetter {
-    public temp = new Matrix4();
-    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
-      shader.setMatrix4(inputID, this.temp.set(shader.camera.view.values).multiply(renderable.worldTransform));
-    }
-  })();
-  public static projViewWorldTrans = new (class extends LocalSetter {
-    public temp = new Matrix4();
-    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
-      shader.setMatrix4(inputID, this.temp.set(shader.camera.combined.values).multiply(renderable.worldTransform));
-    }
-  })();
-  public static normalMatrix = new (class extends LocalSetter {
-    public tmpM = new Matrix3();
-    set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
-      shader.setMatrix3(inputID, this.tmpM.setByMatrix4(renderable.worldTransform).inv().transpose());
-    }
-  })();
+  public static viewWorldTrans = new ViewWorldTransSetter();
+  public static projViewWorldTrans = new ProjViewWorldTransSetter();
+  public static normalMatrix = new NormalMatrixSetter();
   public static shininess = new (class extends LocalSetter {
     set(shader: BaseShader, inputID: number, renderable: Renderable, combinedAttributes: Attributes) {
       shader.setF(inputID, (combinedAttributes.get(FloatAttribute.Shininess) as FloatAttribute).value);
